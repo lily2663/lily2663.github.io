@@ -63,10 +63,8 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" href="/2026/04/03/temple/%E6%A8%A1%E6%9D%BF/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        <li><a class="icon" href="/2026/04/03/%E5%BC%80%E5%A7%8B/"><i class="fa fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
-        
-        <li><a class="icon" href="/2026/04/03/%E5%BC%80%E5%A7%8B/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -401,25 +399,48 @@
     </nav>
   </div>
 </footer>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/meting@2.0.1/dist/Meting.min.js"></script>
 
-<div id="aplayer-container">
-  <meting-js
-      server="netease" 
-      type="playlist" 
-      id="2672160214"
-      fixed="true" 
-      mini="true"
-      autoplay="false"
-      theme="#2bbc8a"
-      loop="all"
-      order="random"
-      preload="auto"
-      list-folded="true">
-  </meting-js>
+<div id="visitor-tracker">
+    <span class="status-text">[ STATUS: TRACKING_ACTIVE ]</span>
+    <a target="_blank" rel="noopener" href="https://info.flagcounter.com/NvkP">
+        <img src="https://s01.flagcounter.com/count2/NvkP/bg_1D1F21/txt_2BBC8A/border_1D1F21/columns_1/maxflags_5/viewers_0/labels_0/pageviews_1/flags_0/percent_0/" alt="Flag Counter" border="0">
+    </a>
 </div>
+
+<style>
+  /* 移除虚线，并将统计器固定在右下角 */
+  #visitor-tracker {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    text-align: right;
+    z-index: 100;
+    opacity: 0.6; /* 默认半透明，不抢戏 */
+    transition: opacity 0.3s ease;
+  }
+
+  #visitor-tracker:hover {
+    opacity: 1; /* 鼠标悬停时变亮 */
+  }
+
+  .status-text {
+    color: #2bbc8a;
+    font-family: monospace;
+    font-size: 10px;
+    display: block;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+  }
+
+  /* 适配移动端：防止遮挡右下角，手机上直接隐藏或改为静态 */
+  @media screen and (max-width: 480px) {
+    #visitor-tracker {
+      position: static;
+      text-align: center;
+      margin-top: 20px;
+    }
+  }
+</style>
 </body>
 </html>
 <!-- styles -->
@@ -433,6 +454,32 @@
 <link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
 
 
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css">
+<script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
+<script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
+
+<style>
+  /* 强制把播放器提到最上层，防止被挡住 */
+  .aplayer.aplayer-fixed {
+    z-index: 9999 !important; 
+    background: #1d1f21 !important;
+  }
+  .aplayer .aplayer-pic {
+    background-color: #2bbc8a !important;
+  }
+</style>
+
+<meting-js
+    server="netease" 
+    type="playlist" 
+    id="2672160214"
+    fixed="true" 
+    mini="true"
+    autoplay="false"
+    theme="#2bbc8a"
+    list-folded="true">
+</meting-js>
 
 
 <script src="/lib/jquery/jquery.min.js"></script>
