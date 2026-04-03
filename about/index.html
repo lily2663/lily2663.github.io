@@ -112,7 +112,6 @@
 
 
 
-<!-- jquery -->
 
 <script src="/lib/jquery/jquery.min.js"></script>
 
@@ -122,8 +121,21 @@
 
 <script src="/js/main.js"></script>
 
-<!-- Google Analytics -->
 
-<!-- Disqus Comments -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      var inputPath = "/search.xml";
+      if ($("#local-search-input").length > 0) {
+          searchFunc(inputPath, 'local-search-input', 'local-search-result');
+      }
+    });
+  </script>
+
+
+
 
 

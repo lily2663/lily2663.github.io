@@ -14,7 +14,7 @@
 <meta property="og:description" content="无意义">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-03T08:40:09.000Z">
-<meta property="article:modified_time" content="2026-04-03T10:43:17.261Z">
+<meta property="article:modified_time" content="2026-04-03T12:41:05.715Z">
 <meta property="article:author" content="Li1yZer0">
 <meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
@@ -209,7 +209,6 @@
 
 
 
-<!-- jquery -->
 
 <script src="/lib/jquery/jquery.min.js"></script>
 
@@ -219,8 +218,21 @@
 
 <script src="/js/main.js"></script>
 
-<!-- Google Analytics -->
 
-<!-- Disqus Comments -->
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      var inputPath = "/search.xml";
+      if ($("#local-search-input").length > 0) {
+          searchFunc(inputPath, 'local-search-input', 'local-search-result');
+      }
+    });
+  </script>
+
+
+
 
 

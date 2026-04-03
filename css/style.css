@@ -1395,3 +1395,37 @@ pre code {
 .highlight .line {
   height: 22px;
 }
+/* 首页分栏布局 */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.column {
+  width: 48%;
+}
+@media (max-width: 480px) {
+  .column {
+    width: 100%; /* 手机端自动切回单栏 */
+  }
+}
+/* 搜索框样式补丁 */
+.search-form {
+  margin-top: 10px;
+  display: flex;
+}
+.search-input {
+  flex: 1;
+  background: #1d1f21;
+  border: 1px solid #2bbc8a;
+  color: #2bbc8a;
+  padding: 5px 10px;
+}
+.search-submit {
+  background: #2bbc8a;
+  border: none;
+  color: #1d1f21;
+  padding: 5px 15px;
+  margin-left: 5px;
+  cursor: pointer;
+}
