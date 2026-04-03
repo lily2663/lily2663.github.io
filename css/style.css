@@ -1429,3 +1429,26 @@ pre code {
   margin-left: 5px;
   cursor: pointer;
 }
+/* 自定义全局及代码块滚动条 */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2bbc8a; /* 你的黑客绿 */
+  border-radius: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #1d1f21; /* 背景深色 */
+}
+/* 针对代码高亮块的额外优化 */
+.highlight::-webkit-scrollbar {
+  height: 4px; /* 横向滚动条更细一点 */
+}
+.highlight {
+  border: 1px solid rgba(43,188,138,0.2); /* 给代码块加一层淡淡的绿边 */
+  transition: border 0.3s ease;
+}
+.highlight:hover {
+  border: 1px solid rgba(43,188,138,0.5); /* 鼠标悬停时边框变亮 */
+}
