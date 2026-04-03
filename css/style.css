@@ -1164,6 +1164,64 @@ article .content .caption {
     content: "|";
   }
 }
+.post .toc-sidebar {
+  position: fixed;
+  right: 2rem;
+  top: 8rem;
+  width: 260px;
+  display: none /* 默认隐藏，只有大屏幕才显示 */;
+}
+.post .toc-sidebar #toc {
+  padding: 1rem;
+  background: rgba(29,31,33,0.8) /* 保持背景色一致 */;
+  border-left: 2px solid #2bbc8a /* 使用主题的高亮绿色 */;
+}
+.post .toc-sidebar #toc .toc {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+/* 二级标题模拟 Typora 加粗层级 */
+/* 三级及以下标题缩进 */
+}
+.post .toc-sidebar #toc .toc .toc-item {
+  margin-bottom: 0.5rem;
+}
+.post .toc-sidebar #toc .toc .toc-link {
+  color: #ccc;
+  text-decoration: none;
+  background-image: none /* 去掉下划线 */;
+}
+.post .toc-sidebar #toc .toc .toc-link:hover {
+  color: #2bbc8a;
+  background-image: linear-gradient(transparent, transparent 4px, #2bbc8a 4px, #2bbc8a);
+}
+.post .toc-sidebar #toc .toc .toc-level-2 {
+  font-weight: bold;
+}
+.post .toc-sidebar #toc .toc .toc-level-2 .toc-text:before {
+  content: "§ " /* 增加一点黑客风修饰符 */;
+  color: #2bbc8a;
+}
+.post .toc-sidebar #toc .toc .toc-level-3,
+.post .toc-sidebar #toc .toc .toc-level-4 {
+  padding-left: 1rem;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+@media (min-width: 1400px) {
+  .post .toc-sidebar {
+    display: block;
+  }
+}
+#toc-header {
+  margin-bottom: 2rem;
+}
+#toc-header .toc {
+  display: inline-block;
+  padding: 1rem;
+  border: 1px dashed #2bbc8a;
+}
 #archive .post-list {
   padding: 0;
 }
