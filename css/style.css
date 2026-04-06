@@ -436,7 +436,7 @@
 }
 html {
   height: 100%;
-  border-top: 2px solid #c9cacc;
+  border-top: 2px solid #2bbc8a;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
@@ -1453,6 +1453,13 @@ pre code {
 .highlight .line {
   height: 22px;
 }
+/* 强制抹除页脚和列表上方的刺眼白线 */
+#footer {
+  border-top: none !important;
+}
+.post-list {
+  border-top: none !important;
+}
 /* 首页分栏布局 */
 .row {
   display: flex;
@@ -1464,10 +1471,10 @@ pre code {
 }
 @media (max-width: 480px) {
   .column {
-    width: 100%; /* 手机端自动切回单栏 */
+    width: 100%;
   }
 }
-/* 搜索框样式补丁 */
+/* 搜索框样式 */
 .search-form {
   margin-top: 10px;
   display: flex;
@@ -1487,26 +1494,23 @@ pre code {
   margin-left: 5px;
   cursor: pointer;
 }
-/* 自定义全局及代码块滚动条 */
+/* 全局滚动条美化 */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2bbc8a; /* 你的黑客绿 */
-  border-radius: 5px;
+  background: #2bbc8a;
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #1d1f21; /* 背景深色 */
+  background: #1d1f21;
 }
-/* 针对代码高亮块的额外优化 */
-.highlight::-webkit-scrollbar {
-  height: 4px; /* 横向滚动条更细一点 */
-}
+/* 代码块增强 */
 .highlight {
-  border: 1px solid rgba(43,188,138,0.2); /* 给代码块加一层淡淡的绿边 */
+  border: 1px solid rgba(43,188,138,0.2);
   transition: border 0.3s ease;
 }
 .highlight:hover {
-  border: 1px solid rgba(43,188,138,0.5); /* 鼠标悬停时边框变亮 */
+  border: 1px solid rgba(43,188,138,0.5);
 }
