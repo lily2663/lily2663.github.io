@@ -513,3 +513,30 @@
 
 
 
+
+<script>
+  $(document).ready(function() {
+    // 监听目录点击
+    $(document).on('click', '#toc a', function(e) {
+      // 找到链接对应的 ID (处理了中文编码问题)
+      var href = $(this).attr('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        var targetId = decodeURIComponent(href.substring(1));
+        var $target = $('#' + targetId.replace(/\./g, '\\.')); // 处理 ID 中可能存在的点号
+
+        if ($target.length) {
+          // 加上偏移量，防止标题被顶部的导航栏遮挡
+          var targetOffset = $target.offset().top - 30; 
+          
+          $('html, body').animate({
+            scrollTop: targetOffset
+          }, 500); // 500ms 平滑滚动
+
+          // 更新 URL 地址栏，方便别人点进来直接定位
+          history.pushState(null, null, '#' + targetId);
+        }
+      }
+    });
+  });
+</script>
