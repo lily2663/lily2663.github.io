@@ -1514,3 +1514,50 @@ pre code {
 .highlight:hover {
   border: 1px solid rgba(43,188,138,0.5);
 }
+/* =========================================
+   Cactus-Dark TOC 终极修复版
+========================================= */
+@media (min-width: 1200px) {
+  #toc {
+    position: fixed;
+    left: 2vw !important; /* 使用视口单位，更灵活 */
+    top: 180px !important;
+    width: 280px !important; /* 宽度再加一点 */
+    z-index: 999 !important; /* 确保在最上层，解决点击无效 */
+    text-align: left !important;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+/* 强行放大字体 */
+#toc .toc-link {
+  font-size: 16px !important; /* 16px 才是舒适的阅读字号 */
+  color: #a3a8ae !important;
+  line-height: 2 !important; /* 增加行高，防止点错 */
+  display: block !important; /* 让点击区域充满整行 */
+  padding: 2px 0;
+  text-decoration: none !important;
+}
+/* 针对“绕过”下面那一坨极其细小的文字 */
+#toc .toc-child .toc-link {
+  font-size: 14px !important; /* 子目录稍微小一点点，但也得有 14px */
+  opacity: 0.9;
+}
+/* 层级感增强 */
+#toc .toc-child {
+  margin-left: 15px !important;
+  border-left: 1px solid #333 !important;
+  padding-left: 10px !important;
+}
+/* 激活状态（跳转后或滚动到此时的颜色） */
+#toc .toc-link:hover,
+#toc .active > .toc-link {
+  color: #2bbc8a !important;
+  font-weight: bold !important;
+  background-color: rgba(43,188,138,0.1); /* 给个淡淡的背景，确认点到了 */
+}
+/* 隐藏原本可能干扰点击的小圆点或编号 */
+#toc ol,
+#toc li {
+  list-style: none !important;
+}
