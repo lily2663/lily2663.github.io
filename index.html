@@ -131,7 +131,7 @@ window.__TERM_POSTS = [
       date: "2026-04-03",
       category: "Security",
       tags: ["Web","File Upload","PCTF"],
-      excerpt: "1.ez_upload读取app.py\n123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949"
+      excerpt: "# 1.ez_upload\n\n读取app.py\n\n1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980818283848586878889909192"
     },
   
     {
@@ -236,24 +236,15 @@ $(function() {
   });
 
   $(document).ready(function() {
-    // 监听目录点击
-    $(document).on('click', '#toc a', function(e) {
-      // 找到链接对应的 ID (处理了中文编码问题)
+    // TOC 平滑滚动
+    $(document).on('click', '#article-toc a', function(e) {
       var href = $(this).attr('href');
       if (href && href.startsWith('#')) {
         e.preventDefault();
         var targetId = decodeURIComponent(href.substring(1));
-        var $target = $('#' + targetId.replace(/\./g, '\\.')); // 处理 ID 中可能存在的点号
-
+        var $target = $('#' + targetId.replace(/\./g, '\\.'));
         if ($target.length) {
-          // 加上偏移量，防止标题被顶部的导航栏遮挡
-          var targetOffset = $target.offset().top - 30; 
-          
-          $('html, body').animate({
-            scrollTop: targetOffset
-          }, 500); // 500ms 平滑滚动
-
-          // 更新 URL 地址栏，方便别人点进来直接定位
+          $('html, body').animate({ scrollTop: $target.offset().top - 30 }, 400);
           history.pushState(null, null, '#' + targetId);
         }
       }
