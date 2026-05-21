@@ -14,9 +14,10 @@
 <meta property="og:description" content="1.only realf12看前端源码：得到 随后尝试伪造cookie 1_clck&#x3D;xhammg%5E2%5Eg4q%5E0%5E2145; _ga_BFDVYZJ3DE&#x3D;GS2.1.s1774669028$o61$g1$t1774669037$j51$l0$h0; _ga&#x3D;GA1.1.2057677002.1769704968; _clsk&#x3D;ysyf6m%5E1774669037220%5E3">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-06T12:57:00.000Z">
-<meta property="article:modified_time" content="2026-04-06T12:57:48.821Z">
+<meta property="article:modified_time" content="2026-05-21T09:30:38.775Z">
 <meta property="article:author" content="Li1yZer0">
-<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="POLARIS">
+<meta property="article:tag" content="Web">
 <meta name="twitter:card" content="summary">
     
     
@@ -49,14 +50,16 @@
 
 <body>
     
-      <div id="header-post">
+      <div id="reading-progress-bar"></div>
+      
+        <div id="header-post">
   <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
   <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
   <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
   <span id="menu">
     <span id="nav">
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </span>
     <br/>
@@ -98,10 +101,9 @@
   </span>
 </div>
 
-    
-    <div class="content index width mx-auto px2 my4">
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+      
+      <div class="content index width mx-auto px2 my4">
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
@@ -121,6 +123,11 @@
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/POLARIS/" rel="tag">POLARIS</a>, <a class="tag-link-link" href="/tags/Web/" rel="tag">Web</a>
+    </div>
+
 
     </div>
   </header>
@@ -319,17 +326,15 @@
 
 
 
-    </div>
-    
-      <div id="footer-post-container">
+      </div>
+      
+        <div id="footer-post-container">
   <div id="footer-post">
 
     <div id="nav-footer" style="display: none">
       <ul>
          
           <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
          
           <li><a href="/archives/">写作</a></li>
         
@@ -368,15 +373,15 @@
   </div>
 </div>
 
-    
-    <footer id="footer">
+      
+      <footer id="footer">
   <div class="footer-left">
-    版权所有 &copy; 2026 Li1yZer0
+    <span class="prompt">root@lily:~$</span> echo "&copy; 2026 Li1yZer0"
   </div>
   <div class="footer-right">
     <nav>
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </nav>
   </div>
@@ -423,6 +428,7 @@
     }
   }
 </style>
+    
 </body>
 </html>
 <!-- styles -->
@@ -441,27 +447,23 @@
 <script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
 <script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
 
-<style>
-  /* 强制把播放器提到最上层，防止被挡住 */
-  .aplayer.aplayer-fixed {
-    z-index: 9999 !important; 
-    background: #1d1f21 !important;
-  }
-  .aplayer .aplayer-pic {
-    background-color: #2bbc8a !important;
-  }
-</style>
-
 <meting-js
-    server="netease" 
-    type="playlist" 
+    server="netease"
+    type="playlist"
     id="2672160214"
-    fixed="true" 
+    fixed="false"
     mini="true"
     autoplay="false"
     theme="#2bbc8a"
-    list-folded="true">
+    list-folded="true"
+    preload="auto">
 </meting-js>
+
+<style>
+  .aplayer {
+    display: none !important;
+  }
+</style>
 
 
 <script src="/lib/jquery/jquery.min.js"></script>
@@ -472,6 +474,19 @@
 
 <script src="/js/main.js"></script>
 
+
+<script src="/js/terminal.js"></script>
+
+
+<!-- Terminal init -->
+<script>
+$(function() {
+  if (window.Terminal && document.getElementById('term-container')) {
+    var posts = window.__TERM_POSTS || [];
+    window.Terminal.init(posts);
+  }
+});
+</script>
 
 
   
@@ -492,6 +507,15 @@
 
 
 <script>
+  /* 阅读进度条 */
+  $(window).on('scroll', function() {
+    var scrollTop = $(window).scrollTop();
+    var docHeight = $(document).height();
+    var winHeight = $(window).height();
+    var scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+    $('#reading-progress-bar').css('width', scrollPercent + '%');
+  });
+
   $(document).ready(function() {
     // 监听目录点击
     $(document).on('click', '#toc a', function(e) {

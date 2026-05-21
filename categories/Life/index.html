@@ -47,31 +47,10 @@
 
 <body>
     
-    <div class="content index width mx-auto px2 my4">
-        
-          <header id="header">
-  <a href="/">
-  
-    
-      <div id="logo" style="background-image: url(/images/logo2.png);"></div>
-    
-  
-    <div id="title">
-      <h1>lily&#39;epitaph</h1>
-    </div>
-  </a>
-  <div id="nav">
-    <ul>
-      <li class="icon">
-        <a href="#"><i class="fa fa-bars fa-2x"></i></a>
-      </li>
-      <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
-    </ul>
-  </div>
-</header>
-
-        
-        <div id="archive">
+      <div id="reading-progress-bar"></div>
+      
+      <div class="content index width mx-auto px2 my4">
+          <div id="archive">
   <ul class="post-list">
     
     
@@ -103,16 +82,16 @@
 
 </div>
 
-    </div>
-    
-    <footer id="footer">
+      </div>
+      
+      <footer id="footer">
   <div class="footer-left">
-    版权所有 &copy; 2026 Li1yZer0
+    <span class="prompt">root@lily:~$</span> echo "&copy; 2026 Li1yZer0"
   </div>
   <div class="footer-right">
     <nav>
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </nav>
   </div>
@@ -159,6 +138,7 @@
     }
   }
 </style>
+    
 </body>
 </html>
 <!-- styles -->
@@ -177,27 +157,23 @@
 <script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
 <script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
 
-<style>
-  /* 强制把播放器提到最上层，防止被挡住 */
-  .aplayer.aplayer-fixed {
-    z-index: 9999 !important; 
-    background: #1d1f21 !important;
-  }
-  .aplayer .aplayer-pic {
-    background-color: #2bbc8a !important;
-  }
-</style>
-
 <meting-js
-    server="netease" 
-    type="playlist" 
+    server="netease"
+    type="playlist"
     id="2672160214"
-    fixed="true" 
+    fixed="false"
     mini="true"
     autoplay="false"
     theme="#2bbc8a"
-    list-folded="true">
+    list-folded="true"
+    preload="auto">
 </meting-js>
+
+<style>
+  .aplayer {
+    display: none !important;
+  }
+</style>
 
 
 <script src="/lib/jquery/jquery.min.js"></script>
@@ -208,6 +184,19 @@
 
 <script src="/js/main.js"></script>
 
+
+<script src="/js/terminal.js"></script>
+
+
+<!-- Terminal init -->
+<script>
+$(function() {
+  if (window.Terminal && document.getElementById('term-container')) {
+    var posts = window.__TERM_POSTS || [];
+    window.Terminal.init(posts);
+  }
+});
+</script>
 
 
   
@@ -228,6 +217,15 @@
 
 
 <script>
+  /* 阅读进度条 */
+  $(window).on('scroll', function() {
+    var scrollTop = $(window).scrollTop();
+    var docHeight = $(document).height();
+    var winHeight = $(window).height();
+    var scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+    $('#reading-progress-bar').css('width', scrollPercent + '%');
+  });
+
   $(document).ready(function() {
     // 监听目录点击
     $(document).on('click', '#toc a', function(e) {

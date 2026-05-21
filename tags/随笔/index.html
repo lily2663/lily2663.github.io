@@ -6,15 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="我是lily2663 全球最菜web手">
+    <meta name="description" content="the house of the dead">
 <meta property="og:type" content="website">
-<meta property="og:title" content="about">
-<meta property="og:url" content="https://lily2663.github.io/about/index.html">
+<meta property="og:title" content="lily&#39;epitaph">
+<meta property="og:url" content="https://lily2663.github.io/tags/%E9%9A%8F%E7%AC%94/index.html">
 <meta property="og:site_name" content="lily&#39;epitaph">
-<meta property="og:description" content="我是lily2663 全球最菜web手">
+<meta property="og:description" content="the house of the dead">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2026-04-03T09:18:32.000Z">
-<meta property="article:modified_time" content="2026-04-03T09:21:26.504Z">
 <meta property="article:author" content="Li1yZer0">
 <meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
@@ -37,7 +35,7 @@
         
     
     <!-- title -->
-    <title>about</title>
+    <title>lily&#39;epitaph</title>
     <!-- styles -->
     
 <link rel="stylesheet" href="/css/style.css">
@@ -49,50 +47,51 @@
 
 <body>
     
-    <div class="content index width mx-auto px2 my4">
+      <div id="reading-progress-bar"></div>
+      
+      <div class="content index width mx-auto px2 my4">
+          <div id="archive">
+  <ul class="post-list">
+    
+    
+    
+      
+      
+      
+      
+        <h2>2026</h2>
+      
+      <li class="post-item">
         
-          <header id="header">
-  <a href="/">
-  
-    
-      <div id="logo" style="background-image: url(/images/logo2.png);"></div>
-    
-  
-    <div id="title">
-      <h1>lily&#39;epitaph</h1>
+    <div class="meta">
+        <time datetime="2026-04-03T08:40:09.000Z" itemprop="datePublished">2026-04-03</time>
     </div>
-  </a>
-  <div id="nav">
-    <ul>
-      <li class="icon">
-        <a href="#"><i class="fa fa-bars fa-2x"></i></a>
+
+
+        <span>
+    
+        <a class="" href="/2026/04/03/%E5%BC%80%E5%A7%8B/">开始</a>
+    
+
+
+<span>
       </li>
-      <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
-    </ul>
-  </div>
-</header>
-
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+    
+  </ul>
   
 
-  <div class="content" itemprop="articleBody">
-    <p>我是lily2663</p>
-<p>全球最菜web手</p>
+</div>
 
-  </div>
-</article>
-
-    </div>
-    
-    <footer id="footer">
+      </div>
+      
+      <footer id="footer">
   <div class="footer-left">
-    版权所有 &copy; 2026 Li1yZer0
+    <span class="prompt">root@lily:~$</span> echo "&copy; 2026 Li1yZer0"
   </div>
   <div class="footer-right">
     <nav>
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </nav>
   </div>
@@ -139,6 +138,7 @@
     }
   }
 </style>
+    
 </body>
 </html>
 <!-- styles -->
@@ -157,27 +157,23 @@
 <script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
 <script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
 
-<style>
-  /* 强制把播放器提到最上层，防止被挡住 */
-  .aplayer.aplayer-fixed {
-    z-index: 9999 !important; 
-    background: #1d1f21 !important;
-  }
-  .aplayer .aplayer-pic {
-    background-color: #2bbc8a !important;
-  }
-</style>
-
 <meting-js
-    server="netease" 
-    type="playlist" 
+    server="netease"
+    type="playlist"
     id="2672160214"
-    fixed="true" 
+    fixed="false"
     mini="true"
     autoplay="false"
     theme="#2bbc8a"
-    list-folded="true">
+    list-folded="true"
+    preload="auto">
 </meting-js>
+
+<style>
+  .aplayer {
+    display: none !important;
+  }
+</style>
 
 
 <script src="/lib/jquery/jquery.min.js"></script>
@@ -188,6 +184,19 @@
 
 <script src="/js/main.js"></script>
 
+
+<script src="/js/terminal.js"></script>
+
+
+<!-- Terminal init -->
+<script>
+$(function() {
+  if (window.Terminal && document.getElementById('term-container')) {
+    var posts = window.__TERM_POSTS || [];
+    window.Terminal.init(posts);
+  }
+});
+</script>
 
 
   
@@ -208,6 +217,15 @@
 
 
 <script>
+  /* 阅读进度条 */
+  $(window).on('scroll', function() {
+    var scrollTop = $(window).scrollTop();
+    var docHeight = $(document).height();
+    var winHeight = $(window).height();
+    var scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+    $('#reading-progress-bar').css('width', scrollPercent + '%');
+  });
+
   $(document).ready(function() {
     // 监听目录点击
     $(document).on('click', '#toc a', function(e) {

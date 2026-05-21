@@ -6,17 +6,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="HandheldFriendly" content="True">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="无意义">
+    <meta name="description" content="博客搭建完成，主题基于 Cactus-Dark-ZH，用于记录 CTF 解题过程与安全研究笔记。 主要方向：Web 安全，偶尔涉及 MISC 和 RE。 博客地址：lily2663.github.io">
 <meta property="og:type" content="article">
 <meta property="og:title" content="开始">
 <meta property="og:url" content="https://lily2663.github.io/2026/04/03/%E5%BC%80%E5%A7%8B/index.html">
 <meta property="og:site_name" content="lily&#39;epitaph">
-<meta property="og:description" content="无意义">
+<meta property="og:description" content="博客搭建完成，主题基于 Cactus-Dark-ZH，用于记录 CTF 解题过程与安全研究笔记。 主要方向：Web 安全，偶尔涉及 MISC 和 RE。 博客地址：lily2663.github.io">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2026-04-03T08:40:09.000Z">
-<meta property="article:modified_time" content="2026-04-03T12:41:05.715Z">
+<meta property="article:modified_time" content="2026-05-21T09:31:06.193Z">
 <meta property="article:author" content="Li1yZer0">
-<meta property="article:tag" content="CTF">
+<meta property="article:tag" content="随笔">
 <meta name="twitter:card" content="summary">
     
     
@@ -49,14 +49,16 @@
 
 <body>
     
-      <div id="header-post">
+      <div id="reading-progress-bar"></div>
+      
+        <div id="header-post">
   <a id="menu-icon" href="#"><i class="fa fa-bars fa-lg"></i></a>
   <a id="menu-icon-tablet" href="#"><i class="fa fa-bars fa-lg"></i></a>
   <a id="top-icon-tablet" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa fa-chevron-up fa-lg"></i></a>
   <span id="menu">
     <span id="nav">
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </span>
     <br/>
@@ -96,10 +98,9 @@
   </span>
 </div>
 
-    
-    <div class="content index width mx-auto px2 my4">
-        
-        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+      
+      <div class="content index width mx-auto px2 my4">
+          <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
   <header>
     
     <h1 class="posttitle" itemprop="name headline">
@@ -119,30 +120,35 @@
 
 
       
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link-link" href="/tags/%E9%9A%8F%E7%AC%94/" rel="tag">随笔</a>
+    </div>
+
 
     </div>
   </header>
   
 
   <div class="content" itemprop="articleBody">
-    <p>无意义</p>
+    <p>博客搭建完成，主题基于 Cactus-Dark-ZH，用于记录 CTF 解题过程与安全研究笔记。</p>
+<p>主要方向：Web 安全，偶尔涉及 MISC 和 RE。</p>
+<p>博客地址：<a href="https://lily2663.github.io/">lily2663.github.io</a></p>
 
   </div>
 </article>
 
 
 
-    </div>
-    
-      <div id="footer-post-container">
+      </div>
+      
+        <div id="footer-post-container">
   <div id="footer-post">
 
     <div id="nav-footer" style="display: none">
       <ul>
          
           <li><a href="/">首页</a></li>
-         
-          <li><a href="/about/">关于</a></li>
          
           <li><a href="/archives/">写作</a></li>
         
@@ -181,15 +187,15 @@
   </div>
 </div>
 
-    
-    <footer id="footer">
+      
+      <footer id="footer">
   <div class="footer-left">
-    版权所有 &copy; 2026 Li1yZer0
+    <span class="prompt">root@lily:~$</span> echo "&copy; 2026 Li1yZer0"
   </div>
   <div class="footer-right">
     <nav>
       <ul>
-        <li><a href="/">首页</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/">写作</a></li>
+        <li><a href="/">首页</a></li><li><a href="/archives/">写作</a></li>
       </ul>
     </nav>
   </div>
@@ -236,6 +242,7 @@
     }
   }
 </style>
+    
 </body>
 </html>
 <!-- styles -->
@@ -254,27 +261,23 @@
 <script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
 <script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
 
-<style>
-  /* 强制把播放器提到最上层，防止被挡住 */
-  .aplayer.aplayer-fixed {
-    z-index: 9999 !important; 
-    background: #1d1f21 !important;
-  }
-  .aplayer .aplayer-pic {
-    background-color: #2bbc8a !important;
-  }
-</style>
-
 <meting-js
-    server="netease" 
-    type="playlist" 
+    server="netease"
+    type="playlist"
     id="2672160214"
-    fixed="true" 
+    fixed="false"
     mini="true"
     autoplay="false"
     theme="#2bbc8a"
-    list-folded="true">
+    list-folded="true"
+    preload="auto">
 </meting-js>
+
+<style>
+  .aplayer {
+    display: none !important;
+  }
+</style>
 
 
 <script src="/lib/jquery/jquery.min.js"></script>
@@ -285,6 +288,19 @@
 
 <script src="/js/main.js"></script>
 
+
+<script src="/js/terminal.js"></script>
+
+
+<!-- Terminal init -->
+<script>
+$(function() {
+  if (window.Terminal && document.getElementById('term-container')) {
+    var posts = window.__TERM_POSTS || [];
+    window.Terminal.init(posts);
+  }
+});
+</script>
 
 
   
@@ -305,6 +321,15 @@
 
 
 <script>
+  /* 阅读进度条 */
+  $(window).on('scroll', function() {
+    var scrollTop = $(window).scrollTop();
+    var docHeight = $(document).height();
+    var winHeight = $(window).height();
+    var scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
+    $('#reading-progress-bar').css('width', scrollPercent + '%');
+  });
+
   $(document).ready(function() {
     // 监听目录点击
     $(document).on('click', '#toc a', function(e) {
