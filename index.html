@@ -1,253 +1,63 @@
 <!DOCTYPE html>
-<html lang=zh class="term-active">
+<html lang="zh-CN">
 <head>
-    <!-- so meta -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="HandheldFriendly" content="True">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <meta name="description" content="the house of the dead">
-<meta property="og:type" content="website">
-<meta property="og:title" content="lily&#39;epitaph">
-<meta property="og:url" content="https://lily2663.github.io/index.html">
-<meta property="og:site_name" content="lily&#39;epitaph">
-<meta property="og:description" content="the house of the dead">
-<meta property="og:locale" content="zh_CN">
-<meta property="article:author" content="Li1yZer0">
-<meta property="article:tag" content="CTF">
-<meta name="twitter:card" content="summary">
-    
-    
-        
-          
-              <link rel="shortcut icon" href="/images/favicon.ico">
-          
-        
-        
-          
-            <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
-          
-        
-        
-          
-            <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
-          
-        
-    
-    <!-- title -->
-    <title>lily&#39;epitaph</title>
-    <!-- styles -->
-    
-<link rel="stylesheet" href="/css/style.css">
-
-    <!-- rss -->
-    
-    
-<meta name="generator" content="Hexo 8.1.1"></head>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="lily'epitaph · 记录代码、安全与零碎思考" />
+  <title>lily'epitaph</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" />
+  <link rel="stylesheet" href="assets/vendor/highlight.github.min.css" id="hljs-theme" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
 <body>
-    
-      <div id="term-container">
-  <div id="term-output"></div>
-</div>
+  <div class="reading-progress" id="reading-progress"></div>
+  <header class="site-header">
+    <div class="masthead container">
+      <div class="masthead-top">
+        <span class="masthead-edition" id="masthead-date"></span>
+      </div>
+      <a class="masthead-title" id="masthead-title" href="#/">lily'epitaph</a>
+      <div class="masthead-sub" id="masthead-sub"></div>
+    </div>
+    <div class="topbar container">
+      <nav class="nav" id="nav">
+        <a href="#/" data-route="home">首页</a>
+        <a href="#/tags" data-route="tags">标签</a>
+        <a href="#/links" data-route="links">友链</a>
+        <a href="#/about" data-route="about">关于</a>
+      </nav>
+      <div class="header-actions">
+        <div class="search-box">
+          <div class="search-mode" role="tablist" aria-label="搜索模式">
+            <button type="button" class="search-mode-btn active" data-mode="article" role="tab" aria-selected="true">文章</button>
+            <button type="button" class="search-mode-btn" data-mode="text" role="tab" aria-selected="false">文字</button>
+          </div>
+          <input type="search" id="search" class="search" placeholder="搜索文章标题/标签…" aria-label="搜索文章" />
+        </div>
+        <button id="theme-toggle" class="icon-btn" title="切换主题" aria-label="切换主题">暗</button>
+      </div>
+    </div>
+  </header>
 
-<script>
-window.__TERM_POSTS = [
-  
-    {
-      title: "BASECTF2024（no）",
-      slug: "BASECTF2024",
-      path: "/2026/04/09/BASECTF2024/",
-      date: "2026-04-09",
-      category: "Security",
-      tags: ["Web","BASECTF"],
-      excerpt: ""
-    },
-  
-    {
-      title: "JinjaMark",
-      slug: "JinjaMark",
-      path: "/2026/04/09/JinjaMark/",
-      date: "2026-04-09",
-      category: "Security",
-      tags: ["SSTI","Jinja2","Prototype Pollution"],
-      excerpt: ""
-    },
-  
-    {
-      title: "back_to_the_future",
-      slug: "back_to_the_future",
-      path: "/2026/04/09/back_to_the_future/",
-      date: "2026-04-09",
-      category: "Security",
-      tags: ["Web","BASECTF","Git Leak"],
-      excerpt: ""
-    },
-  
-    {
-      title: "POLARISCTF-web简单难度",
-      slug: "POLARIS-web简单",
-      path: "/2026/04/06/POLARIS-web%E7%AE%80%E5%8D%95/",
-      date: "2026-04-06",
-      category: "Security",
-      tags: ["Web","POLARIS"],
-      excerpt: ""
-    },
-  
-    {
-      title: "几个pickle反序列化",
-      slug: "PICKLE",
-      path: "/2026/04/06/PICKLE/",
-      date: "2026-04-06",
-      category: "Security",
-      tags: ["Python","Pickle","反序列化"],
-      excerpt: ""
-    },
-  
-    {
-      title: "SSTI学习",
-      slug: "SSTI",
-      path: "/2026/04/03/SSTI/",
-      date: "2026-04-03",
-      category: "Security",
-      tags: ["SSTI","Jinja2","Flask"],
-      excerpt: ""
-    },
-  
-    {
-      title: "BroncoCTF2025web",
-      slug: "BroncoCTF",
-      path: "/2026/04/03/BroncoCTF/",
-      date: "2026-04-03",
-      category: "Security",
-      tags: ["Web","BroncoCTF"],
-      excerpt: ""
-    },
-  
-    {
-      title: "PCTF2025web",
-      slug: "PCTF2025web",
-      path: "/2026/04/03/PCTF2025web/",
-      date: "2026-04-03",
-      category: "Security",
-      tags: ["Web","File Upload","PCTF"],
-      excerpt: "# 1.ez_upload\n\n读取app.py\n\n1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757677787980818283848586878889909192"
-    },
-  
-    {
-      title: "开始",
-      slug: "开始",
-      path: "/2026/04/03/%E5%BC%80%E5%A7%8B/",
-      date: "2026-04-03",
-      category: "Life",
-      tags: ["随笔"],
-      excerpt: ""
-    }
-  
-];
-</script>
+  <main class="container" id="app">
+    <!-- 内容由 app.js 根据路由渲染 -->
+    <noscript>本站需要启用 JavaScript 才能正常显示内容。</noscript>
+  </main>
 
-    
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> lily'epitaph · 用 <code>marked.js</code> 驱动的技术博客</p>
+      <p class="muted">本博客为纯静态站点，所有文章以 Markdown 撰写。</p>
+    </div>
+  </footer>
+
+  <button class="to-top" id="to-top" title="返回顶部" aria-label="返回顶部">↑</button>
+
+  <script src="assets/vendor/marked.min.js"></script>
+  <script src="assets/vendor/highlight.min.js"></script>
+  <script src="assets/data/articles.js"></script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
-<!-- styles -->
-
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
-
-
-<link rel="stylesheet" href="/lib/meslo-LG/styles.css">
-
-
-<link rel="stylesheet" href="/lib/justified-gallery/justifiedGallery.min.css">
-
-
-
-<link rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css">
-<script src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js"></script>
-<script src="https://cdn.staticfile.org/meting/2.0.1/Meting.min.js"></script>
-
-<meting-js
-    server="netease"
-    type="playlist"
-    id="2672160214"
-    fixed="false"
-    mini="true"
-    autoplay="false"
-    theme="#2bbc8a"
-    list-folded="true"
-    preload="auto">
-</meting-js>
-
-<style>
-  .aplayer {
-    display: none !important;
-  }
-</style>
-
-
-<script src="/lib/jquery/jquery.min.js"></script>
-
-
-<script src="/lib/justified-gallery/jquery.justifiedGallery.min.js"></script>
-
-
-<script src="/js/main.js"></script>
-
-
-<script src="/js/terminal.js"></script>
-
-
-<!-- Terminal init -->
-<script>
-$(function() {
-  if (window.Terminal && document.getElementById('term-container')) {
-    var posts = window.__TERM_POSTS || [];
-    window.Terminal.init(posts);
-  }
-});
-</script>
-
-
-  
-<script src="/js/search.js"></script>
-
-  <script type="text/javascript">
-    $(function() {
-      var inputPath = "/search.xml";
-      if ($("#local-search-input").length > 0) {
-          searchFunc(inputPath, 'local-search-input', 'local-search-result');
-      }
-    });
-  </script>
-
-
-
-
-
-
-<script>
-  /* 阅读进度条 */
-  $(window).on('scroll', function() {
-    var scrollTop = $(window).scrollTop();
-    var docHeight = $(document).height();
-    var winHeight = $(window).height();
-    var scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
-    $('#reading-progress-bar').css('width', scrollPercent + '%');
-  });
-
-  $(document).ready(function() {
-    // TOC 平滑滚动
-    $(document).on('click', '#article-toc a', function(e) {
-      var href = $(this).attr('href');
-      if (href && href.startsWith('#')) {
-        e.preventDefault();
-        var targetId = decodeURIComponent(href.substring(1));
-        var $target = $('#' + targetId.replace(/\./g, '\\.'));
-        if ($target.length) {
-          $('html, body').animate({ scrollTop: $target.offset().top - 30 }, 400);
-          history.pushState(null, null, '#' + targetId);
-        }
-      }
-    });
-  });
-</script>
