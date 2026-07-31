@@ -1,31 +1,31 @@
 #!/usr/bin/env bash
-# 一键发布博客到 GitHub Pages (lily2663.github.io)
-# 用法：在 blog/ 目录里执行 ./publish.sh
+# One-click publish blog to GitHub Pages (lily2663.github.io)
+# Usage: run ./publish.sh inside the blog/ directory
 set -e
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$DIR"
 
-echo "[1/3] 重新生成文章索引 (articles.js) ..."
+echo "[1/3] Regenerating article index (articles.js) ..."
 node generate.js
 
-echo "[2/3] 提交更改 ..."
+echo "[2/3] Committing changes ..."
 git add -A
 if git diff --cached --quiet; then
-  echo "  （没有改动，跳过提交）"
+  echo "  (no changes, skipping commit)"
 else
-  git commit -m "publish: $(date +'%Y-%m-%d %H:%M')"
+  git -c user.email="lily@local" -c user.name="lily" commit -m "publish: $(date +'%Y-%m-%d %H:%M')"
 fi
 
-echo "[3/3] 推送到 GitHub ..."
+echo "[3/3] Pushing to GitHub ..."
 TOKEN=""
 if [ -f ".token" ]; then
   TOKEN="$(cat .token | tr -d '[:space:]')"
 fi
 if [ -z "$TOKEN" ]; then
-  echo "未找到 .token，请在 blog/.token 写入你的 GitHub PAT，或手动执行：git push origin main"
+  echo "[ERROR] blog/.token not found. Put your GitHub PAT in blog/.token, or run: git push origin main"
   exit 0
 fi
 
 git -c "url.https://oauth2:$TOKEN@github.com/.insteadOf=https://github.com/" push origin main
-echo "✅ 发布完成！等 1~2 分钟 GitHub Pages 构建后访问 https://lily2663.github.io/"
+echo "[OK] Published! Wait 1-2 min for GitHub Pages, then visit https://lily2663.github.io/"
