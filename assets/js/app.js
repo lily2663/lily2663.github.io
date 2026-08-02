@@ -62,11 +62,43 @@
     });
   }
 
+  var WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
   function fmtDate(d) {
     if (!d) return "";
     var m = String(d).match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
-    if (m) return m[1] + "年" + parseInt(m[2], 10) + "月" + parseInt(m[3], 10) + "日";
+    if (m) {
+      var dt = new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+      var w = WEEKDAYS[dt.getDay()];
+      return m[1] + "年" + parseInt(m[2], 10) + "月" + parseInt(m[3], 10) + "日 · 周" + w;
+    }
     return d;
+  }
+
+  function readingTime(md) {
+    var cn = (md.match(/[\u4e00-\u9fa5]/g) || []).length;
+    var en = (md.replace(/[\u4e00-\u9fa5]/g, " ").match(/[a-zA-Z0-9]+/g) || []).length;
+    var mins = Math.ceil(cn / 300 + en / 200);
+    return mins < 1 ? 1 : mins;
+  }
+
+  function wordCount(md) {
+    var cn = (md.match(/[\u4e00-\u9fa5]/g) || []).length;
+    var en = (md.replace(/[\u4e00-\u9fa5]/g, " ").match(/[a-zA-Z0-9]+/g) || []).length;
+    return cn + en;
+  }
+
+  function getAdjacentPosts(post) {
+    var list = BLOG.articles.slice().sort(function (a, b) {
+      return a.date < b.date ? 1 : -1;
+    });
+    var idx = -1;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === post.id) { idx = i; break; }
+    }
+    return {
+      newer: idx > 0 ? list[idx - 1] : null,
+      older: idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null
+    };
   }
 
   function tagChip(tag, extraClass) {
@@ -326,6 +358,23 @@
     setActiveToc(tocHeadings && tocHeadings.length ? tocHeadings[0].id : null);
   }
 
+  function buildPostNav(post) {
+    var adj = getAdjacentPosts(post);
+    var html = '<nav class="post-nav">';
+    if (adj.older) {
+      html += '<a class="nav-prev" href="#/post/' + encodeURIComponent(adj.older.id) + '">' +
+        '<span class="nav-label">\u2190 上一篇</span>' +
+        '<span class="nav-title">' + escapeHtml(adj.older.title) + '</span></a>';
+    } else { html += '<span></span>'; }
+    if (adj.newer) {
+      html += '<a class="nav-next" href="#/post/' + encodeURIComponent(adj.newer.id) + '">' +
+        '<span class="nav-label">下一篇 \u2192</span>' +
+        '<span class="nav-title">' + escapeHtml(adj.newer.title) + '</span></a>';
+    } else { html += '<span></span>'; }
+    html += '</nav>';
+    return html;
+  }
+
   function renderArticle(post, md) {
     // 先在临时容器里渲染并抽取标题锚点
     var articleHtml = renderMarkdown(md);
@@ -349,6 +398,7 @@
       (post.encrypted ? ' <span class="lock-chip">已解锁</span>' : "") + '</div>' +
       "<h1>" + escapeHtml(post.title) + "</h1>" +
       '<div class="pc-tags">' + post.tags.map(function (t) { return tagChip(t); }).join("") + "</div>" +
+      '<div class="post-meta"><span>' + readingTime(md) + ' 分钟阅读</span><span>约 ' + wordCount(md) + ' 字</span></div>' +
       "</header>" +
       '<div class="post-layout">' +
       '<div class="post-main">' +
@@ -356,6 +406,7 @@
       '<div class="tag-bar">' +
       post.tags.map(function (t) { return tagChip(t); }).join("") +
       "</div>" +
+      buildPostNav(post) +
       "</div>" +
       tocHtml +
       "</div>";
