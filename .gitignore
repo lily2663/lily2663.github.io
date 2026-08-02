@@ -2,3 +2,4 @@ posts/
 node_modules/
 *.tmp
 .token
+.backups/

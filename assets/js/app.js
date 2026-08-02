@@ -157,13 +157,27 @@
 
   /* ---------- 图片路径归一化 ----------
      博客用 hash 路由，文档基址恒为站点根。
-     Typora 生成的相对路径常带 `./assets/img`、`../assets/img` 或 `posts/assets/img`，
      统一折算成站点根绝对路径 `/assets/img/...`，保证本地与 GitHub Pages 都能正确加载。
-     外链(http/https)、data:/blob: 原样保留。 */
+     处理顺序：
+       1) 外链(http/https)、协议相对(//)、data:/blob: —— 原样保留；
+       2) 已是站点根绝对路径(/ 开头) —— 原样保留；
+       3) Windows 绝对路径(如 Typora 写出的
+          `C:\Users\...\typora-user-images\NAME.png` 或
+          `C:\Users\...\Desktop\Publish.assets\NAME.png`)
+          —— 截取文件名，映射到 `/assets/img/NAME.png`
+            （路径含 `Publish.assets` 则映射到 `/assets/img/Publish.assets/NAME.png`）；
+       4) 相对写法(./assets/img、../assets/img、posts/assets/img 等)
+          —— 抽取 `assets/img/...` 段，折算为 `/assets/img/...`。 */
   function normalizeImgSrc(src) {
     if (!src) return src;
     if (/^https?:\/\//i.test(src) || /^\/\//.test(src) ||
         /^data:/i.test(src) || /^blob:/i.test(src)) return src;
+    if (src.charAt(0) === "/") return src;
+    if (/^[A-Za-z]:[\\/]/i.test(src) || src.indexOf("\\") !== -1) {
+      var base = src.split(/[\\/]/).pop();
+      if (/Publish\.assets/i.test(src)) return "/assets/img/Publish.assets/" + base;
+      return "/assets/img/" + base;
+    }
     var m = src.match(/assets\/img\/.+$/i);
     return m ? "/" + m[0] : src;
   }
