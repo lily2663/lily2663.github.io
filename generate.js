@@ -84,7 +84,7 @@ const SITE_META = {
   avatar: "assets/img/avatar.jpg",
   avatarText: "L",
   about: [
-    "一个普通web"
+    "一个普通的web手"
   ],
   links: [
     { label: "GitHub", url: "https://github.com" },
