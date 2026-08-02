@@ -84,8 +84,7 @@ const SITE_META = {
   avatar: "assets/img/avatar.jpg",
   avatarText: "L",
   about: [
-    "你好，我是 lilyzero，一名普通的 web 手。",
-    "这里记录我写代码、踩坑，以及一些零碎的思考。谈不上多厉害，只是把自己弄懂的东西留个底。"
+    "一个普通web"
   ],
   links: [
     { label: "GitHub", url: "https://github.com" },
