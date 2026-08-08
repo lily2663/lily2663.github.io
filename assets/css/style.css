@@ -682,6 +682,13 @@ a.post-link:hover .item-title { color: var(--accent); }
 .fade { animation: fadeIn 0.35s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
+/* 双向过渡:旧内容出场(移植自 jayxv,幅度调小以贴报纸风) */
+#app.leaving { animation: fadeOut 0.2s ease forwards; }
+@keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-12px); } }
+
+/* 内容区最小高度,防短页面 footer 上跳 */
+#app { min-height: calc(100vh - 140px); }
+
 .code-copy {
   position: absolute; top: 8px; right: 8px;
   font-family: var(--sans);

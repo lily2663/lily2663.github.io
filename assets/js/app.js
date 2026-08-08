@@ -585,6 +585,7 @@
   }
 
   /* ---------- 路由 ---------- */
+  var initialRender = true;          // 首屏直接渲染,不做出场动画
   function router() {
     var hash = location.hash || "#/";
     var path = hash.replace(/^#\/?/, ""); // 去掉 "#/" 前缀
@@ -597,22 +598,39 @@
     tocLinks = null;
     tocActiveId = null;
 
-    if (route === "post" && parts[1]) {
-      isPostView = true;
-      viewPost(decodeURIComponent(parts[1]));
-    } else if (route === "tag" && parts[1]) {
-      viewTag(decodeURIComponent(parts[1]));
-    } else if (route === "tags") {
-      viewTags();
-    } else if (route === "about") {
-      viewAbout();
-    } else if (route === "links") {
-      viewLinks();
-    } else {
-      viewHome();
+    // 真正的渲染(与原来一致),抽成函数以便延迟调用
+    var render = function () {
+      if (route === "post" && parts[1]) {
+        isPostView = true;
+        viewPost(decodeURIComponent(parts[1]));
+      } else if (route === "tag" && parts[1]) {
+        viewTag(decodeURIComponent(parts[1]));
+      } else if (route === "tags") {
+        viewTags();
+      } else if (route === "about") {
+        viewAbout();
+      } else if (route === "links") {
+        viewLinks();
+      } else {
+        viewHome();
+      }
+      flashFade();
+      onScroll();
+    };
+
+    if (initialRender) {
+      initialRender = false;
+      render();
+      return;
     }
-    flashFade();
-    onScroll();
+
+    // 后续切换:先让旧内容滑出,动画结束后再换内容(丝滑感来源)
+    app.classList.add("leaving");      // 触发出场动画(fadeOut)
+    clearTimeout(router._t);
+    router._t = setTimeout(function () {
+      app.classList.remove("leaving");
+      render();                        // 换内容 + flashFade 入场
+    }, 200);
   }
 
   function setActiveNav(route) {
