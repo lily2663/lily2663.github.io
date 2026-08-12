@@ -635,43 +635,100 @@
     
     var username = "lily2663";
     
-    // 使用 GitHub 贡献图 API
+    // 使用 GitHub 贡献图 API（这个可以正常加载）
     var graphUrl = "https://ghchart.rshah.org/7FB5B0/" + username;
-    
-    // 使用 GitHub Readme Stats API
-    var statsUrl = "https://github-readme-stats.vercel.app/api?username=" + username + "&show_icons=true&theme=transparent&title_color=5A8F8A&icon_color=7FB5B0&text_color=5A6B7C&bg_color=FAFAF8";
-    var langUrl = "https://github-readme-stats.vercel.app/api/top-langs/?username=" + username + "&layout=compact&theme=transparent&title_color=5A8F8A&text_color=5A6B7C&bg_color=FAFAF8";
     
     var html = '<h3>代码统计</h3>';
     html += '<div class="stats-grid">';
     html += '<div class="stat-item"><div class="stat-value" id="stat-commits">-</div><div class="stat-label">今年提交</div></div>';
-    html += '<div class="stat-item"><div class="stat-value" id="stat-repos">-</div><div class="stat-label">仓库数</div></div>';
-    html += '<div class="stat-item"><div class="stat-value" id="stat-contributions">-</div><div class="stat-label">总贡献</div></div>';
+    html += '<div class="stat-item"><div class="stat-value" id="stat-repos">-</div><div class="stat-label">公开仓库</div></div>';
+    html += '<div class="stat-item"><div class="stat-value" id="stat-followers">-</div><div class="stat-label">关注者</div></div>';
+    html += '<div class="stat-item"><div class="stat-value" id="stat-gists">-</div><div class="stat-label">代码片段</div></div>';
     html += '</div>';
+    
+    // 贡献图
     html += '<div class="contribution-graph">';
     html += '<img src="' + graphUrl + '" alt="GitHub 贡献图" loading="lazy" />';
     html += '</div>';
-    html += '<div style="margin-top:16px;text-align:center">';
-    html += '<img src="' + statsUrl + '" alt="GitHub Stats" loading="lazy" style="max-width:100%;height:auto" />';
-    html += '</div>';
-    html += '<div style="margin-top:16px;text-align:center">';
-    html += '<img src="' + langUrl + '" alt="Top Languages" loading="lazy" style="max-width:100%;height:auto" />';
+    
+    // Top Languages - 用 HTML 渲染
+    html += '<div class="top-languages" id="top-languages">';
+    html += '<h4>常用语言</h4>';
+    html += '<div class="lang-bars" id="lang-bars"><div class="stats-loading">加载中...</div></div>';
     html += '</div>';
     
     container.innerHTML = html;
     
-    // 尝试获取实际数据
+    // 获取用户数据
     fetch("https://api.github.com/users/" + username)
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.public_repos) {
+        if (data.public_repos !== undefined) {
           document.getElementById("stat-repos").textContent = data.public_repos;
         }
-        if (data.followers) {
-          document.getElementById("stat-contributions").textContent = data.followers + " followers";
+        if (data.followers !== undefined) {
+          document.getElementById("stat-followers").textContent = data.followers;
+        }
+        if (data.public_gists !== undefined) {
+          document.getElementById("stat-gists").textContent = data.public_gists;
         }
       })
       .catch(function() {});
+    
+    // 获取仓库数据来计算语言分布
+    fetch("https://api.github.com/users/" + username + "/repos?per_page=100&sort=updated")
+      .then(function(r) { return r.json(); })
+      .then(function(repos) {
+        // 计算语言
+        var langCount = {};
+        var totalSize = 0;
+        repos.forEach(function(repo) {
+          if (repo.language && repo.size) {
+            langCount[repo.language] = (langCount[repo.language] || 0) + repo.size;
+            totalSize += repo.size;
+          }
+        });
+        
+        // 排序并取前5
+        var sorted = Object.keys(langCount).sort(function(a, b) {
+          return langCount[b] - langCount[a];
+        }).slice(0, 5);
+        
+        // 语言颜色
+        var langColors = {
+          'JavaScript': '#f1e05a',
+          'Python': '#3572A5',
+          'HTML': '#e34c26',
+          'CSS': '#563d7c',
+          'Java': '#b07219',
+          'PHP': '#4F5D95',
+          'C': '#555555',
+          'C++': '#f34b7d',
+          'C#': '#178600',
+          'Go': '#00ADD8',
+          'Ruby': '#701516',
+          'Rust': '#dea584',
+          'TypeScript': '#2b7489',
+          'Shell': '#89e051',
+          'Vue': '#41b883',
+          'Lua': '#000080'
+        };
+        
+        var barsHtml = '';
+        sorted.forEach(function(lang) {
+          var pct = totalSize > 0 ? ((langCount[lang] / totalSize) * 100).toFixed(1) : 0;
+          var color = langColors[lang] || '#7FB5B0';
+          barsHtml += '<div class="lang-bar">';
+          barsHtml += '<div class="lang-bar-info"><span class="lang-dot" style="background:' + color + '"></span><span class="lang-name">' + lang + '</span><span class="lang-pct">' + pct + '%</span></div>';
+          barsHtml += '<div class="lang-bar-track"><div class="lang-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
+          barsHtml += '</div>';
+        });
+        
+        document.getElementById("lang-bars").innerHTML = barsHtml;
+      })
+      .catch(function() {
+        document.getElementById("lang-bars").innerHTML = '<div class="stats-loading">暂无数据</div>';
+      });
   }
 
   /* ---------- 友链 ---------- */

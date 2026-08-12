@@ -1094,8 +1094,15 @@ a.post-link:hover .item-title {
   gap: 8px;
 }
 .github-stats h3::before {
-  content: "📊";
-  font-size: 20px;
+  content: "";
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='2' y='1' width='12' height='14' fill='%237FB5B0'/%3E%3Crect x='3' y='2' width='10' height='12' fill='%23A8D5D1'/%3E%3Crect x='4' y='3' width='2' height='2' fill='%237FB5B0'/%3E%3Crect x='7' y='3' width='5' height='1' fill='%237FB5B0'/%3E%3Crect x='4' y='6' width='8' height='1' fill='%237FB5B0'/%3E%3Crect x='4' y='8' width='8' height='1' fill='%237FB5B0'/%3E%3Crect x='4' y='10' width='6' height='1' fill='%237FB5B0'/%3E%3Crect x='4' y='12' width='4' height='1' fill='%237FB5B0'/%3E%3C/svg%3E");
+  background-size: contain;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 .stats-grid {
   display: grid;
@@ -1141,6 +1148,63 @@ a.post-link:hover .item-title {
   padding: 20px;
   color: var(--muted);
   font-size: 14px;
+}
+
+/* Top Languages */
+.top-languages {
+  margin-top: 20px;
+}
+.top-languages h4 {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.lang-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.lang-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lang-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.lang-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lang-name {
+  color: var(--ink);
+  font-weight: 500;
+}
+.lang-pct {
+  margin-left: auto;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.lang-bar-track {
+  height: 6px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.lang-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
 }
 .stats-loading::after {
   content: "";
