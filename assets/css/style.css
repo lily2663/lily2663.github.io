@@ -967,9 +967,10 @@ a.post-link:hover .item-title {
 .post-layout .article { max-width: none; margin: 0; }
 
 .toc-wrap {
-  position: sticky; 
-  top: 80px; 
-  align-self: start;
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
   background: var(--bg-card);
   border-radius: var(--radius);
   padding: 20px;
@@ -979,8 +980,21 @@ a.post-link:hover .item-title {
 
 .toc {
   padding-left: 4px;
-  max-height: calc(100vh - 160px);
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.toc::-webkit-scrollbar {
+  width: 4px;
+}
+.toc::-webkit-scrollbar-track {
+  background: transparent;
+}
+.toc::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
 }
 
 .toc-title {
