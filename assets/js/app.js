@@ -15,6 +15,72 @@
   var toTopBtn = document.getElementById("to-top");
   var isPostView = false;
 
+  /* ---------- Welcome Splash ---------- */
+  var welcomeSplash = document.getElementById("welcome-splash");
+  var welcomeEnter = document.getElementById("welcome-enter");
+  var splashDismissed = false;
+
+  function dismissSplash() {
+    if (splashDismissed) return;
+    splashDismissed = true;
+    document.body.classList.remove("splash-active");
+    if (welcomeSplash) {
+      welcomeSplash.classList.add("hidden");
+      setTimeout(function() {
+        welcomeSplash.style.display = "none";
+      }, 1200);
+    }
+  }
+
+  function createWatercolorDots() {
+    if (!welcomeSplash) return;
+    var dotCount = 30;
+    var colors = ["var(--mint)", "var(--pink)", "var(--mint-light)", "var(--pink-light)"];
+    for (var i = 0; i < dotCount; i++) {
+      var dot = document.createElement("div");
+      dot.className = "watercolor-dot";
+      dot.style.left = Math.random() * 100 + "%";
+      dot.style.top = Math.random() * 100 + "%";
+      dot.style.width = (Math.random() * 100 + 50) + "px";
+      dot.style.height = dot.style.width;
+      dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+      dot.style.animationDuration = (Math.random() * 6 + 6) + "s";
+      dot.style.animationDelay = (Math.random() * 4) + "s";
+      dot.style.filter = "blur(" + (Math.random() * 20 + 10) + "px)";
+      welcomeSplash.appendChild(dot);
+    }
+  }
+
+  function initWelcome() {
+    if (!welcomeSplash) return;
+    
+    // 添加 body 类名，使博客内容模糊
+    document.body.classList.add("splash-active");
+    
+    // 创建水彩晕染粒子
+    createWatercolorDots();
+    
+    // Click enter button
+    if (welcomeEnter) {
+      welcomeEnter.addEventListener("click", dismissSplash);
+    }
+    
+    // Click anywhere on splash
+    welcomeSplash.addEventListener("click", function(e) {
+      if (e.target === welcomeSplash || e.target === welcomeEnter) {
+        dismissSplash();
+      }
+    });
+    
+    // Press any key
+    document.addEventListener("keydown", function handler(e) {
+      if (!splashDismissed) {
+        dismissSplash();
+        document.removeEventListener("keydown", handler);
+      }
+    });
+  }
+
   // 文章目录（TOC）滚动跟随
   var tocLinks = null;
   var tocHeadings = null;
@@ -37,7 +103,7 @@
 
     // 目录跟随：高亮当前所在章节
     if (isPostView && tocHeadings && tocHeadings.length) {
-      var offset = 120;
+      var offset = 100;
       var current = tocHeadings[0].id;
       for (var i = 0; i < tocHeadings.length; i++) {
         var r = tocHeadings[i].getBoundingClientRect();
@@ -188,7 +254,9 @@
     var html = marked.parse(md);
     html = html.replace(/<img\b([^>]*?)src="([^"]*)"([^>]*)>/gi,
       function (full, pre, src, post) {
-        return "<img" + pre + 'src="' + normalizeImgSrc(src) + '"' + post + ">";
+        // 添加懒加载
+        var lazyAttr = 'loading="lazy"';
+        return "<img" + pre + 'src="' + normalizeImgSrc(src) + '" ' + lazyAttr + post + ">";
       }
     );
     return html;
@@ -229,20 +297,9 @@
   }
 
   /* ---------- 各视图 ---------- */
-  // 头版文章块：头条(isLead) 与 分栏条目
-  function postItemHtml(p, isLead) {
+  function postItemHtml(p) {
     var kicker = p.tags[0] || "笔记";
     var lock = p.encrypted ? '<span class="lock-chip">加密</span>' : "";
-    if (isLead) {
-      return '<article class="post-lead">' +
-        '<a class="post-link" href="#/post/' + p.id + '">' +
-        '<div class="kicker">' + escapeHtml(kicker) + '</div>' +
-        '<h2 class="lead-title">' + escapeHtml(p.title) + lock + '</h2>' +
-        '<div class="dateline">' + fmtDate(p.date) + '</div>' +
-        '<p class="standfirst">' + escapeHtml(p.excerpt || excerptFrom(p.content)) + '</p>' +
-        '<div class="pc-tags">' + p.tags.map(function (t) { return tagChip(t, "ghost"); }).join("") + '</div>' +
-        '</a></article>';
-    }
     return '<article class="post-item">' +
       '<a class="post-link" href="#/post/' + p.id + '">' +
       '<div class="kicker">' + escapeHtml(kicker) + '</div>' +
@@ -265,6 +322,7 @@
   }
 
   function viewHome() {
+    document.title = "lily'epitaph";
     var list = BLOG.articles.slice().sort(function (a, b) {
       return a.date < b.date ? 1 : -1;
     });
@@ -277,16 +335,13 @@
     if (!list.length) {
       html += '<div class="empty">没有找到匹配的文章。</div>';
     } else {
-      html += postItemHtml(list[0], true);
-      if (list.length > 1) {
-        html += '<h2 class="section-title">更多报道' +
-          '<span class="count">' + list.length + " 篇</span></h2>";
-        html += '<div class="front-grid">';
-        for (var i = 1; i < list.length; i++) {
-          html += postItemHtml(list[i], false);
-        }
-        html += "</div>";
+      html += '<h2 class="section-title">全部文章' +
+        '<span class="count">' + list.length + " 篇</span></h2>";
+      html += '<div class="front-grid">';
+      for (var i = 0; i < list.length; i++) {
+        html += postItemHtml(list[i]);
       }
+      html += "</div>";
     }
     app.innerHTML = html;
   }
@@ -390,6 +445,9 @@
   }
 
   function renderArticle(post, md) {
+    // 更新页面标题
+    document.title = post.title + " — lily'epitaph";
+    
     // 先在临时容器里渲染并抽取标题锚点
     var articleHtml = renderMarkdown(md);
     var tmp = document.createElement("div");
@@ -427,6 +485,7 @@
     app.innerHTML = html;
     highlightWithin(app);
     addCopyButtons(app);
+    setupLightbox();
     if (toc) setupToc(toc.items);
     window.scrollTo(0, 0);
   }
@@ -488,6 +547,7 @@
   }
 
   function viewTag(tag) {
+    document.title = tag + " · 标签 — lily'epitaph";
     var list = BLOG.articles.filter(function (p) {
       return p.tags.indexOf(tag) !== -1;
     }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
@@ -502,7 +562,7 @@
     } else {
       html += '<div class="front-grid">';
       list.forEach(function (p) {
-        html += postItemHtml(p, false);
+        html += postItemHtml(p);
       });
       html += "</div>";
     }
@@ -510,6 +570,7 @@
   }
 
   function viewTags() {
+    document.title = "标签 — lily'epitaph";
     var counts = {};
     BLOG.articles.forEach(function (p) {
       p.tags.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
@@ -535,6 +596,7 @@
   }
 
   function viewAbout() {
+    document.title = "关于 — lily'epitaph";
     var meta = BLOG.meta || {};
     var html = '<section class="about">';
     if (meta.avatar) {
@@ -554,11 +616,67 @@
       html += "</p>";
     }
     html += "</section>";
+    
+    // GitHub 统计组件
+    html += '<div class="github-stats" id="github-stats">';
+    html += '<h3>代码统计</h3>';
+    html += '<div class="stats-loading">加载中</div>';
+    html += '</div>';
+    
     app.innerHTML = html;
+    
+    // 加载 GitHub 数据
+    loadGithubStats();
+  }
+  
+  function loadGithubStats() {
+    var container = document.getElementById("github-stats");
+    if (!container) return;
+    
+    var username = "lily2663";
+    
+    // 使用 GitHub 贡献图 API
+    var graphUrl = "https://ghchart.rshah.org/7FB5B0/" + username;
+    
+    // 使用 GitHub Readme Stats API
+    var statsUrl = "https://github-readme-stats.vercel.app/api?username=" + username + "&show_icons=true&theme=transparent&title_color=5A8F8A&icon_color=7FB5B0&text_color=5A6B7C&bg_color=FAFAF8";
+    var langUrl = "https://github-readme-stats.vercel.app/api/top-langs/?username=" + username + "&layout=compact&theme=transparent&title_color=5A8F8A&text_color=5A6B7C&bg_color=FAFAF8";
+    
+    var html = '<h3>代码统计</h3>';
+    html += '<div class="stats-grid">';
+    html += '<div class="stat-item"><div class="stat-value" id="stat-commits">-</div><div class="stat-label">今年提交</div></div>';
+    html += '<div class="stat-item"><div class="stat-value" id="stat-repos">-</div><div class="stat-label">仓库数</div></div>';
+    html += '<div class="stat-item"><div class="stat-value" id="stat-contributions">-</div><div class="stat-label">总贡献</div></div>';
+    html += '</div>';
+    html += '<div class="contribution-graph">';
+    html += '<img src="' + graphUrl + '" alt="GitHub 贡献图" loading="lazy" />';
+    html += '</div>';
+    html += '<div style="margin-top:16px;text-align:center">';
+    html += '<img src="' + statsUrl + '" alt="GitHub Stats" loading="lazy" style="max-width:100%;height:auto" />';
+    html += '</div>';
+    html += '<div style="margin-top:16px;text-align:center">';
+    html += '<img src="' + langUrl + '" alt="Top Languages" loading="lazy" style="max-width:100%;height:auto" />';
+    html += '</div>';
+    
+    container.innerHTML = html;
+    
+    // 尝试获取实际数据
+    fetch("https://api.github.com/users/" + username)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.public_repos) {
+          document.getElementById("stat-repos").textContent = data.public_repos;
+        }
+        if (data.followers) {
+          document.getElementById("stat-contributions").textContent = data.followers + " followers";
+        }
+      })
+      .catch(function() {});
   }
 
   /* ---------- 友链 ---------- */
   function viewLinks() {
+    document.title = "友链 — lily'epitaph";
     var meta = BLOG.meta || {};
     var friends = meta.friends || [];
     var html = '<section class="links"><h1 class="section-title">友链</h1>';
@@ -727,6 +845,228 @@
     return Promise.all(jobs);
   }
 
+  /* ---------- Lightbox ---------- */
+  var lightbox = null;
+  function setupLightbox() {
+    // 创建 lightbox 容器
+    if (!lightbox) {
+      lightbox = document.createElement("div");
+      lightbox.className = "lightbox";
+      lightbox.innerHTML = '<button class="lightbox-close" aria-label="关闭">×</button><img src="" alt="">';
+      document.body.appendChild(lightbox);
+      
+      var closeBtn = lightbox.querySelector(".lightbox-close");
+      var img = lightbox.querySelector("img");
+      
+      closeBtn.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", function(e) {
+        if (e.target === lightbox) closeLightbox();
+      });
+    }
+    
+    // 给文章内所有图片添加点击事件
+    var article = app.querySelector(".article");
+    if (article) {
+      article.querySelectorAll("img").forEach(function(imgEl) {
+        imgEl.addEventListener("click", function() {
+          var src = imgEl.getAttribute("src");
+          if (src) {
+            lightbox.querySelector("img").src = src;
+            lightbox.classList.add("active");
+          }
+        });
+      });
+    }
+  }
+  
+  function closeLightbox() {
+    if (lightbox) {
+      lightbox.classList.remove("active");
+    }
+  }
+
+  /* ---------- 键盘快捷键 ---------- */
+  function initKeyboard() {
+    document.addEventListener("keydown", function(e) {
+      // 忽略输入框中的按键
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+      
+      var hash = location.hash || "#/";
+      var path = hash.replace(/^#\/?/, "");
+      var parts = path.split("/").filter(Boolean);
+      var route = parts[0] || "home";
+      
+      switch(e.key.toLowerCase()) {
+        case "escape":
+          if (lightbox && lightbox.classList.contains("active")) {
+            closeLightbox();
+          } else if (route !== "home") {
+            location.hash = "#/";
+          }
+          break;
+        case "j":
+          if (route === "post" && parts[1]) {
+            var post = BLOG.articles.filter(function(p) { return p.id === decodeURIComponent(parts[1]); })[0];
+            if (post) {
+              var adj = getAdjacentPosts(post);
+              if (adj.older) location.hash = "#/post/" + encodeURIComponent(adj.older.id);
+            }
+          }
+          break;
+        case "k":
+          if (route === "post" && parts[1]) {
+            var post = BLOG.articles.filter(function(p) { return p.id === decodeURIComponent(parts[1]); })[0];
+            if (post) {
+              var adj = getAdjacentPosts(post);
+              if (adj.newer) location.hash = "#/post/" + encodeURIComponent(adj.newer.id);
+            }
+          }
+          break;
+        case "/":
+          e.preventDefault();
+          if (searchInput) searchInput.focus();
+          break;
+        case "d":
+          if (themeToggle) themeToggle.click();
+          break;
+        case "t":
+          if (route === "post") {
+            var tocWrap = document.getElementById("toc-wrap");
+            var tocToggle = document.getElementById("toc-toggle");
+            if (tocWrap && tocToggle) {
+              tocToggle.click();
+            }
+          }
+          break;
+      }
+    });
+  }
+
+  /* ========== 团子宠物 - 单图方案 ==========
+     使用完整抠图，拖拽 + 点击"糯~"互动
+  ================================================ */
+  var tuanzi = {
+    el: null,       // .tuanzi 容器
+    img: null,      // .tuanzi-img 图片
+    bubble: null,   // .tz-bubble 气泡
+    dragging: false,
+    bubbleTimer: null,
+    dragOffX: 0,
+    dragOffY: 0,
+    dragStartX: 0,
+    dragStartY: 0,
+    moved: false,
+
+    /* --- 创建 DOM --- */
+    create: function() {
+      this.el = document.createElement("div");
+      this.el.className = "tuanzi";
+      this.el.innerHTML =
+        '<div class="tz-bubble"></div>' +
+        '<img class="tuanzi-img" src="assets/img/pet/tuanzi.png" alt="团子">';
+      document.body.appendChild(this.el);
+
+      this.img    = this.el.querySelector(".tuanzi-img");
+      this.bubble = this.el.querySelector(".tz-bubble");
+
+      this.bindDrag();
+    },
+
+    /* --- 拖拽 --- */
+    bindDrag: function() {
+      var self = this;
+
+      function posOf(e) {
+        return e.touches && e.touches.length
+          ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+          : { x: e.clientX, y: e.clientY };
+      }
+
+      function onStart(e) {
+        e.preventDefault();
+        var p = posOf(e);
+        var r = self.el.getBoundingClientRect();
+        self.dragOffX  = p.x - r.left;
+        self.dragOffY  = p.y - r.top;
+        self.dragStartX = p.x;
+        self.dragStartY = p.y;
+        self.moved = false;
+        self.dragging = true;
+        self.el.classList.add("dragging");
+      }
+
+      function onMove(e) {
+        if (!self.dragging) return;
+        e.preventDefault();
+        var p = posOf(e);
+        if (Math.abs(p.x - self.dragStartX) > 3 || Math.abs(p.y - self.dragStartY) > 3) {
+          self.moved = true;
+        }
+        var w = self.img.offsetWidth;
+        var h = self.img.offsetHeight;
+        var x = Math.max(0, Math.min(window.innerWidth  - w, p.x - self.dragOffX));
+        var y = Math.max(0, Math.min(window.innerHeight - h, p.y - self.dragOffY));
+        self.el.style.left  = x + "px";
+        self.el.style.top   = y + "px";
+        self.el.style.right  = "auto";
+        self.el.style.bottom = "auto";
+      }
+
+      function onEnd() {
+        if (!self.dragging) return;
+        self.dragging = false;
+        self.el.classList.remove("dragging");
+        if (!self.moved) self.poke();
+      }
+
+      self.el.addEventListener("mousedown",  onStart);
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup",   onEnd);
+      self.el.addEventListener("touchstart",  onStart, { passive: false });
+      document.addEventListener("touchmove",  onMove,  { passive: false });
+      document.addEventListener("touchend",   onEnd);
+    },
+
+    /* --- 戳戳互动 --- */
+    poke: function() {
+      // 弹跳动画
+      this.img.classList.remove("poke");
+      void this.img.offsetWidth;
+      this.img.classList.add("poke");
+      var self = this;
+      setTimeout(function() { self.img.classList.remove("poke"); }, 450);
+
+      // 气泡 "糯~"
+      this.showBubble("糯~");
+
+      // 飘字粒子
+      this.spawnNuo();
+    },
+
+    spawnNuo: function() {
+      for (var i = 0; i < 3; i++) {
+        var span = document.createElement("span");
+        span.className = "tz-nuo";
+        span.textContent = "糯~";
+        span.style.left = (30 + Math.random() * 80) + "px";
+        span.style.top  = (20 + Math.random() * 40) + "px";
+        span.style.animationDelay = (i * 0.12) + "s";
+        this.el.appendChild(span);
+        (function(s) { setTimeout(function() { s.remove(); }, 1200); })(span);
+      }
+    },
+
+    showBubble: function(txt) {
+      var self = this;
+      clearTimeout(this.bubbleTimer);
+      this.bubble.textContent = txt;
+      this.bubble.classList.add("show");
+      this.bubbleTimer = setTimeout(function() {
+        self.bubble.classList.remove("show");
+      }, 1800);
+    }
+  };
+
   /* ---------- 启动 ---------- */
   function init() {
     var y = document.getElementById("year");
@@ -742,8 +1082,11 @@
       var now = new Date();
       mdEl.textContent = now.getFullYear() + "年" + (now.getMonth() + 1) + "月" + now.getDate() + "日";
     }
+    initWelcome();
     initTheme();
     initSearch();
+    initKeyboard();
+    tuanzi.create();
     window.addEventListener("hashchange", router);
     window.addEventListener("scroll", onScroll, { passive: true });
     if (toTopBtn) {
