@@ -87,8 +87,8 @@ const SITE_META = {
     "一个普通的web手"
   ],
   links: [
-    { label: "GitHub", url: "https://github.com" },
-    { label: "邮箱", url: "mailto:hi@example.com" }
+    { label: "GitHub", url: "https://github.com/lily2663/" },
+    { label: "邮箱", url: "mailto:2139186436@qq.com" }
   ],
   friends: [
     {

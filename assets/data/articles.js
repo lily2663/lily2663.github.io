@@ -11,11 +11,11 @@ window.BLOG = {
     "links": [
       {
         "label": "GitHub",
-        "url": "https://github.com"
+        "url": "https://github.com/lily2663/"
       },
       {
         "label": "邮箱",
-        "url": "mailto:hi@example.com"
+        "url": "mailto:2139186436@qq.com"
       }
     ],
     "friends": [
