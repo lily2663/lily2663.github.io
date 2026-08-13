@@ -635,24 +635,21 @@
     if (!container) return;
     
     var username = "lily2663";
-    
-    // 使用 GitHub 贡献图 API（这个可以正常加载）
     var graphUrl = "https://ghchart.rshah.org/7FB5B0/" + username;
+    var articleCount = (BLOG.articles || []).length;
     
     var html = '<h3>代码统计</h3>';
     html += '<div class="stats-grid">';
     html += '<div class="stat-item"><div class="stat-value" id="stat-commits">-</div><div class="stat-label">今年提交</div></div>';
+    html += '<div class="stat-item"><div class="stat-value" id="stat-articles">' + articleCount + '</div><div class="stat-label">篇文章</div></div>';
     html += '<div class="stat-item"><div class="stat-value" id="stat-repos">-</div><div class="stat-label">公开仓库</div></div>';
     html += '<div class="stat-item"><div class="stat-value" id="stat-followers">-</div><div class="stat-label">关注者</div></div>';
-    html += '<div class="stat-item"><div class="stat-value" id="stat-gists">-</div><div class="stat-label">代码片段</div></div>';
     html += '</div>';
     
-    // 贡献图
     html += '<div class="contribution-graph">';
     html += '<img src="' + graphUrl + '" alt="GitHub 贡献图" loading="lazy" />';
     html += '</div>';
     
-    // Top Languages - 用 HTML 渲染
     html += '<div class="top-languages" id="top-languages">';
     html += '<h4>常用语言</h4>';
     html += '<div class="lang-bars" id="lang-bars"><div class="stats-loading">加载中...</div></div>';
@@ -670,9 +667,23 @@
         if (data.followers !== undefined) {
           document.getElementById("stat-followers").textContent = data.followers;
         }
-        if (data.public_gists !== undefined) {
-          document.getElementById("stat-gists").textContent = data.public_gists;
-        }
+      })
+      .catch(function() {});
+    
+    // 获取今年提交数（从 Events API）
+    fetch("https://api.github.com/users/" + username + "/events?per_page=100")
+      .then(function(r) { return r.json(); })
+      .then(function(events) {
+        if (!Array.isArray(events)) return;
+        var yearStart = new Date(new Date().getFullYear(), 0, 1).toISOString();
+        var totalCommits = 0;
+        events.forEach(function(e) {
+          if (e.type === "PushEvent" && e.created_at >= yearStart) {
+            totalCommits += (e.payload && e.payload.commits) ? e.payload.commits.length : 0;
+          }
+        });
+        var el = document.getElementById("stat-commits");
+        if (el) el.textContent = totalCommits > 0 ? totalCommits + "+" : "-";
       })
       .catch(function() {});
     
@@ -680,7 +691,6 @@
     fetch("https://api.github.com/users/" + username + "/repos?per_page=100&sort=updated")
       .then(function(r) { return r.json(); })
       .then(function(repos) {
-        // 计算语言
         var langCount = {};
         var totalSize = 0;
         repos.forEach(function(repo) {
@@ -690,28 +700,16 @@
           }
         });
         
-        // 排序并取前5
         var sorted = Object.keys(langCount).sort(function(a, b) {
           return langCount[b] - langCount[a];
         }).slice(0, 5);
         
-        // 语言颜色
         var langColors = {
-          'JavaScript': '#f1e05a',
-          'Python': '#3572A5',
-          'HTML': '#e34c26',
-          'CSS': '#563d7c',
-          'Java': '#b07219',
-          'PHP': '#4F5D95',
-          'C': '#555555',
-          'C++': '#f34b7d',
-          'C#': '#178600',
-          'Go': '#00ADD8',
-          'Ruby': '#701516',
-          'Rust': '#dea584',
-          'TypeScript': '#2b7489',
-          'Shell': '#89e051',
-          'Vue': '#41b883',
+          'JavaScript': '#f1e05a', 'Python': '#3572A5', 'HTML': '#e34c26',
+          'CSS': '#563d7c', 'Java': '#b07219', 'PHP': '#4F5D95',
+          'C': '#555555', 'C++': '#f34b7d', 'C#': '#178600',
+          'Go': '#00ADD8', 'Ruby': '#701516', 'Rust': '#dea584',
+          'TypeScript': '#2b7489', 'Shell': '#89e051', 'Vue': '#41b883',
           'Lua': '#000080'
         };
         
@@ -725,7 +723,7 @@
           barsHtml += '</div>';
         });
         
-        document.getElementById("lang-bars").innerHTML = barsHtml;
+        document.getElementById("lang-bars").innerHTML = barsHtml || '<div class="stats-loading">暂无数据</div>';
       })
       .catch(function() {
         document.getElementById("lang-bars").innerHTML = '<div class="stats-loading">暂无数据</div>';
