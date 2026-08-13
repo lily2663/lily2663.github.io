@@ -488,6 +488,7 @@
     setupLightbox();
     if (toc) setupToc(toc.items);
     window.scrollTo(0, 0);
+    if (window.__commentMount) window.__commentMount();
   }
 
   function renderLock(post) {
