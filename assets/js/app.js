@@ -90,6 +90,7 @@
   var searchMode = "article"; // "article" 搜标题/标签/摘要  |  "text" 搜全文内容
 
   /* ---------- 滚动相关：进度条 + 返回顶部 ---------- */
+  var scrollTicking = false;
   function onScroll() {
     var doc = document.documentElement;
     var top = doc.scrollTop || document.body.scrollTop;
@@ -140,22 +141,16 @@
     return d;
   }
 
-  function readingTime(md) {
+  function textStats(md) {
     var cn = (md.match(/[\u4e00-\u9fa5]/g) || []).length;
     var en = (md.replace(/[\u4e00-\u9fa5]/g, " ").match(/[a-zA-Z0-9]+/g) || []).length;
     var mins = Math.ceil(cn / 300 + en / 200);
-    return mins < 1 ? 1 : mins;
-  }
-
-  function wordCount(md) {
-    var cn = (md.match(/[\u4e00-\u9fa5]/g) || []).length;
-    var en = (md.replace(/[\u4e00-\u9fa5]/g, " ").match(/[a-zA-Z0-9]+/g) || []).length;
-    return cn + en;
+    return { count: cn + en, minutes: mins < 1 ? 1 : mins };
   }
 
   function getAdjacentPosts(post) {
     var list = BLOG.articles.slice().sort(function (a, b) {
-      return a.date < b.date ? 1 : -1;
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
     });
     var idx = -1;
     for (var i = 0; i < list.length; i++) {
@@ -287,7 +282,10 @@
           setTimeout(function () { btn.textContent = "复制"; btn.classList.remove("done"); }, 1500);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(done).catch(function () { btn.textContent = "失败"; });
+          navigator.clipboard.writeText(text).then(done).catch(function () {
+            btn.textContent = "失败";
+            setTimeout(function () { btn.textContent = "复制"; }, 1500);
+          });
         } else {
           btn.textContent = "不支持";
         }
@@ -298,7 +296,8 @@
 
   /* ---------- 各视图 ---------- */
   function postItemHtml(p) {
-    var kicker = p.tags[0] || "笔记";
+    var tags = p.tags || [];
+    var kicker = tags[0] || "笔记";
     var lock = p.encrypted ? '<span class="lock-chip">加密</span>' : "";
     return '<article class="post-item">' +
       '<a class="post-link" href="#/post/' + p.id + '">' +
@@ -311,20 +310,21 @@
 
   // 按当前模式匹配：article = 标题/标签/摘要；text = 全文内容
   function matchesSearch(p, q) {
+    var tags = p.tags || [];
     if (searchMode === "text") {
       return (p.content || "").toLowerCase().indexOf(q) !== -1;
     }
     return (
       p.title.toLowerCase().indexOf(q) !== -1 ||
       (p.excerpt || "").toLowerCase().indexOf(q) !== -1 ||
-      p.tags.join(" ").toLowerCase().indexOf(q) !== -1
+      tags.join(" ").toLowerCase().indexOf(q) !== -1
     );
   }
 
   function viewHome() {
     document.title = "lily'epitaph";
     var list = BLOG.articles.slice().sort(function (a, b) {
-      return a.date < b.date ? 1 : -1;
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
     });
     if (searchQuery) {
       var q = searchQuery.toLowerCase();
@@ -469,14 +469,14 @@
       '<div class="dateline">' + fmtDate(post.date) +
       (post.encrypted ? ' <span class="lock-chip">已解锁</span>' : "") + '</div>' +
       "<h1>" + escapeHtml(post.title) + "</h1>" +
-      '<div class="pc-tags">' + post.tags.map(function (t) { return tagChip(t); }).join("") + "</div>" +
-      '<div class="post-meta"><span>' + readingTime(md) + ' 分钟阅读</span><span>约 ' + wordCount(md) + ' 字</span></div>' +
+      '<div class="pc-tags">' + (post.tags || []).map(function (t) { return tagChip(t); }).join("") + "</div>" +
+      (function() { var s = textStats(md); return '<div class="post-meta"><span>' + s.minutes + ' 分钟阅读</span><span>约 ' + s.count + ' 字</span></div>'; })() +
       "</header>" +
       '<div class="post-layout">' +
       '<div class="post-main">' +
       '<article class="article">' + articleHtml + "</article>" +
       '<div class="tag-bar">' +
-      post.tags.map(function (t) { return tagChip(t); }).join("") +
+      (post.tags || []).map(function (t) { return tagChip(t); }).join("") +
       "</div>" +
       buildPostNav(post) +
       "</div>" +
@@ -502,7 +502,7 @@
       '<header class="post-header">' +
       '<div class="dateline">' + fmtDate(post.date) + ' <span class="lock-chip">加密文章</span></div>' +
       "<h1>" + escapeHtml(post.title) + "</h1>" +
-      '<div class="pc-tags">' + post.tags.map(function (t) { return tagChip(t); }).join("") + "</div>" +
+      '<div class="pc-tags">' + (post.tags || []).map(function (t) { return tagChip(t); }).join("") + "</div>" +
       "</header>" +
       '<div class="lock-box">' +
       '<div class="lock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></div>' +
@@ -550,8 +550,8 @@
   function viewTag(tag) {
     document.title = tag + " · 标签 — lily'epitaph";
     var list = BLOG.articles.filter(function (p) {
-      return p.tags.indexOf(tag) !== -1;
-    }).sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+      return (p.tags || []).indexOf(tag) !== -1;
+    }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
 
     var html =
       '<a class="back-link" href="#/tags">← 全部标签</a>' +
@@ -574,7 +574,7 @@
     document.title = "标签 — lily'epitaph";
     var counts = {};
     BLOG.articles.forEach(function (p) {
-      p.tags.forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
+      (p.tags || []).forEach(function (t) { counts[t] = (counts[t] || 0) + 1; });
     });
     var tags = Object.keys(counts).sort(function (a, b) {
       return counts[b] - counts[a];
@@ -612,7 +612,7 @@
     if (meta.links && meta.links.length) {
       html += '<p style="margin-top:18px">';
       html += meta.links.map(function (l) {
-        return '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener">' + escapeHtml(l.label) + "</a>";
+        return '<a href="' + escapeHtml(l.url) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(l.label) + "</a>";
       }).join(" · ");
       html += "</p>";
     }
@@ -718,7 +718,7 @@
           var pct = totalSize > 0 ? ((langCount[lang] / totalSize) * 100).toFixed(1) : 0;
           var color = langColors[lang] || '#7FB5B0';
           barsHtml += '<div class="lang-bar">';
-          barsHtml += '<div class="lang-bar-info"><span class="lang-dot" style="background:' + color + '"></span><span class="lang-name">' + lang + '</span><span class="lang-pct">' + pct + '%</span></div>';
+          barsHtml += '<div class="lang-bar-info"><span class="lang-dot" style="background:' + color + '"></span><span class="lang-name">' + escapeHtml(lang) + '</span><span class="lang-pct">' + pct + '%</span></div>';
           barsHtml += '<div class="lang-bar-track"><div class="lang-bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
           barsHtml += '</div>';
         });
@@ -741,7 +741,7 @@
     } else {
       html += '<div class="friend-grid">';
       friends.forEach(function (f) {
-        html += '<a class="friend-card" href="' + escapeHtml(f.url) + '" target="_blank" rel="noopener">';
+        html += '<a class="friend-card" href="' + escapeHtml(f.url) + '" target="_blank" rel="noopener noreferrer">';
         if (f.avatar) {
           html += '<img class="friend-avatar" src="' + escapeHtml(f.avatar) + '" alt="' + escapeHtml(f.name) + '" loading="lazy" />';
         } else {
@@ -889,12 +889,16 @@
 
   // 在 http(s) 下，直接 fetch 每个 .md 覆盖正文（改 md 刷新即见，无需重跑生成器）；
   // file:// 下跳过（CORS 限制），沿用 generate.js 生成的数据。
+  // 注意：仅当 posts/ 目录存在时启用，否则跳过以避免 404。
   function maybeLoadLive() {
     if (location.protocol === "file:" || !window.fetch) return Promise.resolve();
     var jobs = (BLOG.articles || []).map(function (p) {
-      if (!p.file || p.encrypted) return Promise.resolve(); // 加密文章用密文，不拉明文 .md
+      if (!p.file || p.encrypted) return Promise.resolve();
       return fetch(p.file)
-        .then(function (r) { return r.ok ? r.text() : ""; })
+        .then(function (r) {
+          if (r.status === 404) return ""; // posts/ 不存在时静默跳过
+          return r.ok ? r.text() : "";
+        })
         .then(function (txt) { if (txt) p.content = stripFrontMatter(txt); })
         .catch(function () {});
     });
@@ -1125,6 +1129,7 @@
 
   /* ---------- 启动 ---------- */
   function init() {
+    if (!app) { console.error("[blog] #app element not found"); return; }
     var y = document.getElementById("year");
     if (y) y.textContent = new Date().getFullYear();
     // 报纸刊头：站点名 / 副标题 / 日期线
@@ -1144,7 +1149,12 @@
     initKeyboard();
     tuanzi.create();
     window.addEventListener("hashchange", router);
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", function() {
+      if (!scrollTicking) {
+        requestAnimationFrame(function() { onScroll(); scrollTicking = false; });
+        scrollTicking = true;
+      }
+    }, { passive: true });
     if (toTopBtn) {
       toTopBtn.addEventListener("click", function () {
         window.scrollTo({ top: 0, behavior: "smooth" });

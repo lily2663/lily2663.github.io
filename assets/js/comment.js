@@ -1,6 +1,6 @@
 /* =========================================================
  * Comment System - 评论系统
- * API: http://47.109.70.144:2333
+ * API: https://api.lily2663.top
  * ========================================================= */
 (function() {
   'use strict';
@@ -8,6 +8,7 @@
   var API_BASE = 'https://api.lily2663.top';
   var currentPageId = null;
   var pollTimer = null;
+  var container = null; // 缓存评论容器引用
 
   // 评论组件 HTML
   var commentHTML = 
@@ -24,11 +25,17 @@
       '<div class="comment-list"></div>' +
     '</div>';
 
+  // 邮箱格式校验
+  function isValidEmail(email) {
+    if (!email) return true; // 邮箱选填，空值合法
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
   // 尝试挂载评论区
   function tryMount() {
     if (!window.location.hash.match(/^#\/post\//)) {
       unmount();
-      return;
+      return false;
     }
 
     var article = document.querySelector('.article');
@@ -41,19 +48,20 @@
     unmount();
     currentPageId = pageId;
 
-    var commentDiv = document.createElement('div');
-    commentDiv.id = 'comment-container';
-    commentDiv.innerHTML = commentHTML;
-    article.parentNode.appendChild(commentDiv);
+    container = document.createElement('div');
+    container.id = 'comment-container';
+    container.innerHTML = commentHTML;
+    article.parentNode.appendChild(container);
 
+    // 恢复已保存的用户信息
     var savedNick = localStorage.getItem('comment_nick');
     var savedMail = localStorage.getItem('comment_mail');
-    if (savedNick) commentDiv.querySelector('.comment-nick').value = savedNick;
-    if (savedMail) commentDiv.querySelector('.comment-mail').value = savedMail;
+    if (savedNick) container.querySelector('.comment-nick').value = savedNick;
+    if (savedMail) container.querySelector('.comment-mail').value = savedMail;
 
     loadComments(pageId);
 
-    commentDiv.querySelector('.comment-submit').addEventListener('click', function() {
+    container.querySelector('.comment-submit').addEventListener('click', function() {
       submitComment(pageId);
     });
 
@@ -65,6 +73,7 @@
     var old = document.getElementById('comment-container');
     if (old && old.parentNode) old.parentNode.removeChild(old);
     currentPageId = null;
+    container = null;
   }
 
   // 启动轮询：每 200ms 检查一次 .article 是否出现，最多等 10 秒
@@ -80,17 +89,23 @@
     }, 200);
   }
 
-  // 加载评论
+  // 加载评论（DOM 查询限定在 container 内）
   function loadComments(pageId) {
-    var listDiv = document.querySelector('.comment-list');
-    var countSpan = document.querySelector('.comment-count');
+    if (!container) return;
+    var listDiv = container.querySelector('.comment-list');
+    var countSpan = container.querySelector('.comment-count');
     if (!listDiv) return;
     
+    listDiv.innerHTML = '<div class="comment-empty">加载中...</div>';
+
     fetch(API_BASE + '/comments/' + encodeURIComponent(pageId))
-      .then(function(res) { return res.json(); })
+      .then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
       .then(function(comments) {
-        if (!countSpan) return;
-        countSpan.textContent = '(' + comments.length + ')';
+        if (!container) return; // 可能已被卸载
+        if (countSpan) countSpan.textContent = '(' + comments.length + ')';
         
         if (comments.length === 0) {
           listDiv.innerHTML = '<div class="comment-empty">还没有评论，来抢沙发吧~</div>';
@@ -115,21 +130,27 @@
         listDiv.innerHTML = html;
       })
       .catch(function(err) {
-        if (listDiv) listDiv.innerHTML = '<div class="comment-error">加载评论失败</div>';
+        if (listDiv) listDiv.innerHTML = '<div class="comment-error">加载评论失败，请刷新重试</div>';
         console.error('Load comments error:', err);
       });
   }
 
-  // 提交评论
+  // 提交评论（DOM 查询限定在 container 内）
   function submitComment(pageId) {
-    var nick = document.querySelector('.comment-nick').value.trim();
-    var mail = document.querySelector('.comment-mail').value.trim();
-    var content = document.querySelector('.comment-content').value.trim();
+    if (!container) return;
+    var nickEl = container.querySelector('.comment-nick');
+    var mailEl = container.querySelector('.comment-mail');
+    var contentEl = container.querySelector('.comment-content');
+    var btn = container.querySelector('.comment-submit');
+
+    var nick = nickEl.value.trim();
+    var mail = mailEl.value.trim();
+    var content = contentEl.value.trim();
     
     if (!nick) { alert('请输入昵称'); return; }
     if (!content) { alert('请输入评论内容'); return; }
+    if (!isValidEmail(mail)) { alert('邮箱格式不正确'); return; }
     
-    var btn = document.querySelector('.comment-submit');
     btn.disabled = true;
     btn.textContent = '提交中...';
     
@@ -138,12 +159,15 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ page: pageId, nick: nick, mail: mail, content: content })
     })
-    .then(function(res) { return res.json(); })
+    .then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
     .then(function(data) {
       if (data.id) {
         localStorage.setItem('comment_nick', nick);
         if (mail) localStorage.setItem('comment_mail', mail);
-        document.querySelector('.comment-content').value = '';
+        contentEl.value = '';
         loadComments(pageId);
       } else {
         alert('提交失败: ' + (data.error || '未知错误'));

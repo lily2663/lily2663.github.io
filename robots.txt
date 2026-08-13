@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lily2663.top/sitemap.xml

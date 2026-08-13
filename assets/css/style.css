@@ -290,37 +290,8 @@ a.post-link {
   text-decoration: none; 
   display: block; 
 }
-a.post-link:hover .lead-title,
 a.post-link:hover .item-title { 
   color: var(--mint-dark); 
-}
-
-.post-lead {
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  padding: 32px;
-  margin-bottom: 24px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-light);
-  transition: all 0.3s ease;
-}
-.post-lead:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-
-.lead-title {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: clamp(28px, 4.5vw, 42px);
-  line-height: 1.2;
-  margin: 0 0 12px;
-  letter-spacing: -0.01em;
-}
-.lead-title .lock-chip { 
-  vertical-align: middle; 
-  margin-left: 10px; 
-  font-size: 11px; 
 }
 
 .dateline {
@@ -329,13 +300,6 @@ a.post-link:hover .item-title {
   margin-bottom: 12px;
 }
 .dateline::before { content: "— "; }
-
-.standfirst {
-  font-size: 16px;
-  line-height: 1.7;
-  color: var(--ink-soft);
-  margin: 0 0 16px;
-}
 
 .pc-tags { 
   display: flex; 
@@ -401,17 +365,6 @@ a.post-link:hover .item-title {
   color: var(--mint-dark);
   background: var(--mint-light);
 }
-.tag.ghost { 
-  border-color: transparent; 
-  padding: 2px 0; 
-  background: none;
-}
-.tag.ghost::after { 
-  content: "·"; 
-  margin-left: 8px; 
-  color: var(--border); 
-}
-.tag.ghost:last-child::after { content: ""; }
 
 .tag-cloud { 
   display: flex; 
@@ -771,7 +724,6 @@ a.post-link:hover .item-title {
   padding: 2px 8px;
   border-radius: 12px;
 }
-.inline-lock { font-size: 0.7em; }
 
 .lock-box {
   max-width: 480px;
@@ -1009,12 +961,13 @@ a.post-link:hover .item-title {
 }
 
 .toc-list { list-style: none; margin: 0; padding: 0; }
+.toc-item { /* --lvl 由 JS 设置，控制缩进层级 */ }
 .toc-link {
   display: block;
   font-size: 14px;
   line-height: 1.5;
   color: var(--ink-soft);
-  padding: 6px 0 6px 12px;
+  padding: 6px 0 6px calc(12px + var(--lvl, 0) * 14px);
   border-left: 2px solid transparent;
   transition: all 0.2s ease;
 }
@@ -1084,8 +1037,7 @@ a.post-link:hover .item-title {
   .post-nav { flex-direction: column; gap: 12px; }
   .post-nav .nav-next { text-align: left; }
   
-  .post-lead, .front-grid .post-item { padding: 20px; }
-  .lead-title { font-size: 26px; }
+  .front-grid .post-item { padding: 20px; }
 }
 
 /* ---------- GitHub Stats Widget ---------- */
@@ -1292,7 +1244,7 @@ a.post-link:hover .item-title {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #f8f9fa;
+  background: var(--bg);
   background-image: url('../img/welcome-watercolor.jpg');
   background-size: cover;
   background-position: center;
@@ -1528,7 +1480,7 @@ body:not(.splash-active) .site-footer {
   top: -28px;
   left: 50%;
   transform: translateX(-50%) scale(0);
-  background: #fff;
+  background: var(--bg-card);
   border: 2px solid var(--mint);
   border-radius: 12px;
   padding: 3px 10px;
