@@ -5,7 +5,7 @@
 (function() {
   'use strict';
 
-  var API_BASE = 'http://47.109.70.144:2333';
+  var API_BASE = 'https://api.lily2663.top';
   var currentPageId = null;
   var pollTimer = null;
 
