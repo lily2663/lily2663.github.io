@@ -22,17 +22,27 @@
       '<div class="comment-list"></div>' +
     '</div>';
 
-  // 初始化评论系统
-  function initComments() {
-    // 先清除已有的评论容器（防止路由切换时重复插入）
-    var old = document.getElementById('comment-container');
-    if (old) old.parentNode.removeChild(old);
+  // 当前已挂载的 pageId，避免重复挂载
+  var currentPageId = null;
 
+  // 尝试挂载评论区（可能 .article 还没渲染出来）
+  function tryMount() {
     // 只在文章详情页显示评论
-    if (!window.location.hash.match(/^#\/post\//)) return;
+    if (!window.location.hash.match(/^#\/post\//)) {
+      unmount();
+      return;
+    }
 
     var article = document.querySelector('.article');
-    if (!article) return;
+    if (!article) return; // 还没渲染，等下次
+
+    var pageId = window.location.hash.replace('#/post/', '');
+
+    // 同一篇文章且已挂载 → 跳过
+    if (currentPageId === pageId && document.getElementById('comment-container')) return;
+
+    unmount();
+    currentPageId = pageId;
 
     // 插入评论组件
     var commentDiv = document.createElement('div');
@@ -46,9 +56,6 @@
     if (savedNick) commentDiv.querySelector('.comment-nick').value = savedNick;
     if (savedMail) commentDiv.querySelector('.comment-mail').value = savedMail;
 
-    // 获取当前页面标识
-    var pageId = window.location.hash.replace('#/post/', '');
-
     // 加载评论
     loadComments(pageId);
 
@@ -56,6 +63,31 @@
     var submitBtn = commentDiv.querySelector('.comment-submit');
     submitBtn.addEventListener('click', function() {
       submitComment(pageId);
+    });
+  }
+
+  // 移除评论区
+  function unmount() {
+    var old = document.getElementById('comment-container');
+    if (old) old.parentNode.removeChild(old);
+    currentPageId = null;
+  }
+
+  // 初始化：用 MutationObserver 等待 .article 出现
+  function initComments() {
+    tryMount();
+
+    // 监听 DOM 变化（app.js 异步渲染后 .article 会出现）
+    var observer = new MutationObserver(function() {
+      tryMount();
+    });
+    observer.observe(document.getElementById('app') || document.body, {
+      childList: true, subtree: true
+    });
+
+    // 监听路由变化
+    window.addEventListener('hashchange', function() {
+      setTimeout(tryMount, 150);
     });
   }
 
@@ -157,15 +189,10 @@
     return div.innerHTML;
   }
 
-  // 页面加载完成后初始化
+  // 启动
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initComments);
   } else {
     initComments();
   }
-
-  // 监听路由变化（单页应用）
-  window.addEventListener('hashchange', function() {
-    setTimeout(initComments, 100);
-  });
 })();
