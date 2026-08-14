@@ -203,6 +203,23 @@ function deriveExcerpt(content) {
   return text.slice(0, 120);
 }
 
+// 标准化图片路径：Typora 等编辑器会插入 Windows 绝对路径，部署后无法显示
+// 自动将 C:\Users\...\blog\assets\img\xxx 转为 assets/img/xxx
+function normalizeImagePaths(content) {
+  return content.replace(
+    /(!\[[^\]]*\]\(|<img[^>]+src=["'])([^)"']+)/g,
+    function (match, prefix, imgPath) {
+      var cleaned = imgPath;
+      var m = cleaned.match(/assets[\/\\][\s\S]+/);
+      if (m) {
+        cleaned = m[0];
+      }
+      cleaned = cleaned.replace(/\\/g, "/");
+      return prefix + cleaned;
+    }
+  );
+}
+
 function slugify(name) {
   return name.replace(/\.md$/i, "");
 }
@@ -245,7 +262,7 @@ function main() {
     return Object.assign(base, {
       encrypted: false,
       excerpt: m.excerpt || m.摘要 || deriveExcerpt(parsed.content),
-      content: parsed.content.replace(/\s+$/, "")
+      content: normalizeImagePaths(parsed.content.replace(/\s+$/, ""))
     });
   });
 
