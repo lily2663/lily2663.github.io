@@ -1,5 +1,12 @@
-posts/
 node_modules/
+posts/
 *.tmp
 .token
 .backups/
+public/
+resources/
+.hugo_build.lock
+.tools/
+private-content/
+.secrets/
+reports/

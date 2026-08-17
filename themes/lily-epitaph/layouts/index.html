@@ -1,0 +1,10 @@
+{{ define "main" }}
+<section class="post-list" data-search-list>
+  {{ $posts := (site.GetPage "section" "posts").RegularPages }}
+  <div class="section-head"><h1 class="section-title">全部文章</h1><span>{{ len $posts }} 篇</span></div>
+  <div class="post-grid" data-post-grid>
+    {{ range $posts.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}
+  </div>
+  <p class="empty search-empty" hidden>没有找到匹配的文章。</p>
+</section>
+{{ end }}

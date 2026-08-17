@@ -1,0 +1,5 @@
+{{- $items := slice -}}
+{{- range (site.GetPage "section" "posts").RegularPages -}}
+  {{- $items = $items | append (dict "title" .Title "url" .RelPermalink "summary" .Params.summary "tags" .Params.tags "protected" .Params.protected "text" (cond .Params.protected "" (.Plain | plainify))) -}}
+{{- end -}}
+{{- $items | jsonify -}}

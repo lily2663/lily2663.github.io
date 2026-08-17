@@ -1,0 +1,40 @@
+baseURL = "https://lily2663.top/"
+locale = "zh-CN"
+defaultContentLanguage = "zh-cn"
+title = "lily'epitaph"
+theme = "lily-epitaph"
+timeZone = "Asia/Shanghai"
+enableRobotsTXT = true
+hasCJKLanguage = true
+paginate = 12
+ignoreLogs = ["warning-goldmark-raw-html"]
+
+[params]
+  subtitle = "the house of the dead"
+  description = "记录代码、安全与零碎思考"
+  author = "lilyzero"
+  avatar = "/assets/img/avatar.jpg"
+  commentApi = "https://api.lily2663.top"
+
+[taxonomies]
+  tag = "tags"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = false
+  [markup.highlight]
+    noClasses = false
+    lineNos = false
+    codeFences = true
+
+[sitemap]
+  changefreq = "weekly"
+  priority = 0.5
+
+[caches]
+  [caches.images]
+    dir = ":cacheDir/images"

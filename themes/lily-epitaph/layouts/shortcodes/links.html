@@ -1,0 +1,1 @@
+<section class="links-grid">{{ range hugo.Data.site.friends }}<a class="friend-card" href="{{ .url }}" target="_blank" rel="noopener noreferrer"><img src="{{ .avatar }}" alt="{{ .name }} 的头像" loading="lazy"><span><strong>{{ .name }}</strong><small>{{ .desc }}</small></span></a>{{ end }}</section>

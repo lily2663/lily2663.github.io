@@ -1,0 +1,8 @@
+<article class="post-item" data-search="{{ printf "%s %s %s %s" .Title .Params.summary (delimit .Params.tags " ") .Plain | lower }}">
+  <a class="post-link" href="{{ .RelPermalink }}">
+    <div class="post-tag">{{ with index .Params.tags 0 }}{{ . }}{{ else }}随笔{{ end }}</div>
+    <h2>{{ .Title }}{{ if .Params.protected }} <span class="lock-chip">加密</span>{{ end }}</h2>
+    <div class="post-date">— {{ .Date.Format "2006年1月2日 · 周一" }}</div>
+    <p>{{ if .Params.protected }}该文章已加密，需输入密码查看。{{ else }}{{ .Params.summary | plainify | truncate 120 }}{{ end }}</p>
+  </a>
+</article>

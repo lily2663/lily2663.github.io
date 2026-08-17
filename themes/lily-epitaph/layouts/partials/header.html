@@ -1,0 +1,27 @@
+{{ $active := .RelPermalink }}
+<header class="site-header">
+  <div class="masthead container">
+    <div class="masthead-top"><span class="masthead-edition">{{ now.Format "2006年1月2日" }}</span></div>
+    <a class="masthead-title" href="/">{{ .Site.Title }}</a>
+    <div class="masthead-sub">{{ .Site.Params.subtitle }}</div>
+  </div>
+  <div class="topbar container">
+    <nav class="nav" aria-label="主导航">
+      <a href="/" {{ if .IsHome }}aria-current="page"{{ end }}>首页</a>
+      <a href="/tags/" {{ if eq .Section "tags" }}aria-current="page"{{ end }}>标签</a>
+      <a href="/links/" {{ if eq $active "/links/" }}aria-current="page"{{ end }}>友链</a>
+      <a href="/about/" {{ if eq $active "/about/" }}aria-current="page"{{ end }}>关于</a>
+    </nav>
+    <div class="header-actions">
+      <div class="search-box">
+        <div class="search-mode" role="tablist" aria-label="搜索模式">
+          <button class="search-mode-btn active" type="button" data-search-mode="article" role="tab" aria-selected="true">文章</button>
+          <button class="search-mode-btn" type="button" data-search-mode="text" role="tab" aria-selected="false">文字</button>
+        </div>
+        <label class="sr-only" for="search">搜索博客</label>
+        <input id="search" class="search" type="search" placeholder="搜索文章标题/标签…" autocomplete="off">
+      </div>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="切换主题">暗</button>
+    </div>
+  </div>
+</header>
