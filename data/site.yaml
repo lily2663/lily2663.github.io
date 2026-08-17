@@ -1,6 +1,12 @@
+author: lilyzero
+avatar: /assets/img/avatar.jpg
 about:
-  - "一个普通的 web 手。"
-  - "记录 CTF、Web 安全、代码和零碎思考。"
+  - "一个普通的web手"
+links:
+  - label: GitHub
+    url: https://github.com/lily2663/
+  - label: 邮箱
+    url: mailto:2139186436@qq.com
 friends:
   - name: abababcd
     url: https://abababcdcd.github.io/
@@ -8,5 +14,5 @@ friends:
     avatar: /assets/img/friends/abababcdcd.png
   - name: Sauy
     url: https://sauy.top/
-    desc: web 手 · Web 安全 / 渗透测试
+    desc: web手 · Web安全 / 渗透测试
     avatar: /assets/img/friends/sauy.png

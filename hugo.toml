@@ -30,6 +30,10 @@ ignoreLogs = ["warning-goldmark-raw-html"]
     noClasses = false
     lineNos = false
     codeFences = true
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 6
+    ordered = false
 
 [sitemap]
   changefreq = "weekly"

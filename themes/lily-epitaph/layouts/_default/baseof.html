@@ -5,8 +5,8 @@
 </head>
 <body>
   {{ if .IsHome }}
-  <section class="welcome-splash" id="welcome-splash" role="dialog" aria-modal="true" aria-labelledby="welcome-title" hidden>
-    <div class="welcome-content"><h1 class="welcome-title" id="welcome-title">Welcome to <span class="accent">Lily's</span> House</h1><p class="welcome-subtitle">the house of the dead</p><div class="welcome-actions"><button class="welcome-enter" id="welcome-enter" type="button">Enter</button><button class="welcome-skip" id="welcome-skip" type="button">跳过</button></div><p class="welcome-hint">Press Enter, Escape, or click to enter</p></div>
+  <section class="welcome-splash" id="welcome-splash" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+    <div class="welcome-content"><h1 class="welcome-title" id="welcome-title">Welcome to <span class="accent">Lily's</span> House</h1><p class="welcome-subtitle">the house of the dead</p><button class="welcome-enter" id="welcome-enter" type="button">Enter</button><p class="welcome-hint">Press any key or click to enter</p></div>
   </section>
   {{ end }}
   <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
@@ -18,9 +18,10 @@
   <button class="to-top" id="to-top" type="button" title="返回顶部" aria-label="返回顶部">↑</button>
   <script src="/assets/vendor/highlight.min.js" defer></script>
   <script src="/assets/vendor/marked.min.js" defer></script>
-  <script src="/js/site.js" defer></script>
-  <script src="/js/pet.js" defer></script>
-  <script src="/js/comments.js" defer></script>
-  <script src="/js/protected.js" defer></script>
+  <script src="/js/site.js?v=20260817-repair" defer></script>
+  <script src="/js/pet.js?v=20260817-repair" defer></script>
+  <script src="/js/comments.js?v=20260817-repair" defer></script>
+  <script src="/js/github-stats.js?v=20260817-repair" defer></script>
+  <script src="/js/protected.js?v=20260817-repair" defer></script>
 </body>
 </html>

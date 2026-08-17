@@ -9,15 +9,34 @@
   let mode = 'article';
 
   const splash = document.querySelector('#welcome-splash');
-  if (splash && !sessionStorage.getItem('lily-welcomed')) {
-    splash.hidden = false;
-    const enter = splash.querySelector('#welcome-enter');
-    const dismiss = () => { sessionStorage.setItem('lily-welcomed', '1'); splash.classList.add('hidden'); setTimeout(() => { splash.hidden = true; }, 420); };
-    enter.focus();
-    enter.addEventListener('click', dismiss);
-    splash.querySelector('#welcome-skip').addEventListener('click', dismiss);
+  if (splash) {
+    let dismissed = false;
+    document.body.classList.add('splash-active');
+    const colors = ['var(--mint)', 'var(--pink)', 'var(--mint-light)', 'var(--pink-light)'];
+    for (let index = 0; index < 30; index++) {
+      const dot = document.createElement('div');
+      const size = Math.random() * 100 + 50;
+      dot.className = 'watercolor-dot';
+      dot.style.left = `${Math.random() * 100}%`;
+      dot.style.top = `${Math.random() * 100}%`;
+      dot.style.width = `${size}px`;
+      dot.style.height = `${size}px`;
+      dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+      dot.style.animationDuration = `${Math.random() * 6 + 6}s`;
+      dot.style.animationDelay = `${Math.random() * 4}s`;
+      dot.style.filter = `blur(${Math.random() * 20 + 10}px)`;
+      splash.append(dot);
+    }
+    const dismiss = () => {
+      if (dismissed) return;
+      dismissed = true;
+      document.body.classList.remove('splash-active');
+      splash.classList.add('hidden');
+      setTimeout(() => { splash.style.display = 'none'; }, 1200);
+    };
+    splash.querySelector('#welcome-enter')?.addEventListener('click', dismiss);
     splash.addEventListener('click', (event) => { if (event.target === splash) dismiss(); });
-    document.addEventListener('keydown', (event) => { if (!splash.hidden && (event.key === 'Escape' || event.key === 'Enter')) { event.preventDefault(); dismiss(); } }, { once: false });
+    document.addEventListener('keydown', dismiss, { once: true });
   }
 
   function applyTheme(theme) {

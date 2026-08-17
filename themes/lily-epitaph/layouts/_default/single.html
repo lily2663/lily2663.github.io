@@ -17,7 +17,7 @@
   {{ else }}
     <div class="article-layout">
       <div class="article-body">{{ .Content }}</div>
-      {{ with .TableOfContents }}<aside class="toc-wrap"><details open><summary>目录 <span>CONTENTS</span></summary><nav class="toc" aria-label="文章目录">{{ . }}</nav></details></aside>{{ end }}
+      {{ if eq .Section "posts" }}{{ with .TableOfContents }}<aside class="toc-wrap"><div class="toc-title">目录 · Contents</div><nav class="toc" aria-label="文章目录">{{ . }}</nav></aside>{{ end }}{{ end }}
     </div>
   {{ end }}
 </article>
