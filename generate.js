@@ -96,6 +96,12 @@ const SITE_META = {
       url: "https://abababcdcd.github.io/",
       desc: "pwn 手 · CTF / 二进制安全",
       avatar: "assets/img/friends/abababcdcd.png"
+    },
+    {
+      name: "Sauy",
+      url: "https://sauy.top/",
+      desc: "web手 · Web安全 / 渗透测试",
+      avatar: "assets/img/friends/sauy.png"
     }
   ]
 };
