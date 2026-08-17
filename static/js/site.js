@@ -9,8 +9,9 @@
   let mode = 'article';
 
   const splash = document.querySelector('#welcome-splash');
-  if (splash) {
+  if (splash && !sessionStorage.getItem('lily-welcomed')) {
     let dismissed = false;
+    splash.hidden = false;
     document.body.classList.add('splash-active');
     const colors = ['var(--mint)', 'var(--pink)', 'var(--mint-light)', 'var(--pink-light)'];
     for (let index = 0; index < 30; index++) {
@@ -30,6 +31,7 @@
     const dismiss = () => {
       if (dismissed) return;
       dismissed = true;
+      sessionStorage.setItem('lily-welcomed', '1');
       document.body.classList.remove('splash-active');
       splash.classList.add('hidden');
       setTimeout(() => { splash.style.display = 'none'; }, 1200);
@@ -49,13 +51,16 @@
     themeButton.addEventListener('click', () => applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
   }
 
-  function onScroll() {
+  let scrollFrame = 0;
+  function updateScroll() {
+    scrollFrame = 0;
     const max = document.documentElement.scrollHeight - innerHeight;
     if (progress) progress.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
     if (topButton) topButton.classList.toggle('show', scrollY > 500);
   }
+  function onScroll() { if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll); }
   addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  updateScroll();
   topButton?.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
 
   document.querySelectorAll('[data-search-mode]').forEach((button) => button.addEventListener('click', () => {
@@ -70,6 +75,8 @@
       filterPosts();
     }
   }));
+  let searchIndex;
+  let searchTimer;
   async function filterPosts() {
     if (!grid || !search) return;
     const q = search.value.trim().toLowerCase();
@@ -80,14 +87,15 @@
       document.querySelector('.search-empty')?.toggleAttribute('hidden', visible !== 0);
       return;
     }
-    const response = await fetch('/index.json');
-    const entries = await response.json();
+    searchIndex ||= fetch('/index.json').then((response) => response.json());
+    const entries = await searchIndex;
+    if (mode !== 'text' || q !== search.value.trim().toLowerCase()) return;
     const visibleUrls = new Set(entries.filter((item) => `${item.title} ${item.tags.join(' ')} ${item.summary} ${item.text}`.toLowerCase().includes(q)).map((item) => item.url));
     let visible = 0;
     cards.forEach((card) => { const hit = visibleUrls.has(card.querySelector('a')?.getAttribute('href')); card.hidden = !hit; if (hit) visible++; });
     document.querySelector('.search-empty')?.toggleAttribute('hidden', visible !== 0);
   }
-  search?.addEventListener('input', () => void filterPosts());
+  search?.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => void filterPosts(), 80); });
 
   function makeLightbox() {
     const box = document.createElement('div');

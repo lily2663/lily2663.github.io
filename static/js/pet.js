@@ -23,8 +23,8 @@
   applyViewportMode();
   let start, offset, moved = false;
   pet.addEventListener('pointerdown', (event) => { if (event.target.closest('.tz-reset')) return; if (compact()) { moved = false; return; } pet.setPointerCapture(event.pointerId); const rect = pet.getBoundingClientRect(); start = { x: event.clientX, y: event.clientY }; offset = { x: event.clientX - rect.left, y: event.clientY - rect.top }; moved = false; pet.classList.add('dragging'); });
-  pet.addEventListener('pointermove', (event) => { if (!offset) return; moved ||= Math.abs(event.clientX - start.x) > 3 || Math.abs(event.clientY - start.y) > 3; move(event.clientX - offset.x, event.clientY - offset.y); });
-  pet.addEventListener('pointerup', () => { pet.classList.remove('dragging'); if (!moved) poke(); offset = null; });
+  pet.addEventListener('pointermove', (event) => { if (!offset) return; moved ||= Math.abs(event.clientX - start.x) > 3 || Math.abs(event.clientY - start.y) > 3; move(event.clientX - offset.x, event.clientY - offset.y, false); });
+  pet.addEventListener('pointerup', () => { pet.classList.remove('dragging'); if (!moved) poke(); else { const rect = pet.getBoundingClientRect(); move(rect.left, rect.top, true); } offset = null; });
   function poke() { image.classList.remove('poke'); void image.offsetWidth; image.classList.add('poke'); bubble.textContent = '糯～'; bubble.classList.add('show'); setTimeout(() => bubble.classList.remove('show'), 1500); }
   pet.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); poke(); } });
   pet.querySelector('.tz-reset').addEventListener('click', () => { localStorage.removeItem('lily:pet-position'); pet.removeAttribute('style'); bubble.textContent = '回家啦～'; bubble.classList.add('show'); setTimeout(() => bubble.classList.remove('show'), 1500); });
