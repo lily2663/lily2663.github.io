@@ -1,0 +1,16 @@
+{{- /* ============================================================
+ * Lily Module: toc — 文章目录
+ * 无目录 / 非文章 / 目录关闭时不渲染；
+ * 受保护文章渲染空目录骨架，由 protected.js 解锁后填充
+ * ============================================================ */ -}}
+{{- $page := .Page -}}
+{{- $cfg := .Config -}}
+{{- $tocEnabled := $cfg.enabled | default true -}}
+{{- with site.Params.article }}{{ if isset . "toc" }}{{ $tocEnabled = .toc }}{{ end }}{{ end -}}
+{{- if and $tocEnabled (eq $page.Section "posts") -}}
+  {{- if $page.Params.protected -}}
+    <aside class="toc-wrap" data-protected-toc hidden><div class="toc-title">{{ $cfg.title | default "目录 · Contents" }}</div><nav class="toc" aria-label="文章目录"></nav></aside>
+  {{- else if $page.TableOfContents -}}
+    <aside class="toc-wrap"><div class="toc-title">{{ $cfg.title | default "目录 · Contents" }}</div><nav class="toc" aria-label="文章目录">{{ $page.TableOfContents }}</nav></aside>
+  {{- end -}}
+{{- end -}}

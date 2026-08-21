@@ -1,0 +1,58 @@
+baseURL = "https://example.invalid/"
+locale = "zh-cn"
+title = "Watercolor Notes"
+theme = "lily-epitaph"
+enableRobotsTXT = true
+hasCJKLanguage = true
+
+[params]
+  subtitle = "small technical notes"
+  description = "A clean-room demo for lily-epitaph."
+  author = "Example Author"
+
+[params.welcome]
+  enabled = true
+  titleBefore = "Welcome to "
+  accent = "Watercolor"
+  titleAfter = " Notes"
+  subtitle = "small technical notes"
+  enterText = "Enter"
+  hint = "Press any key or click to enter"
+  particles = 30
+
+[params.pet]
+  enabled = true
+
+[params.search]
+  enabled = true
+
+[params.protected]
+  enabled = false
+
+[params.article]
+  toc = true
+  codeCopy = true
+
+[params.comments]
+  enabled = false
+
+[params.footer]
+  copyright = "Built with Hugo"
+  note = "This is an independent theme demo."
+
+[params.features]
+  prefetch = true
+  viewTransition = true
+
+[[menus.main]]
+  name = "首页"
+  url = "/"
+  weight = 10
+[[menus.main]]
+  name = "标签"
+  url = "/tags/"
+  weight = 20
+[[menus.main]]
+  name = "关于"
+  url = "/about/"
+  weight = 30

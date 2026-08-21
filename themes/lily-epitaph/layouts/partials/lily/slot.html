@@ -1,0 +1,32 @@
+{{- /* ============================================================
+ * Lily Slot 渲染器
+ * 输入: layout(布局 kind) / slot(slot 短名) / page
+ * 流程: 读取 layout 数据 → 过滤 enabled:false → 排序(order 或声明序)
+ *       → 逐实例调用 Resolver
+ * 输出: <div class="lily-slot" data-lily-slot="<full slot id>">
+ * ============================================================ */ -}}
+{{- $layout := .layout -}}
+{{- $slot := .slot -}}
+{{- $page := .page -}}
+{{- $layoutData := index hugo.Data.lily.layouts $layout -}}
+{{- if $layoutData -}}
+  {{- $fullSlot := printf "%s.%s" $layout $slot -}}
+  {{- $instances := index $layoutData.slots $slot | default slice -}}
+  {{- $active := slice -}}
+  {{- range $instances -}}
+    {{- if ne .enabled false }}{{ $active = $active | append . }}{{ end -}}
+  {{- end -}}
+  {{- if gt (len $active) 0 -}}
+    {{- /* 排序：若该 slot 内所有实例都声明了 order 则按 order 升序，否则保持声明顺序 */ -}}
+    {{- $hasOrder := true -}}
+    {{- range $active }}{{ if not (isset . "order") }}{{ $hasOrder = false }}{{ end }}{{ end -}}
+    {{- if $hasOrder }}{{ $active = sort $active "order" "asc" }}{{ end -}}
+    <div class="lily-slot" data-lily-slot="{{ $fullSlot }}">
+      {{- range $active -}}
+        {{- partial "lily/runtime/resolve.html" (dict "instance" . "slot" $fullSlot "page" $page "layout" $layout) -}}
+      {{- end -}}
+    </div>
+  {{- end -}}
+{{- else -}}
+  {{- partial "lily/utils/warn.html" (dict "page" $page "msg" (printf "Unknown Lily Layout: %s" $layout) "slot" $slot) -}}
+{{- end -}}

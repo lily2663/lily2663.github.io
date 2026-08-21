@@ -8,8 +8,9 @@
     "protect": "node scripts/protect.mjs",
     "check": "node scripts/check.mjs",
     "audit:assets": "node scripts/audit-assets.mjs",
-    "build": "npm run protect && npm run check && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 build --gc --minify --panicOnWarning",
+    "build": "npm run check && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 build --gc --minify --panicOnWarning",
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server -D --disableFastRender",
-    "preview": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server --renderToMemory"
+    "preview": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server --renderToMemory",
+    "admin": "npm --prefix tools/admin run dev"
   }
 }

@@ -1,0 +1,11 @@
+{{- /* Lily 页面 kind 判定：home | article | page | terms */ -}}
+{{- $page := .page -}}
+{{- $kind := "page" -}}
+{{- if $page.IsHome -}}
+  {{- $kind = "home" -}}
+{{- else if eq $page.Section "posts" -}}
+  {{- $kind = "article" -}}
+{{- else if $page.IsNode -}}
+  {{- $kind = "terms" -}}
+{{- end -}}
+{{- return $kind -}}

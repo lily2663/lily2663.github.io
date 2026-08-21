@@ -1,0 +1,44 @@
+id: welcome
+name: Welcome
+version: 0.1.0
+type: block
+description: 首页欢迎屏（水彩进入动画），配置与 params.welcome 兼容
+context: home
+allowedSlots:
+  - home.hero
+template:
+  partial: lily/modules/welcome/render.html
+defaults:
+  enabled: true
+  titleBefore: Welcome to
+  accent: Lily's
+  titleAfter: " House"
+  subtitle: the house of the dead
+  enterText: Enter
+  hint: Press any key or click to enter
+  particles: 30
+schema:
+  enabled:
+    type: boolean
+    label: 启用欢迎屏
+  titleBefore:
+    type: string
+    label: 标题前缀
+  accent:
+    type: string
+    label: 强调词
+  titleAfter:
+    type: string
+    label: 标题后缀
+  subtitle:
+    type: string
+    label: 副标题
+  enterText:
+    type: string
+    label: 进入按钮文字
+  hint:
+    type: string
+    label: 提示文字
+  particles:
+    type: number
+    label: 粒子数量

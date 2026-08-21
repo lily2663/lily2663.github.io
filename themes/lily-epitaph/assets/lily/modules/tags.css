@@ -1,0 +1,19 @@
+/* ============================================================
+ * Lily Module: tags —— 标签云（sidebar 场景微调，页面级沿用旧 .tag-cloud）
+ * ============================================================ */
+.lily-tags__cloud { margin-top: 0.25rem; }
+.lily-tags__cloud a {
+  background: var(--lily-bg-hover);
+  border: 1px solid var(--lily-color-border-light);
+  border-radius: 999px;
+  color: var(--lily-color-text-soft);
+  font-size: 0.78rem;
+  padding: 0.32rem 0.68rem;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.lily-tags__cloud a:hover {
+  border-color: var(--lily-color-primary-soft);
+  color: var(--lily-color-primary-deep);
+}
+.lily-tags__cloud a span { color: var(--lily-color-primary); font-size: 0.75rem; }

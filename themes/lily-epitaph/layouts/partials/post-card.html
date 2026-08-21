@@ -1,8 +1,10 @@
-<article class="post-item" data-search="{{ printf "%s %s %s %s" .Title .Params.summary (delimit .Params.tags " ") .Plain | lower }}">
+{{- $weekdays := slice "周日" "周一" "周二" "周三" "周四" "周五" "周六" -}}
+{{- $tags := .Params.tags | default slice -}}
+<article class="post-item" data-search="{{ printf "%s %s %s" .Title .Params.summary (delimit $tags " ") | lower }}">
   <a class="post-link" href="{{ .RelPermalink }}">
     <div class="kicker">{{ with index .Params.tags 0 }}{{ . }}{{ else }}随笔{{ end }}</div>
     <h3 class="item-title">{{ .Title }}{{ if .Params.protected }} <span class="lock-chip">加密</span>{{ end }}</h3>
-    <div class="dateline">{{ .Date.Format "2006年1月2日 · 周一" }}</div>
+    <div class="dateline">{{ .Date.Format "2006年1月2日" }} · {{ index $weekdays (int .Date.Weekday) }}</div>
     <p class="item-excerpt">{{ if .Params.protected }}该文章已加密，需输入密码查看。{{ else }}{{ .Params.summary | plainify | truncate 120 }}{{ end }}</p>
   </a>
 </article>

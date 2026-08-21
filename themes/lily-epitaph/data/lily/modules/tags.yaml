@@ -1,0 +1,36 @@
+id: tags
+name: Tags
+version: 0.1.0
+type: block
+description: 标签云，Hugo Taxonomy 驱动（site.Taxonomies.tags）
+context: any
+allowedSlots:
+  - home.sidebar
+  - article.sidebar
+  - page.sidebar
+  - home.main
+template:
+  partial: lily/modules/tags/render.html
+defaults:
+  title: 标签
+  limit: 0
+  showCount: true
+  sort: count
+schema:
+  title:
+    type: string
+    label: 区块标题
+  limit:
+    type: number
+    label: 数量限制（0 = 全部）
+  showCount:
+    type: boolean
+    label: 显示文章数
+  sort:
+    type: select
+    label: 排序
+    options:
+      - value: count
+        label: 按文章数
+      - value: name
+        label: 按名称

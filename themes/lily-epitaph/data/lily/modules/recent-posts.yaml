@@ -1,0 +1,28 @@
+id: recent-posts
+name: Recent Posts
+version: 0.1.0
+type: content
+description: 文章列表，Hugo Content Query 驱动（site.GetPage + RegularPages）
+context: home
+allowedSlots:
+  - home.main
+template:
+  partial: lily/modules/recent-posts/render.html
+defaults:
+  title: 全部文章
+  section: posts
+  limit: 0
+  showCount: true
+schema:
+  title:
+    type: string
+    label: 区块标题
+  section:
+    type: string
+    label: 内容分区
+  limit:
+    type: number
+    label: 数量限制（0 = 全部）
+  showCount:
+    type: boolean
+    label: 显示篇数

@@ -3,25 +3,35 @@
 <head>
   {{ partial "head.html" . }}
 </head>
-<body>
-  {{ if .IsHome }}
-  <section class="welcome-splash" id="welcome-splash" role="dialog" aria-modal="true" aria-labelledby="welcome-title" hidden>
-    <div class="welcome-content"><h1 class="welcome-title" id="welcome-title">Welcome to <span class="accent">Lily's</span> House</h1><p class="welcome-subtitle">the house of the dead</p><button class="welcome-enter" id="welcome-enter" type="button">Enter</button><p class="welcome-hint">Press any key or click to enter</p></div>
-  </section>
-  {{ end }}
+{{- $petImage := .Site.Params.pet.image | default "/lily-epitaph/tuanzi.png" -}}
+{{- $prefetchEnabled := true -}}
+{{- with .Site.Params.features }}{{ if isset . "prefetch" }}{{ $prefetchEnabled = .prefetch }}{{ end }}{{ end -}}
+{{- $codeCopyEnabled := true -}}
+{{- with .Site.Params.article }}{{ if isset . "codeCopy" }}{{ $codeCopyEnabled = .codeCopy }}{{ end }}{{ end -}}
+{{- $welcomeConf := .Site.Params.welcome | default dict -}}
+{{- $dayImage := $welcomeConf.background | default "/lily-epitaph/welcome-watercolor.jpg" -}}
+{{- $nightImage := $welcomeConf.backgroundDark | default "/lily-epitaph/night-watercolor.jpg" -}}
+<body data-pet-image="{{ $petImage }}" data-prefetch="{{ $prefetchEnabled }}" data-code-copy="{{ $codeCopyEnabled }}" style="--watercolor-day:url('{{ $dayImage }}');--watercolor-night:url('{{ $nightImage }}')">
   <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
-  {{ partial "header.html" . }}
+  {{- /* home.hero（欢迎屏）必须渲染在 #app 外：
+       #app 在欢迎屏期间带 filter:blur，CSS 规范下 filter 祖先会成为
+       position:fixed 后代的包含块，欢迎屏会错位成文档流区块盖住全页 */ -}}
+  {{- if .IsHome }}{{ partial "lily/slot.html" (dict "layout" "home" "slot" "hero" "page" .) }}{{ end }}
+  {{ partial "lily/slot.html" (dict "layout" "global" "slot" "header" "page" .) }}
   <main class="container" id="app">
     {{ block "main" . }}{{ end }}
   </main>
-  {{ partial "footer.html" . }}
+  {{ partial "lily/slot.html" (dict "layout" "global" "slot" "footer" "page" .) }}
   <button class="to-top" id="to-top" type="button" title="返回顶部" aria-label="返回顶部">↑</button>
-  <script src="/assets/vendor/highlight.min.js" defer></script>
-  <script src="/assets/vendor/marked.min.js" defer></script>
-  <script src="/js/site.js?v=20260817-smooth" defer></script>
-  <script src="/js/pet.js?v=20260817-smooth" defer></script>
-  <script src="/js/comments.js?v=20260817-smooth" defer></script>
-  <script src="/js/github-stats.js?v=20260817-smooth" defer></script>
-  <script src="/js/protected.js?v=20260817-smooth" defer></script>
+  {{- $legacyRoutes := dict -}}
+  {{- range $page := .Site.RegularPages -}}
+    {{- with $page.Params.legacyId -}}
+      {{- $legacyRoutes = merge $legacyRoutes (dict (printf "%v" .) $page.RelPermalink) -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if gt (len $legacyRoutes) 0 -}}
+  <script id="legacy-hash-routes" type="application/json">{{ $legacyRoutes | jsonify | safeJS }}</script>
+  {{- end -}}
+  {{ partial "scripts.html" . }}
 </body>
 </html>

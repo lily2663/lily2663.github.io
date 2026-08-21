@@ -1,0 +1,20 @@
+id: footer
+name: Site Footer
+version: 0.1.0
+type: block
+description: 站点页脚
+context: any
+allowedSlots:
+  - global.footer
+template:
+  partial: lily/modules/footer/render.html
+defaults:
+  showCopyright: true
+  showNote: true
+schema:
+  showCopyright:
+    type: boolean
+    label: 显示版权
+  showNote:
+    type: boolean
+    label: 显示备注

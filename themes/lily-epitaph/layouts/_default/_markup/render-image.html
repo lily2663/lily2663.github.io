@@ -1,1 +1,8 @@
-<img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" loading="lazy" decoding="async" {{ with .Title }}title="{{ . }}"{{ end }}>
+{{- $resource := .Page.Resources.GetMatch .Destination -}}
+{{- if $resource -}}
+  {{- $small := $resource.Resize "720x webp q82" -}}
+  {{- $large := $resource.Resize "1280x webp q82" -}}
+  <img src="{{ $large.RelPermalink }}" srcset="{{ $small.RelPermalink }} 720w, {{ $large.RelPermalink }} 1280w" sizes="(max-width: 760px) 100vw, 760px" width="{{ $large.Width }}" height="{{ $large.Height }}" alt="{{ .Text }}" loading="lazy" decoding="async" {{ with .Title }}title="{{ . }}"{{ end }}>
+{{- else -}}
+  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" loading="lazy" decoding="async" {{ with .Title }}title="{{ . }}"{{ end }}>
+{{- end -}}

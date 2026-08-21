@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "lily-epitaph site configuration contract",
+  "sections": [
+    {"id":"basic","label":"基础","fields":[
+      {"path":"title","label":"博客名称","type":"string"},
+      {"path":"params.subtitle","label":"副标题","type":"string"},
+      {"path":"params.description","label":"站点描述","type":"string"},
+      {"path":"params.author","label":"作者","type":"string"}
+    ]},
+    {"id":"welcome","label":"欢迎页","fields":[
+      {"path":"params.welcome.enabled","label":"启用欢迎页","type":"boolean"},
+      {"path":"params.welcome.accent","label":"强调标题","type":"string"},
+      {"path":"params.welcome.enterText","label":"进入按钮文字","type":"string"},
+      {"path":"params.welcome.particles","label":"水彩粒子数量","type":"number"}
+    ]},
+    {"id":"pet","label":"宠物与阅读","fields":[
+      {"path":"params.pet.enabled","label":"启用宠物","type":"boolean"},
+      {"path":"params.article.toc","label":"显示目录","type":"boolean"},
+      {"path":"params.article.codeCopy","label":"显示代码复制","type":"boolean"}
+    ]},
+    {"id":"interaction","label":"交互与评论","fields":[
+      {"path":"params.search.enabled","label":"启用搜索","type":"boolean"},
+      {"path":"params.features.prefetch","label":"链接预加载","type":"boolean"},
+      {"path":"params.features.viewTransition","label":"页面切换动画","type":"boolean"},
+      {"path":"params.comments.enabled","label":"启用评论","type":"boolean"}
+    ]},
+    {"id":"footer","label":"页脚","fields":[
+      {"path":"params.footer.copyright","label":"版权文字","type":"string"},
+      {"path":"params.footer.note","label":"说明文字","type":"string"}
+    ]}
+  ]
+}

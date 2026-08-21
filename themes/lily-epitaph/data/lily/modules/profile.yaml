@@ -1,0 +1,34 @@
+id: profile
+name: Profile
+version: 0.1.0
+type: block
+description: 个人资料卡片，读取 data/site.yaml
+context: any
+allowedSlots:
+  - home.sidebar
+  - article.sidebar
+  - page.sidebar
+template:
+  partial: lily/modules/profile/render.html
+defaults:
+  showAvatar: true
+  showName: true
+  showBio: true
+  showLinks: true
+  compact: false
+schema:
+  showAvatar:
+    type: boolean
+    label: 显示头像
+  showName:
+    type: boolean
+    label: 显示名字
+  showBio:
+    type: boolean
+    label: 显示简介
+  showLinks:
+    type: boolean
+    label: 显示社交链接
+  compact:
+    type: boolean
+    label: 紧凑模式

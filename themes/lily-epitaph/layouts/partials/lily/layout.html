@@ -1,0 +1,31 @@
+{{- /* ============================================================
+ * Lily Layout 渲染器（主入口）
+ * 输入: kind(home/article/page) / page / skipSlots(可选，这些 slot 已在别处渲染)
+ * 流程: 读取 layout 数据 → 按 slotOrder（缺省字母序）逐 slot 渲染
+ * 输出: <div class="lily-composed lily-layout--<kind>">
+ * ============================================================ */ -}}
+{{- $kind := .kind | default "page" -}}
+{{- $page := .page -}}
+{{- $skip := .skipSlots | default slice -}}
+{{- $layoutData := index hugo.Data.lily.layouts $kind -}}
+{{- if $layoutData -}}
+  {{- /* slot 顺序：slotOrder 显式声明优先；缺省时按 key 字母序补全 */ -}}
+  {{- $slotOrder := $layoutData.slotOrder | default slice -}}
+  {{- if eq (len $slotOrder) 0 -}}
+    {{- range $name, $_ := $layoutData.slots }}{{ $slotOrder = $slotOrder | append $name }}{{ end -}}
+    {{- $slotOrder = sort $slotOrder -}}
+  {{- else -}}
+    {{- range $name, $_ := $layoutData.slots -}}
+      {{- if not (in $slotOrder $name) }}{{ $slotOrder = $slotOrder | append $name }}{{ end -}}
+    {{- end -}}
+  {{- end -}}
+  <div class="lily-composed lily-layout--{{ $kind }}">
+    {{- range $slotName := $slotOrder -}}
+      {{- if and (isset $layoutData.slots $slotName) (not (in $skip $slotName)) -}}
+        {{- partial "lily/slot.html" (dict "layout" $kind "slot" $slotName "page" $page) -}}
+      {{- end -}}
+    {{- end -}}
+  </div>
+{{- else -}}
+  {{- partial "lily/utils/warn.html" (dict "page" $page "msg" (printf "Unknown Lily Layout: %s" $kind) "slot" "-" "layout" $kind) -}}
+{{- end -}}

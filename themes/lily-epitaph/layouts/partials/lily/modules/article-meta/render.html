@@ -1,0 +1,16 @@
+{{- /* ============================================================
+ * Lily Module: article-meta — 文章元信息（原 single.html 的 article-head）
+ * 返回链接 / 日期 / 标题 / 标签 / 阅读时长与字数
+ * ============================================================ */ -}}
+{{- $page := .Page -}}
+{{- $cfg := .Config -}}
+{{- $weekdays := slice "周日" "周一" "周二" "周三" "周四" "周五" "周六" -}}
+{{- if $cfg.showBackLink }}<a class="back-link" href="/">← 返回文章列表</a>{{ end -}}
+<header class="article-head">
+  {{- if $cfg.showDate }}<div class="dateline">— {{ $page.Date.Format "2006年1月2日" }} · {{ index $weekdays (int $page.Date.Weekday) }}</div>{{ end -}}
+  <h1>{{ $page.Title }}</h1>
+  {{- if $cfg.showTags -}}
+    {{- with $page.Params.tags }}<div class="article-tags">{{ range . }}<a href="{{ "/tags/" | relURL }}{{ . | urlize }}/">{{ . }}</a>{{ end }}</div>{{ end -}}
+  {{- end -}}
+  {{- if $cfg.showStats }}<p class="article-stats">{{ $page.ReadingTime }} 分钟阅读　约 {{ $page.WordCount }} 字</p>{{ end -}}
+</header>

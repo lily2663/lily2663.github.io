@@ -1,0 +1,16 @@
+id: comments
+name: Comments
+version: 0.1.0
+type: service
+description: 评论区容器，仅在 params.comments.enabled 且配置 api 时渲染
+context: article
+allowedSlots:
+  - article.after
+template:
+  partial: lily/modules/comments/render.html
+defaults:
+  enabled: true
+schema:
+  enabled:
+    type: boolean
+    label: 启用评论区

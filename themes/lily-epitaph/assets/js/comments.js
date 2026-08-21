@@ -1,7 +1,8 @@
 (() => {
   const host = document.querySelector('#comment-container');
   if (!host) return;
-  const api = 'https://api.lily2663.top';
+  const api = host.dataset.commentApi;
+  if (!api) return;
   const page = host.dataset.commentId;
   host.innerHTML = '<section class="comment-section"><h2>评论 <span class="comment-count">(0)</span></h2><div class="comment-form"><label>昵称 <input class="comment-nick" required></label><label>邮箱（选填）<input class="comment-mail" type="email"></label><label>评论 <textarea class="comment-content" rows="4" required></textarea></label><button class="comment-submit" type="button">提交评论</button><p class="comment-status" aria-live="polite"></p></div><div class="comment-list"></div></section>';
   const $ = (selector) => host.querySelector(selector);

@@ -1,0 +1,18 @@
+{{- /* ============================================================
+ * Lily Module: article-content — 文章正文
+ * 核心：直接渲染 Hugo .Content（Goldmark / Markdown 原文不改写）
+ * 受保护文章：lock-box + data-protected-layout 骨架（protected.js 兼容）
+ * ============================================================ */ -}}
+{{- $page := .Page -}}
+{{- $protected := $page.Params.protected -}}
+{{- $commentID := $page.Params.commentId | default $page.File.ContentBaseName -}}
+{{- if $protected }}
+<section class="lock-box" data-protected-id="{{ $commentID }}" data-payload="/protected/{{ $commentID | urlquery }}.json">
+  <h2>受保护文章</h2><p>输入密码后在本次会话内阅读。此功能是轻量访问门槛，不提供强保密。</p>
+  <label for="protected-password">密码</label><div class="lock-form"><input id="protected-password" type="password" autocomplete="current-password"><button type="button" data-unlock>解锁阅读</button></div>
+  <p class="lock-status" aria-live="polite"></p>
+</section>
+{{ end -}}
+<div class="article-layout lily-article-body-wrap"{{ if $protected }} data-protected-layout hidden{{ end }}>
+  <div class="article-body{{ if $protected }} protected-body{{ end }}"{{ if $protected }} data-protected-body{{ end }}>{{ if not $protected }}{{ $page.Content }}{{ end }}</div>
+</div>

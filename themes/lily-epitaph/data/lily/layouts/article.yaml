@@ -1,0 +1,17 @@
+kind: article
+title: "文章页"
+description: "文章页由 4 个 slot 组合"
+slotOrder: [header, main, sidebar, after]
+slots:
+  header:
+    - id: article-meta
+      module: article-meta
+  main:
+    - id: article-content
+      module: article-content
+  sidebar:
+    - id: article-toc
+      module: toc
+  after:
+    - id: article-comments
+      module: comments

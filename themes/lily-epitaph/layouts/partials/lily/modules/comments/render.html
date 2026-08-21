@@ -1,0 +1,10 @@
+{{- /* ============================================================
+ * Lily Module: comments — 评论区容器（service 类型示例）
+ * 仅当 posts 文章且 params.comments.enabled + api 配置时渲染
+ * ============================================================ */ -}}
+{{- $cfg := .Config -}}
+{{- $enabled := $cfg.enabled | default true -}}
+{{- if and $enabled (eq .Page.Section "posts") site.Params.comments.enabled site.Params.comments.api -}}
+  {{- $commentID := .Page.Params.commentId | default .Page.File.ContentBaseName -}}
+  <section id="comment-container" data-comment-id="{{ $commentID }}" data-comment-api="{{ site.Params.comments.api }}"></section>
+{{- end -}}

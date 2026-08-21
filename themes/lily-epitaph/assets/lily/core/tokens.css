@@ -1,0 +1,57 @@
+/* ============================================================
+ * Lily Design Tokens v0.1
+ * 模块 CSS 只允许引用 --lily-* 语义令牌，禁止直接写具体色值。
+ * 自包含（不依赖旧 style.css），保持现有 Stellar-inspired 柔和水彩风。
+ * ============================================================ */
+:root {
+  /* Color —— 语义色 */
+  --lily-color-primary: #7FB5B0;
+  --lily-color-primary-soft: #A8D5D1;
+  --lily-color-primary-deep: #5A8F8A;
+  --lily-color-accent: #E8839B;
+  --lily-color-accent-soft: #F4A7B9;
+  --lily-color-text: #2C3E50;
+  --lily-color-text-soft: #5A6B7C;
+  --lily-color-muted: #8B95A5;
+  --lily-bg-page: #FAFAF8;
+  --lily-bg-card: #FFFFFF;
+  --lily-bg-hover: #F5F5F3;
+  --lily-color-border: #E8E8E6;
+  --lily-color-border-light: #F0F0EE;
+  --lily-bg-code: #F8F9FA;
+
+  /* Radius */
+  --lily-radius-sm: 8px;
+  --lily-radius-md: 12px;
+  --lily-radius-lg: 16px;
+
+  /* Space */
+  --lily-space-xs: 0.5rem;
+  --lily-space-sm: 0.75rem;
+  --lily-space-md: 1.25rem;
+  --lily-space-lg: 2rem;
+
+  /* Font */
+  --lily-font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --lily-font-heading: "Playfair Display", Georgia, "Noto Serif SC", serif;
+  --lily-font-mono: "SFMono-Regular", "JetBrains Mono", Consolas, Menlo, monospace;
+
+  /* Shadow */
+  --lily-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --lily-shadow-card-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+  --lily-bg-page: #1A1A1A;
+  --lily-bg-card: #242424;
+  --lily-bg-hover: #2A2A2A;
+  --lily-color-text: #E8E8E8;
+  --lily-color-text-soft: #B8B8B8;
+  --lily-color-muted: #888888;
+  --lily-color-border: #333333;
+  --lily-color-border-light: #2A2A2A;
+  --lily-bg-code: #1E1E1E;
+  --lily-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --lily-shadow-card-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+}

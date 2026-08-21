@@ -1,0 +1,41 @@
+/* ============================================================
+ * Lily Module: profile —— 个人资料卡片
+ * ============================================================ */
+.lily-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+.lily-profile--compact { flex-direction: row; align-items: center; }
+
+.lily-profile__avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--lily-color-primary-soft);
+}
+.lily-profile--compact .lily-profile__avatar { width: 42px; height: 42px; }
+
+.lily-profile__name {
+  font-family: var(--lily-font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--lily-color-text);
+}
+
+.lily-profile__bio {
+  color: var(--lily-color-muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.lily-profile__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+}
+.lily-profile__links a { color: var(--lily-color-primary-deep); }
+.lily-profile__links a:hover { color: var(--lily-color-accent); }

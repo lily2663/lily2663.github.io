@@ -1,0 +1,74 @@
+{{- /* ============================================================
+ * Lily Module Resolver
+ * 输入: instance(实例配置) / slot(完整 slot id) / page / layout
+ * 流程: Registry 查找 → allowedSlots 校验 → context 校验
+ *       → 配置合并(defaults → layout moduleDefaults → instance)
+ *       → 调用模块模板并输出统一 DOM Identity
+ * ============================================================ */ -}}
+{{- $instance := .instance -}}
+{{- $slot := .slot -}}
+{{- $page := .page -}}
+{{- $layout := .layout -}}
+
+{{- /* 校验错误收集：任何一项失败则警告并跳过渲染 */ -}}
+{{- $errors := slice -}}
+{{- if not $instance.id -}}
+  {{- $errors = $errors | append "module instance is missing an id" -}}
+{{- end -}}
+{{- $moduleID := $instance.module -}}
+{{- if and (eq (len $errors) 0) (not $moduleID) -}}
+  {{- $errors = $errors | append (printf "instance %q is missing a module reference" $instance.id) -}}
+{{- end -}}
+
+{{- $manifest := dict -}}
+{{- if and (eq (len $errors) 0) $moduleID -}}
+  {{- $manifest = index hugo.Data.lily.modules $moduleID -}}
+  {{- if not $manifest -}}
+    {{- $errors = $errors | append (printf "Unknown Lily Module: %s" $moduleID) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if eq (len $errors) 0 -}}
+  {{- $allowed := $manifest.allowedSlots | default slice -}}
+  {{- if not (in $allowed $slot) -}}
+    {{- $errors = $errors | append (printf "Module %q is not allowed in slot %q (allowed: %v)" $moduleID $slot $allowed) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if eq (len $errors) 0 -}}
+  {{- $ctxKind := $manifest.context | default "any" -}}
+  {{- if ne $ctxKind "any" -}}
+    {{- $pageKind := partial "lily/utils/kind.html" (dict "page" $page) -}}
+    {{- if ne $ctxKind $pageKind -}}
+      {{- $errors = $errors | append (printf "Module %q context %q does not match page kind %q" $moduleID $ctxKind $pageKind) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if gt (len $errors) 0 -}}
+  {{- partial "lily/utils/warn.html" (dict "page" $page "msg" (delimit $errors "; ") "instance" ($instance.id | default "-") "slot" $slot "layout" $layout) -}}
+{{- else -}}
+  {{- /* 配置优先级: defaults → layout moduleDefaults → instance config */ -}}
+  {{- $defaults := $manifest.defaults | default dict -}}
+  {{- $layoutDefaults := dict -}}
+  {{- with index hugo.Data.lily.layouts $layout }}{{ $layoutDefaults = .moduleDefaults | default dict }}{{ end -}}
+  {{- $config := partial "lily/utils/merge.html" (dict "base" $defaults "over" $layoutDefaults) -}}
+  {{- $config = partial "lily/utils/merge.html" (dict "base" $config "over" ($instance.config | default dict)) -}}
+
+  {{- $ctx := dict
+    "Page" $page
+    "Instance" (dict "id" $instance.id "module" $moduleID "slot" $slot)
+    "Manifest" $manifest
+    "Config" $config
+    "Slot" $slot
+    "Layout" $layout
+  -}}
+  <section class="lily-module lily-module--{{ $moduleID }}" data-lily-module="{{ $moduleID }}" data-lily-instance="{{ $instance.id }}" data-lily-slot="{{ $slot }}">
+    {{- $partialName := printf "lily/modules/%s/render.html" $moduleID -}}
+    {{- if templates.Exists (printf "partials/%s" $partialName) -}}
+      {{- partial $partialName $ctx -}}
+    {{- else -}}
+      {{- partial "lily/utils/warn.html" (dict "page" $page "msg" (printf "Template not found for module %q: %s" $moduleID $partialName) "instance" $instance.id "slot" $slot "layout" $layout) -}}
+    {{- end -}}
+  </section>
+{{- end -}}

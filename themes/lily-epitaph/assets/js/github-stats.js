@@ -1,7 +1,8 @@
 (() => {
   const container = document.querySelector('#github-stats');
   if (!container) return;
-  const username = 'lily2663';
+  const username = container.dataset.githubUsername;
+  if (!username) return;
   const articleCount = document.querySelectorAll('[data-post-grid] [data-search]').length || 18;
   container.innerHTML = `<h3>代码统计</h3><div class="stats-grid"><div class="stat-item"><div class="stat-value" data-stat="commits">-</div><div class="stat-label">今年提交</div></div><div class="stat-item"><div class="stat-value">${articleCount}</div><div class="stat-label">篇文章</div></div><div class="stat-item"><div class="stat-value" data-stat="repos">-</div><div class="stat-label">公开仓库</div></div><div class="stat-item"><div class="stat-value" data-stat="followers">-</div><div class="stat-label">关注者</div></div></div><div class="contribution-graph"><img src="https://ghchart.rshah.org/7FB5B0/${username}" alt="GitHub 贡献图" loading="lazy"></div><div class="top-languages"><h4>常用语言</h4><div class="lang-bars" data-languages><div class="stats-loading">加载中...</div></div></div>`;
   const stat = (name) => container.querySelector(`[data-stat="${name}"]`);

@@ -38,7 +38,8 @@ for (const dir of fs.readdirSync(content, { withFileTypes: true }).filter((entry
   }
 }
 const secrets = fs.existsSync(secretPath) ? JSON.parse(fs.readFileSync(secretPath, 'utf8')) : null;
-for (const file of fs.readdirSync(privateContent).filter((name) => name.endsWith('.md'))) {
+const privateFiles = fs.existsSync(privateContent) ? fs.readdirSync(privateContent).filter((name) => name.endsWith('.md')) : [];
+for (const file of privateFiles) {
   const id = file.slice(0, -3);
   const payloadPath = path.join(protectedDir, `${encodeURIComponent(id)}.json`);
   if (!fs.existsSync(payloadPath)) { errors.push(`Missing encrypted payload: ${file}`); continue; }
@@ -58,4 +59,4 @@ if (errors.length) {
   console.error(errors.join('\n'));
   process.exit(1);
 }
-console.log(`Content check passed: ${slugs.size} public routes, ${fs.readdirSync(privateContent).length} protected sources, ${secrets ? 'AES regression tested' : 'encryption schema tested'}.`);
+console.log(`Content check passed: ${slugs.size} public routes, ${privateFiles.length} protected sources, ${secrets ? 'AES regression tested' : 'encryption schema tested'}.`);

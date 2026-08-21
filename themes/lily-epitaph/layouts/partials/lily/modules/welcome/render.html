@@ -1,0 +1,24 @@
+{{- /* ============================================================
+ * Lily Module: welcome — 首页欢迎屏（水彩进入动画）
+ * 站点配置 params.welcome 优先，其次 instance config
+ * 仅渲染一次：site.js 用 sessionStorage 控制重现
+ * ============================================================ */ -}}
+{{- $cfg := .Config -}}
+{{- $enabled := $cfg.enabled | default true -}}
+{{- with site.Params.welcome }}{{ if isset . "enabled" }}{{ $enabled = .enabled }}{{ end }}{{ end -}}
+{{- if and .Page.IsHome $enabled -}}
+  {{- $welcome := site.Params.welcome | default dict -}}
+  {{- $welcomeImage := $welcome.background | default $cfg.background | default "/lily-epitaph/welcome-watercolor.jpg" -}}
+  {{- $welcomeBefore := $welcome.titleBefore | default $cfg.titleBefore | default "Welcome to " -}}
+  {{- $welcomeAccent := $welcome.accent | default $cfg.accent | default site.Title -}}
+  {{- $welcomeAfter := $welcome.titleAfter | default $cfg.titleAfter | default "" -}}
+  {{- $welcomeSubtitle := $welcome.subtitle | default $cfg.subtitle | default site.Params.subtitle -}}
+  {{- $welcomeEnter := $welcome.enterText | default $cfg.enterText | default "Enter" -}}
+  {{- $welcomeHint := $welcome.hint | default $cfg.hint | default "Press any key or click to enter" -}}
+  {{- $particleCount := $welcome.particles | default $cfg.particles | default 30 -}}
+  {{- $particleColors := slice "rgba(127,181,176,.36)" "rgba(232,131,155,.30)" "rgba(168,213,209,.38)" "rgba(244,167,185,.28)" -}}
+  <section class="welcome-splash" id="welcome-splash" role="dialog" aria-modal="true" aria-labelledby="welcome-title" style="--welcome-image:url('{{ $welcomeImage }}')" hidden>
+    <div class="watercolor-field" aria-hidden="true">{{ range $index := seq $particleCount }}{{ $n := sub $index 1 }}{{ $x := mod (mul $n 37) 100 }}{{ $y := mod (add (mul $n 61) 17) 100 }}{{ $size := add 54 (mod (mul $n 29) 96) }}{{ $duration := add 8 (mod (mul $n 7) 7) }}{{ $delay := mod (mul $n 11) 6 }}<span class="watercolor-dot" style="--dot-x:{{ $x }}%;--dot-y:{{ $y }}%;--dot-size:{{ $size }}px;--dot-duration:{{ $duration }}s;--dot-delay:-{{ $delay }}s;--dot-color:{{ index $particleColors (mod $n (len $particleColors)) | safeCSS }}"></span>{{ end }}</div>
+    <div class="welcome-content"><h1 class="welcome-title" id="welcome-title">{{ $welcomeBefore }}<span class="accent">{{ $welcomeAccent }}</span>{{ $welcomeAfter }}</h1><p class="welcome-subtitle">{{ $welcomeSubtitle }}</p><button class="welcome-enter" id="welcome-enter" type="button">{{ $welcomeEnter }}</button><p class="welcome-hint">{{ $welcomeHint }}</p></div>
+  </section>
+{{- end -}}

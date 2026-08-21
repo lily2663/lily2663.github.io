@@ -4,17 +4,46 @@
 <meta name="theme-color" content="#7FB5B0">
 <link rel="canonical" href="{{ .Permalink }}">
 <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
+{{- $description := .Description | default .Params.summary | default .Site.Params.description -}}
+{{- $cover := .Params.cover | default .Site.Params.avatar -}}
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
 <meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
-<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}{{ end }}">
+<meta property="og:description" content="{{ $description }}">
 <meta property="og:url" content="{{ .Permalink }}">
-<meta property="og:image" content="{{ .Site.Params.avatar | absURL }}">
+<meta property="og:image" content="{{ $cover | absURL }}">
 <meta property="og:locale" content="zh_CN">
-<meta name="twitter:card" content="summary">
+{{ if .IsPage }}<meta property="article:published_time" content="{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}">{{ end }}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta name="twitter:description" content="{{ $description }}">
+<meta name="twitter:image" content="{{ $cover | absURL }}">
 <link rel="icon" type="image/jpeg" href="/assets/img/avatar.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap">
-<link rel="stylesheet" href="/assets/css/style.css">
-<link rel="stylesheet" href="/css/hugo.css?v=20260817-smooth-3">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap"></noscript>
+{{- with resources.Get "css/style.css" -}}
+  {{- $style := . | minify | fingerprint -}}
+  <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
+{{- end -}}
+{{- with resources.Get "css/hugo.css" -}}
+  {{- $style := . | minify | fingerprint -}}
+  <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
+{{- end -}}
+{{- /* Lily 模块 CSS：core(tokens+base) + modules/* 打包为单文件，避免请求爆炸 */ -}}
+{{- $lilyCss := slice -}}
+{{- with resources.Get "lily/core/tokens.css" }}{{ $lilyCss = $lilyCss | append . }}{{ end -}}
+{{- with resources.Get "lily/core/base.css" }}{{ $lilyCss = $lilyCss | append . }}{{ end -}}
+{{- range resources.Match "lily/modules/*.css" }}{{ $lilyCss = $lilyCss | append . }}{{ end -}}
+{{- if gt (len $lilyCss) 0 -}}
+  {{- $lilyBundle := $lilyCss | resources.Concat "css/lily.css" | minify | fingerprint -}}
+  <link rel="stylesheet" href="{{ $lilyBundle.RelPermalink }}" integrity="{{ $lilyBundle.Data.Integrity }}">
+{{- end -}}
 <script>document.documentElement.dataset.theme=localStorage.getItem('blog-theme')||((matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');</script>
+{{- $viewTransitions := true -}}
+{{- with .Site.Params.features }}{{ if isset . "viewTransition" }}{{ $viewTransitions = .viewTransition }}{{ end }}{{ end -}}
+{{ if not $viewTransitions }}<style>@view-transition { navigation: none; }</style>{{ end }}
+{{- if .IsPage }}
+  {{- $articleSchema := dict "@context" "https://schema.org" "@type" "BlogPosting" "headline" .Title "description" $description "url" .Permalink "datePublished" (.PublishDate.Format "2006-01-02T15:04:05Z07:00") "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00") "image" ($cover | absURL) "author" (dict "@type" "Person" "name" .Site.Params.author) "publisher" (dict "@type" "Organization" "name" .Site.Title) -}}
+  <script type="application/ld+json">{{ $articleSchema | jsonify | safeJS }}</script>
+{{- end }}

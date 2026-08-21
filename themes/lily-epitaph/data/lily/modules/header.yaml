@@ -1,0 +1,20 @@
+id: header
+name: Site Header
+version: 0.1.0
+type: service
+description: 站点导航，含搜索框与主题切换
+context: any
+allowedSlots:
+  - global.header
+template:
+  partial: lily/modules/header/render.html
+defaults:
+  showSearch: true
+  showThemeToggle: true
+schema:
+  showSearch:
+    type: boolean
+    label: 显示搜索
+  showThemeToggle:
+    type: boolean
+    label: 显示主题切换

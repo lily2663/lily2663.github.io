@@ -1,25 +1,29 @@
 {{ define "main" }}
-<article class="article" data-comment-id="{{ .Params.commentId }}">
+{{- $commentID := .Params.commentId | default .File.ContentBaseName -}}
+{{- $weekdays := slice "周日" "周一" "周二" "周三" "周四" "周五" "周六" -}}
+{{- $tocEnabled := true -}}
+{{- with .Site.Params.article }}{{ if isset . "toc" }}{{ $tocEnabled = .toc }}{{ end }}{{ end -}}
+<article class="article" data-comment-id="{{ $commentID }}">
   <a class="back-link" href="/">← 返回文章列表</a>
   <header class="article-head">
-    <div class="dateline">— {{ .Date.Format "2006年1月2日 · 周一" }}</div>
+    <div class="dateline">— {{ .Date.Format "2006年1月2日" }} · {{ index $weekdays (int .Date.Weekday) }}</div>
     <h1>{{ .Title }}</h1>
     <div class="article-tags">{{ range .Params.tags }}<a href="{{ "/tags/" | relURL }}{{ . | urlize }}/">{{ . }}</a>{{ end }}</div>
     <p class="article-stats">{{ .ReadingTime }} 分钟阅读　约 {{ .WordCount }} 字</p>
   </header>
   {{ if .Params.protected }}
-    <section class="lock-box" data-protected-id="{{ .Params.commentId }}" data-payload="/protected/{{ .Params.commentId | urlquery }}.json">
-      <h2>受保护文章</h2><p>输入密码后在本次会话内阅读。此功能是轻量访问门槛，不提供强保密。</p>
-      <label for="protected-password">密码</label><div class="lock-form"><input id="protected-password" type="password" autocomplete="current-password"><button type="button" data-unlock>解锁阅读</button></div>
-      <p class="lock-status" aria-live="polite"></p>
-      <div class="article-body protected-body" hidden></div>
-    </section>
-  {{ else }}
-    <div class="article-layout">
-      <div class="article-body">{{ .Content }}</div>
-      {{ if eq .Section "posts" }}{{ with .TableOfContents }}<aside class="toc-wrap"><div class="toc-title">目录 · Contents</div><nav class="toc" aria-label="文章目录">{{ . }}</nav></aside>{{ end }}{{ end }}
-    </div>
+  <section class="lock-box" data-protected-id="{{ $commentID }}" data-payload="/protected/{{ $commentID | urlquery }}.json">
+    <h2>受保护文章</h2><p>输入密码后在本次会话内阅读。此功能是轻量访问门槛，不提供强保密。</p>
+    <label for="protected-password">密码</label><div class="lock-form"><input id="protected-password" type="password" autocomplete="current-password"><button type="button" data-unlock>解锁阅读</button></div>
+    <p class="lock-status" aria-live="polite"></p>
+  </section>
   {{ end }}
+  <div class="article-layout" {{ if .Params.protected }}data-protected-layout hidden{{ end }}>
+    <div class="article-body{{ if .Params.protected }} protected-body{{ end }}" {{ if .Params.protected }}data-protected-body{{ end }}>{{ if not .Params.protected }}{{ .Content }}{{ end }}</div>
+    {{ if and .Params.protected $tocEnabled }}
+    <aside class="toc-wrap" data-protected-toc hidden><div class="toc-title">目录 · Contents</div><nav class="toc" aria-label="文章目录"></nav></aside>
+    {{ else if and (not .Params.protected) $tocEnabled (eq .Section "posts") }}{{ with .TableOfContents }}<aside class="toc-wrap"><div class="toc-title">目录 · Contents</div><nav class="toc" aria-label="文章目录">{{ . }}</nav></aside>{{ end }}{{ end }}
+  </div>
 </article>
-<section id="comment-container" data-comment-id="{{ .Params.commentId }}"></section>
+{{ if and (eq .Section "posts") .Site.Params.comments.enabled .Site.Params.comments.api }}<section id="comment-container" data-comment-id="{{ $commentID }}" data-comment-api="{{ .Site.Params.comments.api }}"></section>{{ end }}
 {{ end }}

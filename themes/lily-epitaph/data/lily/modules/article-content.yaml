@@ -1,0 +1,22 @@
+id: article-content
+name: Article Content
+version: 0.1.0
+type: content
+description: 文章正文，直接渲染 Hugo .Content（Goldmark）。含受保护文章的锁定与解锁结构
+context: any
+allowedSlots:
+  - article.main
+  - page.main
+template:
+  partial: lily/modules/article-content/render.html
+defaults:
+  layout: auto
+schema:
+  layout:
+    type: select
+    label: 正文布局
+    options:
+      - value: auto
+        label: 自动
+      - value: full
+        label: 全宽

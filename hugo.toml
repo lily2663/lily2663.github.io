@@ -11,11 +11,62 @@ ignoreLogs = ["warning-goldmark-raw-html"]
 
 [params]
   subtitle = "the house of the dead"
-  description = "记录代码、安全与零碎思考"
+  description = "记录"
   author = "lilyzero"
-  avatar = "/assets/img/avatar.jpg"
-  commentApi = "https://api.lily2663.top"
+avatar = "/assets/img/mmexport1768138528389.jpg"
 
+[params.welcome]
+  enabled = true
+background = "/assets/img/【哲风壁纸】书屋-大海-晴天.jpg"
+backgroundDark = "/lily-epitaph/night-watercolor.jpg"
+  titleBefore = "Welcome to "
+  accent = "Lily's"
+  titleAfter = " House"
+  subtitle = "the house of the dead"
+  enterText = "Enter"
+  hint = "Press any key or click to enter"
+  particles = 30
+
+[params.pet]
+  enabled = true
+  image = "/assets/img/pet/tuanzi.png"
+
+[params.search]
+  enabled = true
+
+[params.protected]
+  enabled = true
+
+[params.article]
+  toc = true
+  codeCopy = true
+
+[params.comments]
+  enabled = true
+  api = "https://api.lily2663.top"
+
+[params.footer]
+  copyright = "用 Hugo 驱动的技术博客"
+  note = "所有文章均为md格式"
+
+[params.features]
+  prefetch = true
+  viewTransition = true
+
+[[menus.main]]
+  name = "首页"
+  url = "/"
+  weight = 10
+
+[[menus.main]]
+  name = "友链"
+  url = "/links/"
+  weight = 20
+
+[[menus.main]]
+  name = "关于"
+  url = "/about/"
+  weight = 30
 [taxonomies]
   tag = "tags"
 

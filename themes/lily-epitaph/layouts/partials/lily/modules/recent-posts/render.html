@@ -1,0 +1,18 @@
+{{- /* ============================================================
+ * Lily Module: recent-posts — 文章列表（Hugo Content Query）
+ * 复用原有 .front-grid/.post-item 结构与搜索 data 属性
+ * ============================================================ */ -}}
+{{- $cfg := .Config -}}
+{{- $section := $cfg.section | default "posts" -}}
+{{- $posts := (site.GetPage "section" $section).RegularPages -}}
+{{- $limit := $cfg.limit | default 0 -}}
+{{- if gt $limit 0 }}{{ $posts = first $limit $posts }}{{ end -}}
+{{- if gt (len $posts) 0 -}}
+  <section class="post-list" data-search-list>
+    <h2 class="section-title"><span data-search-title>{{ $cfg.title | default "全部文章" }}</span>{{ if $cfg.showCount }} <span class="count" data-search-count>{{ len $posts }} 篇</span>{{ end }}</h2>
+    <div class="front-grid" id="post-grid" data-post-grid>
+      {{ range $posts.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}
+    </div>
+    <p class="empty search-empty" role="status" hidden>没有找到匹配的文章。</p>
+  </section>
+{{- end -}}

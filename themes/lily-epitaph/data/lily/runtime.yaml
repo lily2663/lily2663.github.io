@@ -1,0 +1,6 @@
+# Lily Runtime 元数据
+# 由 Runtime partial 读取，Debug 页面与 /lily-manager.json 展示
+version: 0.1.0
+name: Lily Runtime
+protocol: 0.1
+engine: hugo-partials

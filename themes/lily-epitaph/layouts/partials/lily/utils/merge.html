@@ -1,0 +1,16 @@
+{{- /* Lily 配置合并：递归 2 层（Schema 值为标量或一层 map，2 层足够） */ -}}
+{{- $base := .base | default dict -}}
+{{- $over := .over | default dict -}}
+{{- $out := $base -}}
+{{- range $k, $v := $over -}}
+  {{- $baseHas := isset $base $k -}}
+  {{- $baseVal := dict -}}
+  {{- if $baseHas }}{{ $baseVal = index $base $k }}{{ end -}}
+  {{- if and $baseHas (eq (printf "%T" $baseVal) "map[string]interface {}") (eq (printf "%T" $v) "map[string]interface {}") -}}
+    {{- $merged := merge $baseVal $v -}}
+    {{- $out = merge $out (dict $k $merged) -}}
+  {{- else -}}
+    {{- $out = merge $out (dict $k $v) -}}
+  {{- end -}}
+{{- end -}}
+{{- return $out -}}

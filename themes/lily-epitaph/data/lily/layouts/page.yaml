@@ -1,0 +1,9 @@
+kind: page
+title: "普通页面"
+description: "普通页面仅渲染正文内容"
+slotOrder: [main, sidebar]
+slots:
+  main:
+    - id: page-content
+      module: article-content
+  sidebar:

@@ -1,3 +1,6 @@
 name = "lily-epitaph"
 license = "MIT"
 min_version = "0.165.0"
+description = "An opinionated watercolor Hugo theme for personal technical writing."
+tags = ["blog", "watercolor", "technical", "responsive", "dark-mode"]
+features = ["markdown", "search", "toc", "code-copy", "protected-content", "rss", "sitemap"]

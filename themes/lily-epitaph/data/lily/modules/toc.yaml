@@ -1,0 +1,16 @@
+id: toc
+name: TOC
+version: 0.1.0
+type: content
+description: 文章目录，读取 Hugo .TableOfContents；无目录或非文章页不渲染
+context: article
+allowedSlots:
+  - article.sidebar
+template:
+  partial: lily/modules/toc/render.html
+defaults:
+  title: 目录 · Contents
+schema:
+  title:
+    type: string
+    label: 目录标题

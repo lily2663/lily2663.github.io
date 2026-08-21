@@ -1,0 +1,87 @@
+/* ============================================================
+ * Lily Base —— Slot / Module wrapper 与页面组合布局
+ * 页面结构由 data/lily/layouts/*.yaml 组合，CSS 只负责呈现
+ * ============================================================ */
+.lily-slot { min-width: 0; }
+.lily-module { min-width: 0; }
+
+/* 模块通用标题 */
+.lily-module__title {
+  font-family: var(--lily-font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--lily-color-text);
+  margin: 0 0 0.75rem;
+}
+
+/* ---------- Home 布局：hero 全宽 + main/sidebar 两栏 ---------- */
+.lily-layout--home {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 32px;
+  align-items: start;
+  max-width: var(--maxw, 1200px);
+  margin: 0 auto;
+  padding-top: 72px; /* 与头部留出呼吸间距（section-title 自带 margin 已归零） */
+}
+.lily-layout--home > [data-lily-slot="home.hero"] { grid-column: 1 / -1; }
+.lily-layout--home .section-title { margin-top: 0; }
+
+/* 侧栏 sticky：宽屏下头像卡片+标签随滚动固定，不再滚出视野
+   top = 头部高度(158) + 24px 间隙；超高视口不足时侧栏内部滚动 */
+@media (min-width: 901px) {
+  .lily-slot[data-lily-slot="home.sidebar"] {
+    position: sticky;
+    top: 182px;
+    max-height: calc(100vh - 198px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}
+
+/* ---------- Article 布局：header/after 全宽 + main/sidebar 两栏 ---------- */
+.lily-layout--article {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 48px;
+  align-items: start;
+  max-width: var(--maxw, 1200px);
+  margin: 0 auto;
+}
+.lily-layout--article > [data-lily-slot="article.header"],
+.lily-layout--article > [data-lily-slot="article.after"] { grid-column: 1 / -1; }
+
+/* ---------- Page 布局：单列阅读宽度 ---------- */
+.lily-layout--page {
+  max-width: var(--readw, 760px);
+  margin: 0 auto;
+}
+
+/* ---------- Sidebar 卡片统一外观 ---------- */
+.lily-slot[data-lily-slot$=".sidebar"] > .lily-module {
+  background: var(--lily-bg-card);
+  background: color-mix(in srgb, var(--lily-bg-card) 76%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--lily-color-border-light);
+  border-radius: var(--lily-radius-md);
+  box-shadow: var(--lily-shadow-card);
+  padding: 1.15rem 1.25rem;
+}
+.lily-slot[data-lily-slot$=".sidebar"] > .lily-module + .lily-module { margin-top: 1rem; }
+
+/* ---------- 文章正文容器：grid 已由 lily 层承担，这里退化为普通块 ---------- */
+.lily-module--article-content .article-layout {
+  display: block;
+  gap: 0;
+  max-width: none;
+  margin: 0;
+}
+
+/* ---------- 响应式：900px 以下单列 ---------- */
+@media (max-width: 900px) {
+  .lily-layout--home,
+  .lily-layout--article { display: block; }
+  .lily-slot[data-lily-slot="home.sidebar"],
+  .lily-slot[data-lily-slot="article.sidebar"] { margin-top: 2rem; }
+}

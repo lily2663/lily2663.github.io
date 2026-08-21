@@ -1,0 +1,23 @@
+{{- /* ============================================================
+ * Lily Module: profile — 个人资料卡片（读取 data/site.yaml）
+ * 支持 compact 紧凑模式与多实例（每个实例可独立配置）
+ * ============================================================ */ -}}
+{{- $siteData := hugo.Data.site | default dict -}}
+{{- $cfg := .Config -}}
+{{- $compact := $cfg.compact | default false -}}
+{{- $avatar := $siteData.avatar | default site.Params.avatar -}}
+{{- $author := $siteData.author | default site.Params.author | default site.Title -}}
+<section class="lily-profile{{ if $compact }} lily-profile--compact{{ end }}">
+  {{- if $cfg.showAvatar -}}
+    {{- with $avatar }}<img class="lily-profile__avatar" src="{{ . }}" alt="{{ $author }} 的头像" loading="lazy">{{ end -}}
+  {{- end -}}
+  {{- if $cfg.showName }}<h3 class="lily-profile__name">{{ $author }}</h3>{{ end -}}
+  {{- if and $cfg.showBio (not $compact) -}}
+    {{- range $siteData.about }}<p class="lily-profile__bio">{{ . }}</p>{{ end -}}
+  {{- end -}}
+  {{- if $cfg.showLinks -}}
+    <div class="lily-profile__links">
+      {{- range $siteData.links }}<a href="{{ .url }}" target="_blank" rel="noopener noreferrer">{{ .label }}</a>{{ end -}}
+    </div>
+  {{- end -}}
+</section>

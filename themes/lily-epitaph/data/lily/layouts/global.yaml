@@ -1,0 +1,11 @@
+kind: global
+title: "Global Skeleton"
+description: "全站 header 与 footer 骨架"
+slotOrder: [header, footer]
+slots:
+  header:
+    - id: global-header
+      module: header
+  footer:
+    - id: global-footer
+      module: footer

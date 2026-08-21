@@ -7,7 +7,8 @@
 ```powershell
 npm run migrate  # 首次把旧 posts/ 转换为 Hugo 内容
 npm run dev      # 本地热更新
-npm run build    # 加密、检查与生产构建
+npm run protect  # 仅在受保护文章原文变更后更新密文
+npm run build    # 检查并进行不改写内容的生产构建
 ```
 
 Hugo 0.165.0 保存在工作区 `.tools/`，不依赖系统全局安装。文章写作与受保护内容流程见 `docs/AUTHORING.md`。

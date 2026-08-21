@@ -1,10 +1,5 @@
 {{ define "main" }}
-<section class="post-list" data-search-list>
-  {{ $posts := (site.GetPage "section" "posts").RegularPages }}
-  <h2 class="section-title">全部文章 <span class="count">{{ len $posts }} 篇</span></h2>
-  <div class="front-grid" data-post-grid>
-    {{ range $posts.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}
-  </div>
-  <p class="empty search-empty" hidden>没有找到匹配的文章。</p>
-</section>
+{{- /* Lily Home：页面结构由 data/lily/layouts/home.yaml 组合
+     hero slot 已在 baseof 中于 #app 外渲染（欢迎屏 fixed 定位需要），此处跳过 */ -}}
+{{ partial "lily/layout.html" (dict "kind" "home" "page" . "skipSlots" (slice "hero")) }}
 {{ end }}

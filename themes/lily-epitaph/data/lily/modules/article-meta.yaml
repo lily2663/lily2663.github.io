@@ -1,0 +1,28 @@
+id: article-meta
+name: Article Meta
+version: 0.1.0
+type: content
+description: 文章元信息：返回链接、日期、标题、标签、阅读时长与字数
+context: article
+allowedSlots:
+  - article.header
+template:
+  partial: lily/modules/article-meta/render.html
+defaults:
+  showBackLink: true
+  showDate: true
+  showTags: true
+  showStats: true
+schema:
+  showBackLink:
+    type: boolean
+    label: 显示返回链接
+  showDate:
+    type: boolean
+    label: 显示日期
+  showTags:
+    type: boolean
+    label: 显示标签
+  showStats:
+    type: boolean
+    label: 显示阅读时长与字数

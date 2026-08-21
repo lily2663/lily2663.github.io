@@ -1,0 +1,7 @@
+{{- /* Lily 警告输出：开发模式下输出可见警告条，生产模式完全静默。
+  注意：Hugo 渲染输出默认剥离 HTML 注释，因此不能依赖 <!-- -->，
+  改用带 data-lily-warn 的元素，未来可被测试/工具选择。 */ -}}
+{{- if hugo.IsDevelopment -}}
+<aside class="lily-warn" data-lily-warn="1" role="alert" style="margin:.5rem 0;padding:.5rem .75rem;border:1px dashed #E8839B;border-radius:8px;background:rgba(232,131,155,.08);color:#C96B82;font:12px/1.6 var(--lily-font-mono,Consolas,monospace);white-space:pre-wrap;">[lily] {{ .msg }}
+  Instance: {{ .instance | default "-" }} · Slot: {{ .slot | default "-" }} · Layout: {{ .layout | default "-" }}</aside>
+{{- end -}}

@@ -1,0 +1,25 @@
+{{- /* ============================================================
+ * Lily Module: tags — 标签云（Hugo Taxonomy 驱动）
+ * 空 taxonomy 或超限时不渲染任何内容
+ * ============================================================ */ -}}
+{{- $cfg := .Config -}}
+{{- $terms := site.Taxonomies.tags | default dict -}}
+{{- $entries := slice -}}
+{{- range $name, $term := $terms -}}
+  {{- $url := printf "/tags/%s/" ($name | urlize) -}}
+  {{- with $term.Page }}{{ $url = .RelPermalink }}{{ end -}}
+  {{- $entries = $entries | append (dict "name" $name "count" (len $term.Pages) "url" $url) -}}
+{{- end -}}
+{{- if eq ($cfg.sort | default "count") "name" -}}
+  {{- $entries = sort $entries "name" "asc" -}}
+{{- else -}}
+  {{- $entries = sort $entries "count" "desc" -}}
+{{- end -}}
+{{- $limit := $cfg.limit | default 0 -}}
+{{- if gt $limit 0 }}{{ $entries = first $limit $entries }}{{ end -}}
+{{- if gt (len $entries) 0 -}}
+  {{- with $cfg.title }}<h3 class="lily-module__title">{{ . }}</h3>{{ end -}}
+  <div class="tag-cloud lily-tags__cloud">
+    {{- range $entries }}<a href="{{ .url }}">{{ .name }}{{ if $cfg.showCount }} <span>{{ .count }}</span>{{ end }}</a>{{ end -}}
+  </div>
+{{- end -}}

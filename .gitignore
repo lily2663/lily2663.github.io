@@ -3,10 +3,23 @@ posts/
 *.tmp
 .token
 .backups/
+.admin-trash/
 public/
 resources/
 .hugo_build.lock
 .tools/
+.cache/
 private-content/
 .secrets/
 reports/
+
+# 本地管理工具 / 主题配套后台——不随博客发布到 GitHub
+tools/
+static/admin/
+docs/
+content/lily-debug/
+content/lily-manager/
+content/lily-playground/
+themes/lily-epitaph/layouts/lily-debug/
+themes/lily-epitaph/layouts/lily-manager/
+themes/lily-epitaph/layouts/lily-playground/
