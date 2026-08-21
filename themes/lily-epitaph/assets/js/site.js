@@ -357,6 +357,9 @@
   let navToken = 0;
   let navAbort = null;
   history.scrollRestoration = 'manual';
+  // Identifies the page currently rendered inside #app. Fragment-only history
+  // moves (TOC anchors) keep this key unchanged, real page navigations do not.
+  let pathKey = location.pathname + location.search;
 
   // comments / protected 是每页执行的脚本：pjax 后重新注入运行（site/pet 只跑一次，绝不重复）
   function syncPageScripts(newDoc) {
@@ -418,6 +421,8 @@
     app.replaceChildren(...doc.getElementById('app').childNodes);
     document.title = doc.title;
     if (push) history.pushState({ scroll: 0 }, '', url);
+    const navigated = new URL(url, location.href);
+    pathKey = navigated.pathname + navigated.search;
     scrollTo(0, push ? 0 : restore);
     flashFade();
     syncNav(new URL(url, location.href).pathname);
@@ -440,11 +445,36 @@
     if (/^(mailto:|tel:|javascript:)/.test(href)) return;
     const url = new URL(link.href, location.href);
     if (url.origin !== location.origin) return;
-    if (url.pathname === location.pathname && url.search === location.search) return;
+    if (url.pathname === location.pathname && url.search === location.search) {
+      // Same-page fragment link (TOC anchor). Handle it manually: a native hash
+      // change also fires popstate, which pjaxNavigate would mistake for a page
+      // navigation and reset the scroll to the top, cancelling the anchor jump.
+      if (url.hash) {
+        const anchorTarget = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+        if (anchorTarget) {
+          event.preventDefault();
+          history.replaceState({ scroll: scrollY }, '', location.href);
+          history.pushState({ anchor: url.hash }, '', url.href);
+          anchorTarget.scrollIntoView();
+        }
+      }
+      return;
+    }
     event.preventDefault();
     pjaxNavigate(url.href);
   });
   addEventListener('popstate', (event) => {
+    // Fragment-only history move (TOC anchor entries): stay on the current page,
+    // re-jump to the anchor or restore the scroll offset saved before the jump.
+    if (location.pathname + location.search === pathKey) {
+      if (event.state?.anchor) {
+        document.getElementById(decodeURIComponent(event.state.anchor.slice(1)))?.scrollIntoView();
+      } else if (typeof event.state?.scroll === 'number') {
+        scrollTo(0, event.state.scroll);
+      }
+      updateScroll();
+      return;
+    }
     pjaxNavigate(location.href, { push: false, restore: event.state?.scroll || 0 });
   });
 
