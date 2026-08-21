@@ -1,5 +1,5 @@
 node_modules/
-posts/
+/posts/
 *.tmp
 .token
 .backups/
