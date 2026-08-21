@@ -22,7 +22,7 @@
     <div class="article-body{{ if .Params.protected }} protected-body{{ end }}" {{ if .Params.protected }}data-protected-body{{ end }}>{{ if not .Params.protected }}{{ .Content }}{{ end }}</div>
     {{ if and .Params.protected $tocEnabled }}
     <aside class="toc-wrap" data-protected-toc hidden><div class="toc-title">目录 · Contents</div><nav class="toc" aria-label="文章目录"></nav></aside>
-    {{ else if and (not .Params.protected) $tocEnabled (eq .Section "posts") }}{{ with .TableOfContents }}<aside class="toc-wrap"><div class="toc-title">目录 · Contents</div><nav class="toc" aria-label="文章目录">{{ . }}</nav></aside>{{ end }}{{ end }}
+    {{ else if and (not .Params.protected) $tocEnabled (eq .Section "posts") }}{{ with .TableOfContents }}<aside class="toc-wrap"><div class="toc-title">目录 · Contents</div><nav class="toc" aria-label="文章目录">{{ . | replaceRE `^<nav id="TableOfContents">\s*` `` | replaceRE `\s*</nav>\s*$` `` | safeHTML }}</nav></aside>{{ end }}{{ end }}
   </div>
 </article>
 {{ if and (eq .Section "posts") .Site.Params.comments.enabled .Site.Params.comments.api }}<section id="comment-container" data-comment-id="{{ $commentID }}" data-comment-api="{{ .Site.Params.comments.api }}"></section>{{ end }}

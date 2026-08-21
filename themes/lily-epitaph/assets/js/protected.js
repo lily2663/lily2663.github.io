@@ -40,6 +40,7 @@
       if (!window.LilyArticle) throw new Error('article helpers unavailable');
       window.LilyArticle.enhance(body);
       window.LilyArticle.buildToc(body, toc);
+      window.LilyArticle.setupTocSpy(body, toc);
       layout.hidden = false;
       box.hidden = true;
     } catch {

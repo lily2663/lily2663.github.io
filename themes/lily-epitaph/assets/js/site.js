@@ -12,6 +12,9 @@
   let searchCount = document.querySelector('[data-search-count]');
   let searchEmpty = document.querySelector('.search-empty');
   let mode = 'article';
+  // 当前文章正文与目录引用：initPage 设置，受保护文章解锁后由 setupTocSpy 接管
+  let articleBody = null;
+  let articleToc = null;
 
   // A site can retain incoming links from a former hash-router simply by
   // setting `params.legacyId` on its content. The map is rendered by Hugo,
@@ -101,6 +104,7 @@
       progress.classList.toggle('show', !!document.querySelector('article.article') && pct > 0.02);
     }
     if (topButton) topButton.classList.toggle('show', scrollY > 500);
+    updateTocActive();
   }
   function onScroll() { if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll); }
   addEventListener('scroll', onScroll, { passive: true });
@@ -226,27 +230,66 @@
     });
   }
 
+  // 生成与 CSS 匹配的嵌套目录：.toc-list/.toc-item/.toc-link + --lvl 缩进层级。
+  // 同时给正文标题补 id，保证目录锚点可跳转。
   function buildArticleToc(articleBody, toc) {
     if (!articleBody || !toc) return false;
     const headings = ensureHeadingIds(articleBody);
     const wrapper = toc.closest('[data-protected-toc]');
     toc.replaceChildren();
     if (!headings.length) { if (wrapper) wrapper.hidden = true; return false; }
-    const list = document.createElement('ol');
+    const root = document.createElement('ol');
+    root.className = 'toc-list';
+    const stack = [{ level: 0, list: root }];
     headings.forEach((heading) => {
+      const level = Number(heading.tagName.slice(1));
+      while (stack.length > 1 && level <= stack[stack.length - 1].level) stack.pop();
+      const parent = stack[stack.length - 1];
       const item = document.createElement('li');
-      item.className = `toc-level-${heading.tagName.slice(1)}`;
+      item.className = 'toc-item';
+      item.style.setProperty('--lvl', String(stack.length - 1));
       const link = document.createElement('a');
+      link.className = 'toc-link';
       link.href = `#${heading.id}`;
       link.textContent = heading.textContent;
-      item.append(link); list.append(item);
+      item.append(link);
+      parent.list.append(item);
+      if (level > parent.level) {
+        const sub = document.createElement('ol');
+        sub.className = 'toc-list';
+        item.append(sub);
+        stack.push({ level, list: sub });
+      }
     });
-    toc.append(list);
+    toc.append(root);
     if (wrapper) wrapper.hidden = false;
     return true;
   }
 
-  window.LilyArticle = Object.freeze({ enhance: enhanceArticleBody, buildToc: buildArticleToc });
+  // 滚动定位：当前阅读到的标题在目录中高亮
+  function updateTocActive() {
+    const body = articleBody;
+    const toc = articleToc;
+    if (!body || !toc) return;
+    const headings = body.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    const links = toc.querySelectorAll('.toc-link');
+    if (!headings.length || !links.length) return;
+    let current = '';
+    for (const heading of headings) {
+      if (heading.getBoundingClientRect().top <= 80) current = heading.id;
+      else break;
+    }
+    links.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${current}`));
+  }
+
+  // 受保护文章解锁后由 protected.js 调用，接入同一套滚动定位
+  function setupTocSpy(body, toc) {
+    articleBody = body;
+    articleToc = toc;
+    updateTocActive();
+  }
+
+  window.LilyArticle = Object.freeze({ enhance: enhanceArticleBody, buildToc: buildArticleToc, setupTocSpy });
 
   // 像素小画：以文章标题为种子生成稳定的对称像素精灵，贴在卡片右上角
   function hashString(str) {
@@ -299,6 +342,11 @@
     searchCount = document.querySelector('[data-search-count]');
     searchEmpty = document.querySelector('.search-empty');
     document.querySelectorAll('.article-body').forEach(enhanceArticleBody);
+    // 非受保护文章：用 JS 统一重建目录（与受保护文章一致），
+    // 替换 Hugo 原生目录的嵌套 nav/空 li/类名不匹配，并接入滚动定位
+    articleBody = document.querySelector('.article-body:not([data-protected-body])');
+    articleToc = document.querySelector('.toc-wrap:not([data-protected-toc]) .toc');
+    if (articleBody && articleToc) window.LilyArticle.buildToc(articleBody, articleToc);
     document.querySelectorAll('.front-grid .post-item').forEach(attachPixelSprite);
     if (grid && search?.value.trim()) void filterPosts();
     updateScroll();
