@@ -10,48 +10,48 @@ paginate = 12
 ignoreLogs = ["warning-goldmark-raw-html"]
 
 [params]
-  subtitle = "the house of the dead"
-  description = "记录"
-  author = "lilyzero"
+subtitle = "the house of the dead"
+description = "记录"
+author = "lilyzero"
 avatar = "/assets/img/mmexport1768138528389.jpg"
 
 [params.welcome]
-  enabled = true
+enabled = true
 background = "/assets/img/【哲风壁纸】书屋-大海-晴天.jpg"
 backgroundDark = "/lily-epitaph/night-watercolor.jpg"
   titleBefore = "Welcome to "
-  accent = "Lily's"
+accent = "Lily's"
   titleAfter = " House"
   subtitle = "the house of the dead"
-  enterText = "Enter"
+enterText = "Enter"
   hint = "Press any key or click to enter"
-  particles = 30
+particles = 30
 
 [params.pet]
-  enabled = true
+enabled = true
   image = "/assets/img/pet/tuanzi.png"
 
 [params.search]
-  enabled = true
+enabled = true
 
 [params.protected]
   enabled = true
 
 [params.article]
-  toc = true
-  codeCopy = true
+toc = true
+codeCopy = true
 
 [params.comments]
-  enabled = true
+enabled = false
   api = "https://api.lily2663.top"
 
 [params.footer]
-  copyright = "用 Hugo 驱动的技术博客"
-  note = "所有文章均为md格式"
+copyright = "用 Hugo 驱动的技术博客"
+note = "喵喵喵"
 
 [params.features]
-  prefetch = true
-  viewTransition = true
+prefetch = true
+viewTransition = true
 
 [[menus.main]]
   name = "首页"
