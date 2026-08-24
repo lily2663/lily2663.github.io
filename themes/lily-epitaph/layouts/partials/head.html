@@ -17,7 +17,7 @@
 <meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
 <meta name="twitter:description" content="{{ $description }}">
 <meta name="twitter:image" content="{{ $cover | absURL }}">
-<link rel="icon" type="image/jpeg" href="/assets/img/avatar.jpg">
+<link rel="icon" href="{{ .Site.Params.avatar | default "/assets/img/avatar.jpg" }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" media="print" onload="this.media='all'">
