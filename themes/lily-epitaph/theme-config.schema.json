@@ -2,28 +2,46 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "lily-epitaph site configuration contract",
   "sections": [
-    {"id":"basic","label":"基础","fields":[
-      {"path":"title","label":"博客名称","type":"string"},
-      {"path":"params.subtitle","label":"副标题","type":"string"},
-      {"path":"params.description","label":"站点描述","type":"string"},
-      {"path":"params.author","label":"作者","type":"string"}
+    {"id":"identity","label":"站点身份","fields":[
+      {"path":"title","label":"博客名称","type":"string","help":"显示在浏览器标题和页眉中"},
+      {"path":"params.subtitle","label":"副标题","type":"string","help":"页眉中的简短说明"},
+      {"path":"params.description","label":"站点描述","type":"string","help":"用于搜索与分享摘要"},
+      {"path":"params.author","label":"作者","type":"string","help":"文章结构化信息中的作者名"},
+      {"path":"params.avatar","label":"头像路径","type":"string","help":"从“外观”页上传后可在此微调"}
+    ]},
+    {"id":"theme","label":"主题外观","fields":[
+      {"path":"params.theme.accent","label":"主强调色","type":"color","default":"#7FB5B0","help":"导航、链接与交互重点"},
+      {"path":"params.theme.accentLight","label":"柔和强调色","type":"color","default":"#A8D5D1","help":"悬停与辅助层次"},
+      {"path":"params.theme.paper","label":"日间页面底色","type":"color","default":"#FAFAF8","help":"只作用于日间模式"},
+      {"path":"params.theme.panel","label":"日间卡片底色","type":"color","default":"#FFFFFF","help":"只作用于日间模式"},
+      {"path":"params.theme.ink","label":"日间正文颜色","type":"color","default":"#2C3E50","help":"只作用于日间模式"},
+      {"path":"params.theme.codeBackground","label":"日间代码背景","type":"color","default":"#F8F9FA","help":"只作用于日间模式"},
+      {"path":"params.theme.fontPreset","label":"字体预设","type":"select","default":"editorial","options":[{"value":"editorial","label":"编辑风格（默认）"},{"value":"modern","label":"现代无衬线"},{"value":"classic","label":"经典衬线"}],"help":"控制全站标题与正文的字体组合"},
+      {"path":"params.theme.readingWidth","label":"文章阅读宽度","type":"select","default":"standard","options":[{"value":"compact","label":"紧凑 680px"},{"value":"standard","label":"舒适 720px"},{"value":"wide","label":"宽松 800px"}],"help":"仅影响文章正文的舒适阅读宽度"}
     ]},
     {"id":"welcome","label":"欢迎页","fields":[
       {"path":"params.welcome.enabled","label":"启用欢迎页","type":"boolean"},
+      {"path":"params.welcome.titleBefore","label":"标题前缀","type":"string"},
       {"path":"params.welcome.accent","label":"强调标题","type":"string"},
+      {"path":"params.welcome.titleAfter","label":"标题后缀","type":"string"},
+      {"path":"params.welcome.subtitle","label":"欢迎页副标题","type":"string"},
       {"path":"params.welcome.enterText","label":"进入按钮文字","type":"string"},
+      {"path":"params.welcome.hint","label":"进入提示文字","type":"string"},
       {"path":"params.welcome.particles","label":"水彩粒子数量","type":"number"}
     ]},
-    {"id":"pet","label":"宠物与阅读","fields":[
+    {"id":"reading","label":"阅读与代码","fields":[
       {"path":"params.pet.enabled","label":"启用宠物","type":"boolean"},
+      {"path":"params.pet.image","label":"宠物图片路径","type":"string"},
       {"path":"params.article.toc","label":"显示目录","type":"boolean"},
-      {"path":"params.article.codeCopy","label":"显示代码复制","type":"boolean"}
+      {"path":"params.article.codeCopy","label":"显示代码复制","type":"boolean"},
+      {"path":"params.protected.enabled","label":"启用受保护文章阅读器","type":"boolean"}
     ]},
     {"id":"interaction","label":"交互与评论","fields":[
       {"path":"params.search.enabled","label":"启用搜索","type":"boolean"},
       {"path":"params.features.prefetch","label":"链接预加载","type":"boolean"},
       {"path":"params.features.viewTransition","label":"页面切换动画","type":"boolean"},
-      {"path":"params.comments.enabled","label":"启用评论","type":"boolean"}
+      {"path":"params.comments.enabled","label":"启用评论","type":"boolean"},
+      {"path":"params.comments.api","label":"评论 API 地址","type":"string","help":"留空时评论模块不会请求服务"}
     ]},
     {"id":"footer","label":"页脚","fields":[
       {"path":"params.footer.copyright","label":"版权文字","type":"string"},

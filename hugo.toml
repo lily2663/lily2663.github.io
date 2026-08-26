@@ -15,6 +15,16 @@ description = "记录"
 author = "lilyzero"
 avatar = "/assets/img/mmexport1768138528389.jpg"
 
+[params.theme]
+accent = "#7FB5B0"
+accentLight = "#A8D5D1"
+paper = "#FAFAF8"
+panel = "#FFFFFF"
+ink = "#2C3E50"
+codeBackground = "#F8F9FA"
+fontPreset = "editorial"
+readingWidth = "standard"
+
 [params.welcome]
 enabled = true
 background = "/assets/img/【哲风壁纸】书屋-大海-晴天.jpg"

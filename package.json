@@ -11,6 +11,6 @@
     "build": "npm run check && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 build --gc --minify --panicOnWarning",
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server -D --disableFastRender",
     "preview": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server --renderToMemory",
-    "admin": "npm --prefix tools/admin run dev"
+    "admin": "npm --prefix tools/admin run start"
   }
 }

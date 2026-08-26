@@ -13,6 +13,9 @@ const errors = [];
 function stripFrontMatter(source) {
   return source.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
 }
+function hasFrontMatter(source) {
+  return /^---\r?\n/.test(source);
+}
 function decrypt(payload, password, tamper = false) {
   const key = crypto.pbkdf2Sync(password, Buffer.from(payload.kdf.salt, 'base64'), payload.kdf.iterations, 32, 'sha256');
   const decipher = crypto.createDecipheriv('aes-256-gcm', key, Buffer.from(payload.cipher.iv, 'base64'));
@@ -28,7 +31,7 @@ for (const dir of fs.readdirSync(content, { withFileTypes: true }).filter((entry
   const file = path.join(content, dir.name, 'index.md');
   if (!fs.existsSync(file)) { errors.push(`Missing ${file}`); continue; }
   const source = fs.readFileSync(file, 'utf8');
-  if (!source.startsWith('---\n')) errors.push(`Invalid front matter: ${dir.name}`);
+  if (!hasFrontMatter(source)) errors.push(`Invalid front matter: ${dir.name}`);
   if (slugs.has(dir.name)) errors.push(`Duplicate slug: ${dir.name}`);
   slugs.add(dir.name);
   if (/^password\s*:/mi.test(source)) errors.push(`Password leaked in public content: ${dir.name}`);

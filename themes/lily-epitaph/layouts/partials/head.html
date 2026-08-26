@@ -39,6 +39,24 @@
   {{- $lilyBundle := $lilyCss | resources.Concat "css/lily.css" | minify | fingerprint -}}
   <link rel="stylesheet" href="{{ $lilyBundle.RelPermalink }}" integrity="{{ $lilyBundle.Data.Integrity }}">
 {{- end -}}
+{{- $theme := .Site.Params.theme | default dict -}}
+{{- $fontPreset := $theme.fontPreset | default "editorial" -}}
+{{- $readingWidth := $theme.readingWidth | default "standard" -}}
+<style id="site-theme-overrides">
+  :root {
+    {{- with $theme.accent }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--mint:{{ . }};{{ end }}{{ end -}}
+    {{- with $theme.accentLight }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--mint-light:{{ . }};{{ end }}{{ end -}}
+    {{- if eq $fontPreset "modern" }}--serif:ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;--sans:ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;{{ end -}}
+    {{- if eq $fontPreset "classic" }}--serif:Georgia,"Noto Serif SC",serif;--sans:Georgia,"Noto Serif SC",serif;{{ end -}}
+    {{- if eq $readingWidth "compact" }}--readw:680px;{{ else if eq $readingWidth "wide" }}--readw:800px;{{ else }}--readw:720px;{{ end -}}
+  }
+  :root:not([data-theme="dark"]) {
+    {{- with $theme.paper }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--bg:{{ . }};{{ end }}{{ end -}}
+    {{- with $theme.panel }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--bg-card:{{ . }};{{ end }}{{ end -}}
+    {{- with $theme.ink }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--ink:{{ . }};{{ end }}{{ end -}}
+    {{- with $theme.codeBackground }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--code-bg:{{ . }};{{ end }}{{ end -}}
+  }
+</style>
 <script>document.documentElement.dataset.theme=localStorage.getItem('blog-theme')||((matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light');</script>
 {{- $viewTransitions := true -}}
 {{- with .Site.Params.features }}{{ if isset . "viewTransition" }}{{ $viewTransitions = .viewTransition }}{{ end }}{{ end -}}

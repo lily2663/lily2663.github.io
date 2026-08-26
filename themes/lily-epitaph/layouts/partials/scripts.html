@@ -1,3 +1,6 @@
+{{- if and .IsPage (eq .Section "posts") -}}
+  <script src="/assets/vendor/highlight.min.js" defer></script>
+{{- end -}}
 {{- with resources.Get "js/site.js" -}}
   {{- $script := . | minify | fingerprint -}}
   <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>

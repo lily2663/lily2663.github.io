@@ -219,7 +219,11 @@
       pre.dataset.codeEnhanced = 'true';
       const button = document.createElement('button'); button.className = 'code-copy'; button.type = 'button'; button.textContent = '复制';
       const code = pre.querySelector('code');
-      const language = code ? [...code.classList].find((name) => name.startsWith('language-'))?.slice(9) : '';
+      let language = code ? [...code.classList].find((name) => name.startsWith('language-'))?.slice(9) : '';
+      if (!language && code && window.hljs && !code.dataset.highlighted) {
+        window.hljs.highlightElement(code);
+        language = code.result?.language || '';
+      }
       if (language) pre.dataset.language = language;
       button.addEventListener('click', async () => {
         try { await navigator.clipboard?.writeText(pre.innerText); button.textContent = '已复制'; }
