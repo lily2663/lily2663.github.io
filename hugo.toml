@@ -13,7 +13,7 @@ ignoreLogs = ["warning-goldmark-raw-html"]
 subtitle = "the house of the dead"
 description = "记录"
 author = "lilyzero"
-avatar = "/assets/img/mmexport1768138528389.jpg"
+avatar = "/assets/img/b_d06ff1a0814bc6d063e847e30ce0fd8b.jpg"
 
 [params.theme]
 accent = "#7FB5B0"
@@ -28,7 +28,7 @@ readingWidth = "standard"
 [params.welcome]
 enabled = true
 background = "/assets/img/【哲风壁纸】书屋-大海-晴天.jpg"
-backgroundDark = "/lily-epitaph/night-watercolor.jpg"
+backgroundDark = "/assets/img/【哲风壁纸】星星-最终幻想-空间.jpg"
   titleBefore = "Welcome to "
 accent = "Lily's"
   titleAfter = " House"
