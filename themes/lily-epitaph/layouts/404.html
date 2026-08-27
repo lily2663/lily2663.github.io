@@ -1,8 +1,3 @@
 {{ define "main" }}
-<section class="not-found">
-  <p class="kicker">404</p>
-  <h1>这页不在这里</h1>
-  <p>链接可能已更改，或页面从未存在。文章列表仍然在原处。</p>
-  <a class="not-found-link" href="/">回到首页</a>
-</section>
+{{ partial "lily/layout.html" (dict "kind" "not-found" "page" .) }}
 {{ end }}

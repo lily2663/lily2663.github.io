@@ -1,3 +1,3 @@
 {{ define "main" }}
-<section class="post-list"><h2 class="section-title">{{ .Title }} <span class="count">{{ len .Pages }} 篇</span></h2><div class="front-grid">{{ range .Pages.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}</div></section>
+{{ partial "lily/layout.html" (dict "kind" "terms" "page" .) }}
 {{ end }}

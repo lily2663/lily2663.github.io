@@ -1,0 +1,37 @@
+apiVersion: lily-module/v1
+id: music
+name: Music Player
+version: 1.0.0
+category: media
+icon: "♫"
+description: 原生 HTML5 音乐播放器，适用于站内音频或公开音频 URL。
+context: any
+allowedSlots:
+  - home.sidebar
+  - page.sidebar
+  - article.sidebar
+template:
+  partial: lily/modules/music/render.html
+assets:
+  styles:
+    - lily/modules/music.css
+capabilities:
+  audio: true
+defaults:
+  title: 正在播放
+  artist: ""
+  source: ""
+  cover: ""
+schema:
+  title:
+    type: string
+    label: 曲名
+  artist:
+    type: string
+    label: 作者 / 专辑
+  source:
+    type: url
+    label: 音频地址
+  cover:
+    type: url
+    label: 封面地址

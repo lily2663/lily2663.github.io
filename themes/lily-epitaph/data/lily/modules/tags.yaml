@@ -11,6 +11,9 @@ allowedSlots:
   - home.main
 template:
   partial: lily/modules/tags/render.html
+assets:
+  styles:
+    - lily/modules/tags.css
 defaults:
   title: 标签
   limit: 0

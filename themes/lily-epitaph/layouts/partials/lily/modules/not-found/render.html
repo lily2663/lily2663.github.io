@@ -1,0 +1,2 @@
+{{- $cfg := .Config -}}
+<section class="not-found"><p class="kicker">404</p><h1>{{ $cfg.title | default "这页不在这里" }}</h1><p>{{ $cfg.description | default "链接可能已更改，或页面从未存在。文章列表仍然在原处。" }}</p><a class="not-found-link" href="/">{{ $cfg.action | default "回到首页" }}</a></section>

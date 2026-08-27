@@ -1,0 +1,38 @@
+apiVersion: lily-module/v1
+id: map
+name: Map
+version: 1.0.0
+category: embed
+icon: "⌖"
+description: 用 OpenStreetMap 嵌入一个可配置位置的地图。
+context: any
+allowedSlots:
+  - home.main
+  - page.main
+  - article.after
+template:
+  partial: lily/modules/map/render.html
+assets:
+  styles:
+    - lily/modules/map.css
+capabilities:
+  iframe:
+    - https://www.openstreetmap.org
+defaults:
+  title: 地图
+  latitude: 31.2304
+  longitude: 121.4737
+  zoom: 12
+schema:
+  title:
+    type: string
+    label: 标题
+  latitude:
+    type: number
+    label: 纬度
+  longitude:
+    type: number
+    label: 经度
+  zoom:
+    type: number
+    label: 缩放级别

@@ -10,7 +10,22 @@ template:
   partial: lily/modules/toc/render.html
 defaults:
   title: 目录 · Contents
+  position: sticky
+  offset: 100
 schema:
   title:
     type: string
     label: 目录标题
+  position:
+    type: select
+    label: 滚动位置
+    options:
+      - value: sticky
+        label: 跟随阅读（Sticky）
+      - value: flow
+        label: 随正文离开（Flow）
+      - value: fixed
+        label: 固定视口（Fixed）
+  offset:
+    type: number
+    label: 顶部偏移（px）

@@ -759,9 +759,11 @@ a.post-link:hover .item-title {
   box-shadow: var(--shadow-lg);
 }
 
-.friend-avatar {
+.friend-card .friend-avatar {
   width: 60px; 
   height: 60px;
+  display: block;
+  margin: 0;
   border-radius: 50%;
   object-fit: cover;
   flex: 0 0 auto;
@@ -1030,10 +1032,10 @@ a.post-link:hover .item-title {
 .post-layout .article { max-width: none; margin: 0; }
 
 .toc-wrap {
-  position: sticky;
-  top: 100px;
-  max-height: calc(100vh - 120px);
-  overflow: hidden;
+  /* 默认由模块的 position 属性选择 flow / sticky / fixed。 */
+  position: static;
+  max-height: none;
+  overflow: visible;
   background: var(--bg-card);
   background: color-mix(in srgb, var(--bg-card) 72%, transparent);
   backdrop-filter: blur(10px);
@@ -1043,11 +1045,33 @@ a.post-link:hover .item-title {
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
+/* 目录的位置是模块属性：默认 sticky 跟随阅读，flow 供长文自然滚走，fixed 供海报式页面。 */
+.lily-layout--article [data-lily-slot="article.sidebar"] .toc-wrap--sticky {
+  position: sticky;
+  top: var(--toc-offset, 100px);
+  max-height: calc(100vh - var(--toc-offset, 100px) - 20px);
+  overflow: hidden;
+}
+.toc-wrap--sticky .toc { max-height: calc(100vh - var(--toc-offset, 100px) - 78px); overflow-y: auto; }
+.lily-layout--article [data-lily-slot="article.sidebar"] .toc-wrap--fixed {
+  position: fixed;
+  top: var(--toc-offset, 100px);
+  right: max(24px, calc((100vw - var(--maxw, 1200px)) / 2));
+  width: 260px;
+  max-height: calc(100vh - var(--toc-offset, 100px) - 20px);
+  overflow: hidden;
+}
+.toc-wrap--fixed .toc { max-height: calc(100vh - var(--toc-offset, 100px) - 78px); overflow-y: auto; }
+.lily-layout--article [data-lily-slot="article.sidebar"] {
+  position: static !important;
+  top: auto !important;
+  align-self: start;
+}
 
 .toc {
   padding-left: 4px;
-  max-height: calc(100vh - 180px);
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
 }
@@ -1075,16 +1099,29 @@ a.post-link:hover .item-title {
 }
 
 .toc-list { list-style: none; margin: 0; padding: 0; }
-.toc-item { /* --lvl 由 JS 设置，控制缩进层级 */ }
+.toc-item { --toc-level-color: #6ea79e; }
 .toc-link {
   display: block;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--ink-soft);
-  padding: 6px 0 6px calc(12px + var(--lvl, 0) * 14px);
+  color: var(--toc-level-color);
+  padding: 6px 0 6px 10px;
   border-left: 2px solid transparent;
+  overflow-wrap: anywhere;
   transition: all 0.2s ease;
 }
+.toc-item[data-level="1"] { --toc-level-color: #17665d; }
+.toc-item[data-level="2"] { --toc-level-color: #398178; }
+.toc-item[data-level="3"] { --toc-level-color: #579a90; }
+.toc-item[data-level="4"] { --toc-level-color: #75afa6; }
+.toc-item[data-level="5"] { --toc-level-color: #92c1b9; }
+.toc-item[data-level="6"] { --toc-level-color: #afd2cc; }
+[data-theme="dark"] .toc-item[data-level="1"] { --toc-level-color: #78c7bc; }
+[data-theme="dark"] .toc-item[data-level="2"] { --toc-level-color: #8dd0c6; }
+[data-theme="dark"] .toc-item[data-level="3"] { --toc-level-color: #a2d8d0; }
+[data-theme="dark"] .toc-item[data-level="4"] { --toc-level-color: #b6e0d9; }
+[data-theme="dark"] .toc-item[data-level="5"] { --toc-level-color: #c7e8e2; }
+[data-theme="dark"] .toc-item[data-level="6"] { --toc-level-color: #d8f0eb; }
 .toc-link:hover { 
   color: var(--mint-dark); 
   text-decoration: none; 
@@ -1104,7 +1141,7 @@ a.post-link:hover .item-title {
     gap: 24px; 
   }
   .toc-wrap {
-    position: static; 
+    position: static !important;
     order: -1;
   }
   .toc-toggle {

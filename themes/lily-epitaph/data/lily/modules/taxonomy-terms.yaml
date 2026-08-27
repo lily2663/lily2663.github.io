@@ -1,0 +1,17 @@
+apiVersion: lily-module/v1
+id: taxonomy-terms
+name: Taxonomy Terms
+version: 1.0.0
+category: navigation
+description: 标签、分类与集合文章列表。
+context: terms
+allowedSlots:
+  - terms.main
+template:
+  partial: lily/modules/taxonomy-terms/render.html
+defaults:
+  showCount: true
+schema:
+  showCount:
+    type: boolean
+    label: 显示数量

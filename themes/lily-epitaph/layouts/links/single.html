@@ -1,3 +1,5 @@
 {{ define "main" }}
-  {{ .Content }}
+  <article class="article" data-lily-page-kind="page">
+    {{ partial "lily/layout.html" (dict "kind" "page" "page" .) }}
+  </article>
 {{ end }}

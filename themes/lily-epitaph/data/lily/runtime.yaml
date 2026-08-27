@@ -1,6 +1,13 @@
 # Lily Runtime 元数据
-# 由 Runtime partial 读取，Debug 页面与 /lily-manager.json 展示
-version: 0.1.0
+# 由 Runtime partial、Hugo Desk 与模块包校验共同读取。
+version: 1.0.0
 name: Lily Runtime
-protocol: 0.1
+protocol: lily-module-protocol/v1
 engine: hugo-partials
+moduleRoots:
+  builtIn: themes/lily-epitaph/data/lily/modules
+  site: data/lily/modules
+templateRoots:
+  builtIn: themes/lily-epitaph/layouts/partials
+  site: layouts/partials
+packageFormat: lily-module/v1

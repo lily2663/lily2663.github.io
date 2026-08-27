@@ -1,0 +1,8 @@
+kind: not-found
+title: "404 页面"
+description: "找不到页面时显示的可组合内容"
+slotOrder: [main]
+slots:
+  main:
+    - id: not-found-message
+      module: not-found

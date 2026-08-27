@@ -1,0 +1,2 @@
+{{- $cfg := .Config -}}
+<blockquote class="lily-quote"><p>“{{ $cfg.text | default "The house of the dead." }}”</p>{{ with $cfg.author }}<footer>— {{ . }}</footer>{{ end }}</blockquote>

@@ -1,0 +1,28 @@
+apiVersion: lily-module/v1
+id: quote
+name: Quote
+version: 1.0.0
+category: content
+icon: "❝"
+description: 静态语录卡片，可用作首页侧栏、页脚前或文章后的短句。
+context: any
+allowedSlots:
+  - home.sidebar
+  - page.sidebar
+  - article.sidebar
+  - article.after
+template:
+  partial: lily/modules/quote/render.html
+assets:
+  styles:
+    - lily/modules/quote.css
+defaults:
+  text: "The house of the dead."
+  author: ""
+schema:
+  text:
+    type: string
+    label: 语录内容
+  author:
+    type: string
+    label: 署名

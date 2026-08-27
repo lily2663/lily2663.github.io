@@ -6,11 +6,14 @@
 {{- $page := .Page -}}
 {{- $cfg := .Config -}}
 {{- $tocEnabled := $cfg.enabled | default true -}}
+{{- $position := $cfg.position | default "sticky" -}}
+{{- if not (in (slice "sticky" "flow" "fixed") $position) }}{{ $position = "sticky" }}{{ end -}}
+{{- $offset := int ($cfg.offset | default 100) -}}
 {{- with site.Params.article }}{{ if isset . "toc" }}{{ $tocEnabled = .toc }}{{ end }}{{ end -}}
 {{- if and $tocEnabled (eq $page.Section "posts") -}}
   {{- if $page.Params.protected -}}
-    <aside class="toc-wrap" data-protected-toc hidden><div class="toc-title">{{ $cfg.title | default "目录 · Contents" }}</div><nav class="toc" aria-label="文章目录"></nav></aside>
+    <aside class="toc-wrap toc-wrap--{{ $position }}" style="--toc-offset: {{ $offset }}px" data-protected-toc hidden><div class="toc-title">{{ $cfg.title | default "目录 · Contents" }}</div><nav class="toc" aria-label="文章目录"></nav></aside>
   {{- else if $page.TableOfContents -}}
-    <aside class="toc-wrap"><div class="toc-title">{{ $cfg.title | default "目录 · Contents" }}</div><nav class="toc" aria-label="文章目录">{{ $page.TableOfContents }}</nav></aside>
+    <aside class="toc-wrap toc-wrap--{{ $position }}" style="--toc-offset: {{ $offset }}px"><div class="toc-title">{{ $cfg.title | default "目录 · Contents" }}</div><nav class="toc" aria-label="文章目录">{{ $page.TableOfContents }}</nav></aside>
   {{- end -}}
 {{- end -}}

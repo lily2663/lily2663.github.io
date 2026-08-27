@@ -5,6 +5,16 @@
   {{- $script := . | minify | fingerprint -}}
   <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>
 {{- end -}}
+{{- $moduleScripts := slice -}}
+{{- range $_, $module := hugo.Data.lily.modules -}}
+  {{- range $module.assets.scripts | default slice -}}
+    {{- if not (in $moduleScripts .) }}{{ $moduleScripts = $moduleScripts | append . }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- range sort $moduleScripts -}}{{ with resources.Get . -}}
+  {{- $script := . | minify | fingerprint -}}
+  <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>
+{{- end }}{{- end -}}
 {{- if .Site.Params.pet.enabled -}}{{- with resources.Get "js/pet.js" -}}
   {{- $script := . | minify | fingerprint -}}
   <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}" defer></script>

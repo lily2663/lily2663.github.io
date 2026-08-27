@@ -6,11 +6,14 @@
   "scripts": {
     "migrate": "node scripts/migrate-content.mjs",
     "protect": "node scripts/protect.mjs",
-    "check": "node scripts/check.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-lily.mjs",
     "audit:assets": "node scripts/audit-assets.mjs",
     "build": "npm run check && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 build --gc --minify --panicOnWarning",
     "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server -D --disableFastRender",
     "preview": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server --renderToMemory",
     "admin": "npm --prefix tools/admin run start"
+  },
+  "dependencies": {
+    "yaml": "2.9.0"
   }
 }

@@ -1,0 +1,45 @@
+apiVersion: lily-module/v1
+id: weather
+name: Weather
+version: 1.0.0
+category: live
+icon: "☁"
+description: 使用 Open-Meteo 显示当前位置或指定坐标的实时天气；不需要 API 密钥。
+context: any
+allowedSlots:
+  - home.sidebar
+  - page.sidebar
+  - article.sidebar
+template:
+  partial: lily/modules/weather/render.html
+assets:
+  scripts:
+    - lily/modules/weather.js
+  styles:
+    - lily/modules/weather.css
+capabilities:
+  network:
+    - https://api.open-meteo.com
+defaults:
+  title: 天气
+  latitude: 31.2304
+  longitude: 121.4737
+  unit: celsius
+schema:
+  title:
+    type: string
+    label: 标题
+  latitude:
+    type: number
+    label: 纬度
+  longitude:
+    type: number
+    label: 经度
+  unit:
+    type: select
+    label: 温度单位
+    options:
+      - value: celsius
+        label: 摄氏 °C
+      - value: fahrenheit
+        label: 华氏 °F

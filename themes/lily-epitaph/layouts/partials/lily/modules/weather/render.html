@@ -1,0 +1,5 @@
+{{- $cfg := .Config -}}
+<aside class="lily-weather" data-lily-weather data-latitude="{{ $cfg.latitude }}" data-longitude="{{ $cfg.longitude }}" data-unit="{{ $cfg.unit | default "celsius" }}">
+  <div class="lily-module__title">{{ $cfg.title | default "天气" }}</div>
+  <p class="lily-weather__state" aria-live="polite">正在获取天气…</p>
+</aside>

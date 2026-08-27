@@ -10,6 +10,9 @@ allowedSlots:
   - page.sidebar
 template:
   partial: lily/modules/profile/render.html
+assets:
+  styles:
+    - lily/modules/profile.css
 defaults:
   showAvatar: true
   showName: true

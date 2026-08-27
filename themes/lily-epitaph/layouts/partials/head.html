@@ -30,11 +30,19 @@
   {{- $style := . | minify | fingerprint -}}
   <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
 {{- end -}}
-{{- /* Lily 模块 CSS：core(tokens+base) + modules/* 打包为单文件，避免请求爆炸 */ -}}
+{{- /* Lily 模块 CSS：显式读取 manifest 声明的资源。
+      resources.Match 不会可靠地枚举主题与站点覆盖层的所有资源，
+      所以模块资源以协议 manifest 为唯一事实来源。 */ -}}
 {{- $lilyCss := slice -}}
 {{- with resources.Get "lily/core/tokens.css" }}{{ $lilyCss = $lilyCss | append . }}{{ end -}}
 {{- with resources.Get "lily/core/base.css" }}{{ $lilyCss = $lilyCss | append . }}{{ end -}}
-{{- range resources.Match "lily/modules/*.css" }}{{ $lilyCss = $lilyCss | append . }}{{ end -}}
+{{- $moduleStyles := slice -}}
+{{- range $_, $module := hugo.Data.lily.modules -}}
+  {{- range $module.assets.styles | default slice -}}
+    {{- if not (in $moduleStyles .) }}{{ $moduleStyles = $moduleStyles | append . }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+{{- range sort $moduleStyles -}}{{ with resources.Get . }}{{ $lilyCss = $lilyCss | append . }}{{ end }}{{- end -}}
 {{- if gt (len $lilyCss) 0 -}}
   {{- $lilyBundle := $lilyCss | resources.Concat "css/lily.css" | minify | fingerprint -}}
   <link rel="stylesheet" href="{{ $lilyBundle.RelPermalink }}" integrity="{{ $lilyBundle.Data.Integrity }}">

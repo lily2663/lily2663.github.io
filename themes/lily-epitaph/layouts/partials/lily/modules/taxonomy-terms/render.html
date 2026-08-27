@@ -1,0 +1,7 @@
+{{- $page := .Page -}}
+{{- $cfg := .Config -}}
+{{- if $page.Data.Terms -}}
+<section class="tags-page"><h1 class="section-title">{{ $page.Title }}</h1><div class="tag-cloud">{{ range $page.Data.Terms.Alphabetical }}<a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}{{ if $cfg.showCount }} <span>{{ .Count }}</span>{{ end }}</a>{{ end }}</div></section>
+{{- else -}}
+<section class="post-list"><h1 class="section-title">{{ $page.Title }}{{ if $cfg.showCount }} <span class="count">{{ len $page.Pages }} 篇</span>{{ end }}</h1><div class="front-grid">{{ range $page.Pages.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}</div></section>
+{{- end -}}

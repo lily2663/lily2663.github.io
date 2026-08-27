@@ -1,0 +1,6 @@
+{{- $cfg := .Config -}}
+<section class="lily-music">
+  {{- with $cfg.cover }}<img class="lily-music__cover" src="{{ . }}" alt="{{ $cfg.title | default "音乐" }} 封面" loading="lazy">{{ end -}}
+  <div class="lily-music__meta"><strong>{{ $cfg.title | default "正在播放" }}</strong>{{ with $cfg.artist }}<span>{{ . }}</span>{{ end }}</div>
+  {{- with $cfg.source }}<audio controls preload="none" src="{{ . }}">你的浏览器不支持音频播放。</audio>{{ else }}<p class="lily-music__empty">在管理端填写音频地址后即可播放。</p>{{ end -}}
+</section>

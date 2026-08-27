@@ -1,0 +1,9 @@
+{{- $cfg := .Config -}}
+{{- $lat := $cfg.latitude | default 31.2304 -}}
+{{- $lon := $cfg.longitude | default 121.4737 -}}
+{{- $zoom := $cfg.zoom | default 12 -}}
+{{- $delta := 0.03 -}}
+<section class="lily-map">
+  {{- with $cfg.title }}<h3 class="lily-module__title">{{ . }}</h3>{{ end -}}
+  <iframe title="{{ $cfg.title | default "地图" }}" loading="lazy" referrerpolicy="no-referrer" src="https://www.openstreetmap.org/export/embed.html?bbox={{ sub $lon $delta }}%2C{{ sub $lat $delta }}%2C{{ add $lon $delta }}%2C{{ add $lat $delta }}&amp;layer=mapnik&amp;marker={{ $lat }}%2C{{ $lon }}#map={{ $zoom }}/{{ $lat }}/{{ $lon }}"></iframe>
+</section>

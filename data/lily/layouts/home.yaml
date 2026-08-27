@@ -1,0 +1,32 @@
+kind: home
+title: 首页
+description: 首页 = Hero(欢迎屏) + Main(文章列表) + Sidebar(Profile + Tags)
+slotOrder:
+  - hero
+  - main
+  - sidebar
+slots:
+  hero:
+    - id: home-welcome
+      module: welcome
+      config: {}
+  main:
+    - id: home-recent-posts
+      module: recent-posts
+      config:
+        title: 全部文章
+        section: posts
+        limit: 0
+        showCount: true
+  sidebar:
+    - id: home-profile
+      module: profile
+      config:
+        compact: true
+    - id: home-tags
+      module: tags
+      config:
+        title: 标签
+        limit: 24
+        showCount: true
+        sort: count

@@ -234,36 +234,28 @@
     });
   }
 
-  // 生成与 CSS 匹配的嵌套目录：.toc-list/.toc-item/.toc-link + --lvl 缩进层级。
-  // 同时给正文标题补 id，保证目录锚点可跳转。
+  // 完整保留 H1-H6，但目录本身是扁平阅读列表：层级由颜色表达，不用缩进制造树状噪音。
+  function tocHeadings(articleBody) { return ensureHeadingIds(articleBody); }
+
+  // 生成扁平目录。data-level 供 CSS 将 H1（最深绿）渐变到 H6（最浅绿）。
   function buildArticleToc(articleBody, toc) {
     if (!articleBody || !toc) return false;
-    const headings = ensureHeadingIds(articleBody);
+    const headings = tocHeadings(articleBody);
     const wrapper = toc.closest('[data-protected-toc]');
     toc.replaceChildren();
     if (!headings.length) { if (wrapper) wrapper.hidden = true; return false; }
     const root = document.createElement('ol');
     root.className = 'toc-list';
-    const stack = [{ level: 0, list: root }];
     headings.forEach((heading) => {
-      const level = Number(heading.tagName.slice(1));
-      while (stack.length > 1 && level <= stack[stack.length - 1].level) stack.pop();
-      const parent = stack[stack.length - 1];
       const item = document.createElement('li');
       item.className = 'toc-item';
-      item.style.setProperty('--lvl', String(stack.length - 1));
+      item.dataset.level = heading.tagName.slice(1);
       const link = document.createElement('a');
       link.className = 'toc-link';
       link.href = `#${heading.id}`;
       link.textContent = heading.textContent;
       item.append(link);
-      parent.list.append(item);
-      if (level > parent.level) {
-        const sub = document.createElement('ol');
-        sub.className = 'toc-list';
-        item.append(sub);
-        stack.push({ level, list: sub });
-      }
+      root.append(item);
     });
     toc.append(root);
     if (wrapper) wrapper.hidden = false;
@@ -275,7 +267,7 @@
     const body = articleBody;
     const toc = articleToc;
     if (!body || !toc) return;
-    const headings = body.querySelectorAll('h1,h2,h3,h4,h5,h6');
+    const headings = tocHeadings(body);
     const links = toc.querySelectorAll('.toc-link');
     if (!headings.length || !links.length) return;
     let current = '';

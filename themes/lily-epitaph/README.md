@@ -79,6 +79,20 @@ theme = "lily-epitaph"
 
 The bundled defaults are intentionally stylistic. Site configuration owns the title, navigation, welcome wording, asset overrides, comment endpoint, GitHub account and footer copy; the theme owns presentation and behavior.
 
+## Lily Module Protocol v1
+
+Every visible page is assembled from Slots and modules. Built-ins live in
+`data/lily/modules/` inside the theme; a site can add higher-priority local modules
+under its own `data/lily/modules/` directory. A module declares its id, version,
+allowed Slots, typed configuration schema, template entrypoint, optional CSS/JS and
+capabilities in its YAML manifest.
+
+The default local workflow is intentionally trust-first: review a module package,
+install it through lilymap, add it to an allowed Slot, preview locally, then publish
+only after approval. Module code is not sandboxed; templates and browser JavaScript
+must be treated as trusted code. `npm run check` validates manifest structure,
+resources, Slot placement and typed layout configuration before Hugo builds.
+
 ## Content
 
 Create a post in `content/posts/my-post/index.md`:

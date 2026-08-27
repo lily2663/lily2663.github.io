@@ -1,0 +1,25 @@
+apiVersion: lily-module/v1
+id: not-found
+name: Not Found
+version: 1.0.0
+category: system
+description: 404 页面提示与返回入口。
+context: any
+allowedSlots:
+  - not-found.main
+template:
+  partial: lily/modules/not-found/render.html
+defaults:
+  title: "这页不在这里"
+  description: "链接可能已更改，或页面从未存在。文章列表仍然在原处。"
+  action: "回到首页"
+schema:
+  title:
+    type: string
+    label: 标题
+  description:
+    type: string
+    label: 说明
+  action:
+    type: string
+    label: 按钮文字

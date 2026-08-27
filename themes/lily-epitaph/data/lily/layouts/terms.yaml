@@ -1,0 +1,8 @@
+kind: terms
+title: "分类与标签"
+description: "标签、分类和内容集合页面"
+slotOrder: [main]
+slots:
+  main:
+    - id: taxonomy-index
+      module: taxonomy-terms
