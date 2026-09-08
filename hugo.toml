@@ -23,6 +23,7 @@ panel = "#FFFFFF"
 ink = "#2C3E50"
 codeBackground = "#F8F9FA"
 fontPreset = "editorial"
+webFonts = false
 readingWidth = "standard"
 
 [params.welcome]

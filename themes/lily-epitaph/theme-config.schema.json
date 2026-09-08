@@ -10,6 +10,7 @@
       {"path":"params.avatar","label":"头像路径","type":"string","help":"从“外观”页上传后可在此微调"}
     ]},
     {"id":"theme","label":"主题外观","fields":[
+      {"path":"params.theme.webFonts","label":"加载在线字体","type":"boolean","default":false,"help":"默认使用系统字体，减少外部请求；开启后加载 Google Fonts，访问较慢的网络可能延迟显示。字体预设仍然有效。"},
       {"path":"params.theme.accent","label":"主强调色","type":"color","default":"#7FB5B0","help":"导航、链接与交互重点"},
       {"path":"params.theme.accentLight","label":"柔和强调色","type":"color","default":"#A8D5D1","help":"悬停与辅助层次"},
       {"path":"params.theme.paper","label":"日间页面底色","type":"color","default":"#FAFAF8","help":"只作用于日间模式"},

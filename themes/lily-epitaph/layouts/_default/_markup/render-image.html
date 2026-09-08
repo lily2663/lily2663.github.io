@@ -1,8 +1,20 @@
 {{- $resource := .Page.Resources.GetMatch .Destination -}}
-{{- if $resource -}}
-  {{- $small := $resource.Resize "720x webp q82" -}}
-  {{- $large := $resource.Resize "1280x webp q82" -}}
-  <img src="{{ $large.RelPermalink }}" srcset="{{ $small.RelPermalink }} 720w, {{ $large.RelPermalink }} 1280w" sizes="(max-width: 760px) 100vw, 760px" width="{{ $large.Width }}" height="{{ $large.Height }}" alt="{{ .Text }}" loading="lazy" decoding="async" {{ with .Title }}title="{{ . }}"{{ end }}>
+{{- if and $resource (reflect.IsImageResourceProcessable $resource) (ne $resource.MediaType.SubType "gif") -}}
+  {{- $small := $resource.Resize (printf "%dx webp q82" (int (math.Min 720 $resource.Width))) -}}
+  {{- $large := $resource.Resize (printf "%dx webp q82" (int (math.Min 1280 $resource.Width))) -}}
+  <img src="{{ $large.RelPermalink }}" srcset="{{ $small.RelPermalink }} {{ $small.Width }}w{{ if ne $small.Width $large.Width }}, {{ $large.RelPermalink }} {{ $large.Width }}w{{ end }}" sizes="(max-width: 760px) 100vw, 760px" width="{{ $large.Width }}" height="{{ $large.Height }}" alt="{{ .Text }}" loading="lazy" decoding="async" {{ with .Title }}title="{{ . }}"{{ end }}>
 {{- else -}}
-  <img src="{{ .Destination | safeURL }}" alt="{{ .Text }}" loading="lazy" decoding="async" {{ with .Title }}title="{{ . }}"{{ end }}>
+  {{- $dimensions := dict -}}
+  {{- if and $resource (reflect.IsImageResourceWithMeta $resource) -}}
+    {{- $dimensions = dict "Width" $resource.Width "Height" $resource.Height -}}
+  {{- else -}}
+    {{- /* Static images keep their existing URLs; reserve space before lazy loading.
+          Read only known local raster paths, never remote URLs or traversal paths. */ -}}
+    {{- $imagePath := (urls.Parse .Destination).Path -}}
+    {{- $staticPath := printf "static%s" $imagePath -}}
+    {{- if and (hasPrefix $imagePath "/assets/") (not (in $imagePath "..")) (in (slice ".png" ".jpg" ".jpeg" ".webp" ".gif") (lower (path.Ext $imagePath))) (os.FileExists $staticPath) -}}
+      {{- $dimensions = images.Config $staticPath -}}
+    {{- end -}}
+  {{- end -}}
+  <img src="{{ if $resource }}{{ $resource.RelPermalink }}{{ else }}{{ .Destination | safeURL }}{{ end }}" {{ with $dimensions }}width="{{ .Width }}" height="{{ .Height }}"{{ end }} alt="{{ .Text }}" loading="lazy" decoding="async" {{ with .Title }}title="{{ . }}"{{ end }}>
 {{- end -}}

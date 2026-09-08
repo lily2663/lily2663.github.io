@@ -1,6 +1,13 @@
 (() => {
   'use strict';
   const root = document.documentElement;
+  const siteHeader = document.querySelector('.site-header');
+  function syncHeaderClearance() {
+    if (siteHeader) root.style.setProperty('--header-clearance', `${Math.ceil(siteHeader.getBoundingClientRect().height) + 16}px`);
+  }
+  syncHeaderClearance();
+  if (siteHeader && 'ResizeObserver' in window) new ResizeObserver(syncHeaderClearance).observe(siteHeader);
+  else addEventListener('resize', syncHeaderClearance, { passive: true });
   const themeButton = document.querySelector('#theme-toggle');
   const topButton = document.querySelector('#to-top');
   const progress = document.querySelector('#reading-progress');
@@ -15,6 +22,7 @@
   // 当前文章正文与目录引用：initPage 设置，受保护文章解锁后由 setupTocSpy 接管
   let articleBody = null;
   let articleToc = null;
+  let articleHeadings = [];
 
   // A site can retain incoming links from a former hash-router simply by
   // setting `params.legacyId` on its content. The map is rendered by Hugo,
@@ -226,8 +234,14 @@
       }
       if (language) pre.dataset.language = language;
       button.addEventListener('click', async () => {
-        try { await navigator.clipboard?.writeText(pre.innerText); button.textContent = '已复制'; }
-        catch { button.textContent = '复制失败'; }
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+          const copy = pre.cloneNode(true);
+          copy.querySelectorAll('.code-copy').forEach((control) => control.remove());
+          await navigator.clipboard.writeText(code?.textContent ?? copy.textContent);
+          button.textContent = '已复制';
+        }
+        catch { button.textContent = '请手动复制'; }
         setTimeout(() => { button.textContent = '复制'; }, 1200);
       });
       pre.append(button);
@@ -241,7 +255,7 @@
   function buildArticleToc(articleBody, toc) {
     if (!articleBody || !toc) return false;
     const headings = tocHeadings(articleBody);
-    const wrapper = toc.closest('[data-protected-toc]');
+    const wrapper = toc.closest('.toc-wrap');
     toc.replaceChildren();
     if (!headings.length) { if (wrapper) wrapper.hidden = true; return false; }
     const root = document.createElement('ol');
@@ -258,7 +272,23 @@
       root.append(item);
     });
     toc.append(root);
-    if (wrapper) wrapper.hidden = false;
+    if (wrapper) {
+      wrapper.hidden = false;
+      if (!wrapper.querySelector('.toc-toggle')) {
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'toc-toggle';
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.textContent = '展开文章目录';
+        toggle.addEventListener('click', () => {
+          const open = wrapper.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', String(open));
+          toggle.textContent = open ? '收起文章目录' : '展开文章目录';
+        });
+        wrapper.insertBefore(toggle, toc);
+        wrapper.classList.add('has-toc-toggle');
+      }
+    }
     return true;
   }
 
@@ -267,21 +297,28 @@
     const body = articleBody;
     const toc = articleToc;
     if (!body || !toc) return;
-    const headings = tocHeadings(body);
+    const headings = articleHeadings;
     const links = toc.querySelectorAll('.toc-link');
     if (!headings.length || !links.length) return;
     let current = '';
+    const threshold = (siteHeader?.getBoundingClientRect().height || 64) + 20;
     for (const heading of headings) {
-      if (heading.getBoundingClientRect().top <= 80) current = heading.id;
+      if (heading.getBoundingClientRect().top <= threshold) current = heading.id;
       else break;
     }
-    links.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${current}`));
+    links.forEach((link) => {
+      const active = link.getAttribute('href') === `#${current}`;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
   }
 
   // 受保护文章解锁后由 protected.js 调用，接入同一套滚动定位
   function setupTocSpy(body, toc) {
     articleBody = body;
     articleToc = toc;
+    articleHeadings = tocHeadings(body);
     updateTocActive();
   }
 
@@ -341,6 +378,7 @@
     // 非受保护文章：用 JS 统一重建目录（与受保护文章一致），
     // 替换 Hugo 原生目录的嵌套 nav/空 li/类名不匹配，并接入滚动定位
     articleBody = document.querySelector('.article-body:not([data-protected-body])');
+    articleHeadings = articleBody ? tocHeadings(articleBody) : [];
     articleToc = document.querySelector('.toc-wrap:not([data-protected-toc]) .toc');
     if (articleBody && articleToc) window.LilyArticle.buildToc(articleBody, articleToc);
     document.querySelectorAll('.front-grid .post-item').forEach(attachPixelSprite);

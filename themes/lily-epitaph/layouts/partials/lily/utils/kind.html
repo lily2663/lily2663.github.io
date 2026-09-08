@@ -3,9 +3,9 @@
 {{- $kind := "page" -}}
 {{- if $page.IsHome -}}
   {{- $kind = "home" -}}
-{{- else if eq $page.Section "posts" -}}
-  {{- $kind = "article" -}}
 {{- else if $page.IsNode -}}
   {{- $kind = "terms" -}}
+{{- else if eq $page.Section "posts" -}}
+  {{- $kind = "article" -}}
 {{- end -}}
 {{- return $kind -}}

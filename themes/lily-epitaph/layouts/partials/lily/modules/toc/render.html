@@ -5,11 +5,13 @@
  * ============================================================ */ -}}
 {{- $page := .Page -}}
 {{- $cfg := .Config -}}
-{{- $tocEnabled := $cfg.enabled | default true -}}
+{{- $tocEnabled := true -}}
+{{- if isset $cfg "enabled" }}{{ $tocEnabled = $cfg.enabled }}{{ end -}}
 {{- $position := $cfg.position | default "sticky" -}}
 {{- if not (in (slice "sticky" "flow" "fixed") $position) }}{{ $position = "sticky" }}{{ end -}}
-{{- $offset := int ($cfg.offset | default 100) -}}
-{{- with site.Params.article }}{{ if isset . "toc" }}{{ $tocEnabled = .toc }}{{ end }}{{ end -}}
+{{- $offset := 100 -}}
+{{- if isset $cfg "offset" }}{{ $offset = math.Max 0 (math.Min 400 (int $cfg.offset)) }}{{ end -}}
+{{- with site.Params.article }}{{ if isset . "toc" }}{{ $tocEnabled = and $tocEnabled .toc }}{{ end }}{{ end -}}
 {{- if and $tocEnabled (eq $page.Section "posts") -}}
   {{- if $page.Params.protected -}}
     <aside class="toc-wrap toc-wrap--{{ $position }}" style="--toc-offset: {{ $offset }}px" data-protected-toc hidden><div class="toc-title">{{ $cfg.title | default "目录 · Contents" }}</div><nav class="toc" aria-label="文章目录"></nav></aside>

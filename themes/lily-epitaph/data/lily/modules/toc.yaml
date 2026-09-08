@@ -30,8 +30,8 @@ schema:
         label: 固定视口（Fixed）
   offset:
     type: number
-    label: 顶部偏移（px）
+    label: 最小顶部间距（px）
     min: 0
     max: 400
     step: 4
-    help: 用来避开页眉；推荐 80 到 120。
+    help: 桌面端会自动避开实际页眉高度；填写更大的数值可继续下移。手机端使用正文前的折叠目录。

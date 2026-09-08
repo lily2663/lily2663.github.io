@@ -13,7 +13,7 @@
 .article-tags a { border:1px solid var(--border); border-radius:999px; color:var(--ink-soft); font-size:.78rem; padding:.35rem .7rem; text-decoration:none; }
 .article-layout { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:48px; max-width:var(--maxw); margin:0 auto; align-items:start; }
 .article-body { min-width:0; font-size:1rem; line-height:1.9; overflow-wrap:anywhere; }
-.article-body h1,.article-body h2,.article-body h3,.article-body h4 { font-family:var(--serif); line-height:1.3; margin:2.5em 0 .75em; scroll-margin-top:1.5rem; }
+.article-body :is(h1,h2,h3,h4,h5,h6) { font-family:var(--serif); line-height:1.3; margin:2.5em 0 .75em; scroll-margin-top:var(--header-clearance, 180px); }
 .article-body h1 { font-size:2.25rem; }.article-body h2 { font-size:1.8rem; }.article-body h3 { font-size:1.35rem; }
 .article-body p,.article-body ul,.article-body ol,.article-body blockquote,.article-body table { margin:1rem 0; }
 .article-body ul,.article-body ol { padding-left:1.5rem; }.article-body li+li { margin-top:.35rem; }

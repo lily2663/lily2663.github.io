@@ -4,6 +4,9 @@
  * ============================================================ */
 .lily-slot { min-width: 0; }
 .lily-module { min-width: 0; }
+/* Global header wrappers must not shorten the header's sticky containing block. */
+.lily-slot[data-lily-slot="global.header"],
+.lily-slot[data-lily-slot="global.header"] > .lily-module--header { display: contents; }
 
 /* 模块通用标题 */
 .lily-module__title {
@@ -70,6 +73,11 @@
 }
 .lily-slot[data-lily-slot$=".sidebar"] > .lily-module + .lily-module { margin-top: 1rem; }
 
+/* The TOC already owns its card. A second box constrains sticky to its own
+   height and its backdrop-filter incorrectly traps fixed positioning. */
+.lily-slot[data-lily-slot="article.sidebar"] > .lily-module--toc { display: contents; }
+.lily-layout--article > .lily-slot[data-lily-slot="article.sidebar"] { align-self: stretch; }
+
 /* ---------- 文章正文容器：grid 已由 lily 层承担，这里退化为普通块 ---------- */
 .lily-module--article-content .article-layout {
   display: block;
@@ -82,6 +90,10 @@
 @media (max-width: 900px) {
   .lily-layout--home,
   .lily-layout--article { display: block; }
+  .lily-layout--article { display: flex; flex-direction: column; gap: 24px; }
+  .lily-layout--article > .lily-slot { width: 100%; }
+  .lily-layout--article > [data-lily-slot="article.header"] { order: -2; }
+  .lily-layout--article > [data-lily-slot="article.sidebar"] { order: -1; }
   .lily-slot[data-lily-slot="home.sidebar"],
   .lily-slot[data-lily-slot="article.sidebar"] { margin-top: 2rem; }
 }
