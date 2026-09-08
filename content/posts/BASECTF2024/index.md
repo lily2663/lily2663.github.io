@@ -39,7 +39,7 @@ eval($a);
 
 #### 2.HTTP 是什么呀
 
-![image](/assets/img/1769504688301.png)
+![image](/assets/img/optimized/1769504688301.webp)
 
 按步骤来，
 
@@ -485,7 +485,7 @@ Content-Type: application/json
 
 得到token：
 
-![image](/assets/img/1772873926275.png)
+![image](/assets/img/optimized/1772873926275.webp)
 
 这里把alg改成none
 
@@ -706,7 +706,7 @@ __kwdefaults__ - 仅关键字参数的任何默认值的映射
 
 再提交：
 
-![image](/assets/img/1775740761214.png)
+![image](/assets/img/optimized/1775740761214.webp)
 
 然后去这个页面正常ssti即可
 
@@ -900,7 +900,7 @@ f12+shift
 
 The last part is in a named Interesting
 
-点开![image](/assets/img/1769508389525.png)
+点开![image](/assets/img/optimized/1769508389525.webp)
 
 
 
@@ -921,7 +921,7 @@ flag  BaseCTF{Y0u_4Re_900d_47_id4}
 
 #### 2.UPX mini
 
-upx脱壳![image](/assets/img/1769515465040.png)
+upx脱壳![image](/assets/img/optimized/1769515465040.webp)
 
 随后打开发现QmFzZUNURntIYXYzX0BfZzBvZF90MW0zISEhfQ==
 

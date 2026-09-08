@@ -73,11 +73,11 @@ Nmap done: 1 IP address (1 host up) scanned in 104.79 seconds
 
 进入6080所在，密码chenzi
 
-![1786593429791](/assets/img/typora/1786593429791.png)
+![1786593429791](/assets/img/optimized/typora/1786593429791.webp)
 
 随后翻到flag
 
-![1786593535038](/assets/img/typora/1786593535038.png)
+![1786593535038](/assets/img/optimized/typora/1786593535038.webp)
 
 ```
 flag{user-c6e6681860bbd5c4d8db8100a85c3753}
@@ -85,7 +85,7 @@ flag{user-c6e6681860bbd5c4d8db8100a85c3753}
 
 # ROOTFLAG
 
-发现私钥：![1786593619158](/assets/img/typora/1786593619158.png)
+发现私钥：![1786593619158](/assets/img/optimized/typora/1786593619158.webp)
 
 没法用，发现有base64，于是
 
@@ -95,7 +95,7 @@ base64 a.zip
 
 其浏览器可以自由访问网站，登上b站，拿base64交个专栏，拿到本地
 
-![1786601668504](/assets/img/typora/1786601668504.png)
+![1786601668504](/assets/img/optimized/typora/1786601668504.webp)
 
 ```bash
 //进行复原和密钥爆破

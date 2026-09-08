@@ -617,7 +617,7 @@ ACTION REQUIRED:
 
 于是可以登录maciiii
 
-![1786637469744](/assets/img/typora/1786637469744.png)
+![1786637469744](/assets/img/optimized/typora/1786637469744.webp)
 
 得到userflag
 
@@ -1174,7 +1174,7 @@ chmod 0755 /opt/pwned/docker
 
 必须让Docker新容器挂载宿主根目录，才能读取宿主机 /root/root.txt
 
-流程：![1786641983502](/assets/img/typora/1786641983502.png)
+流程：![1786641983502](/assets/img/optimized/typora/1786641983502.webp)
 
 ```bash
 #稍复杂，做解释

@@ -42,3 +42,7 @@ schema:
   particles:
     type: number
     label: 粒子数量
+    min: 0
+    max: 100
+    step: 1
+    help: 数量越大动画越丰富，也会增加低性能设备负担；建议 20 到 40。

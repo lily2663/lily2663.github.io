@@ -23,6 +23,8 @@ schema:
   text:
     type: string
     label: 语录内容
+    help: 适合放一句短文、状态或博客签名。
   author:
     type: string
     label: 署名
+    help: 可留空。

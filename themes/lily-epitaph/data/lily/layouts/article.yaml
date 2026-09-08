@@ -12,6 +12,24 @@ slots:
   sidebar:
     - id: article-toc
       module: toc
+    - id: article-quote
+      module: quote
+      enabled: false
+    - id: article-weather
+      module: weather
+      enabled: false
+    - id: article-music
+      module: music
+      enabled: false
+    - id: article-profile
+      module: profile
+      enabled: false
+    - id: article-tags
+      module: tags
+      enabled: false
   after:
     - id: article-comments
       module: comments
+    - id: article-map
+      module: map
+      enabled: false

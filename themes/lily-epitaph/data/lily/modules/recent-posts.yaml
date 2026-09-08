@@ -23,6 +23,10 @@ schema:
   limit:
     type: number
     label: 数量限制（0 = 全部）
+    min: 0
+    max: 1000
+    step: 1
+    help: 首页建议 0（全部）或 10 到 20。
   showCount:
     type: boolean
     label: 显示篇数

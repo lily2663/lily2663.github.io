@@ -26,12 +26,16 @@ schema:
   title:
     type: string
     label: 曲名
+    help: 播放器主标题。
   artist:
     type: string
     label: 作者 / 专辑
+    help: 可留空。
   source:
     type: url
     label: 音频地址
+    help: 填写 /assets/... 本地路径或 https:// 地址；留空时显示配置提示。
   cover:
     type: url
     label: 封面地址
+    help: 可选，填写站内图片路径或 https:// 图片地址。

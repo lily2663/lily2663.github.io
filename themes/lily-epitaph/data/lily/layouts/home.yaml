@@ -14,11 +14,25 @@ slots:
         section: "posts"
         limit: 0
         showCount: true
+    - id: home-map
+      module: map
+      enabled: false
+      config:
+        title: "我的位置"
   sidebar:
     - id: home-profile
       module: profile
       config:
         compact: true
+    - id: home-weather
+      module: weather
+      config:
+        title: "今日天气"
+    - id: home-quote
+      module: quote
+      config:
+        text: "The house of the dead."
+        author: ""
     - id: home-tags
       module: tags
       config:
@@ -26,3 +40,11 @@ slots:
         limit: 24
         showCount: true
         sort: "count"
+    - id: home-music
+      module: music
+      enabled: false
+      config:
+        title: "正在播放"
+        artist: ""
+        source: ""
+        cover: ""

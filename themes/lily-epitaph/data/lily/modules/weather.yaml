@@ -29,15 +29,25 @@ schema:
   title:
     type: string
     label: 标题
+    help: 例如“上海天气”或“当前位置”。
   latitude:
     type: number
     label: 纬度
+    min: -90
+    max: 90
+    step: 0.0001
+    help: 天气位置纬度，范围 -90 到 90。
   longitude:
     type: number
     label: 经度
+    min: -180
+    max: 180
+    step: 0.0001
+    help: 天气位置经度，范围 -180 到 180。
   unit:
     type: select
     label: 温度单位
+    help: 国内日常使用建议选择摄氏度。
     options:
       - value: celsius
         label: 摄氏 °C

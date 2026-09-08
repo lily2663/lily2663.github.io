@@ -6,4 +6,22 @@ slots:
   main:
     - id: page-content
       module: article-content
+    - id: page-map
+      module: map
+      enabled: false
   sidebar:
+    - id: page-profile
+      module: profile
+      enabled: false
+    - id: page-weather
+      module: weather
+      enabled: false
+    - id: page-quote
+      module: quote
+      enabled: false
+    - id: page-music
+      module: music
+      enabled: false
+    - id: page-tags
+      module: tags
+      enabled: false

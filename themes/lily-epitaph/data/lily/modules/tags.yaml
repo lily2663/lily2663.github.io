@@ -26,6 +26,10 @@ schema:
   limit:
     type: number
     label: 数量限制（0 = 全部）
+    min: 0
+    max: 1000
+    step: 1
+    help: 侧栏建议 20 到 30，0 表示全部。
   showCount:
     type: boolean
     label: 显示文章数

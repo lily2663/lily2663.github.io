@@ -16,9 +16,11 @@ schema:
   title:
     type: string
     label: 目录标题
+    help: 显示在文章目录上方。
   position:
     type: select
     label: 滚动位置
+    help: 跟随阅读最适合长文章；手机端会自动回到普通文档流。
     options:
       - value: sticky
         label: 跟随阅读（Sticky）
@@ -29,3 +31,7 @@ schema:
   offset:
     type: number
     label: 顶部偏移（px）
+    min: 0
+    max: 400
+    step: 4
+    help: 用来避开页眉；推荐 80 到 120。

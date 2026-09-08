@@ -123,7 +123,7 @@ Create a custom inventory report using Jinja2 template syntax.
 
 Jinja2，直接想到打ssti
 
-![1784286116289](/assets/img/typora/1784286116289.png)
+![1784286116289](/assets/img/optimized/typora/1784286116289.webp)
 
 49,确实可能有
 

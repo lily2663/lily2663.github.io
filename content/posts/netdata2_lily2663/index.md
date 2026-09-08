@@ -152,7 +152,7 @@ Nmap done: 1 IP address (1 host up) scanned in 48.53 seconds
 
 80端口，目录爆破等手段并没有得到什么有效信息
 
-![1787587608860](/assets/img/typora/1787587608860.png)
+![1787587608860](/assets/img/optimized/typora/1787587608860.webp)
 
 8443端口，Flask/Werkzeug 3.1.8
 
@@ -674,7 +674,7 @@ root cron（每分钟）
             └→ pay
 ```
 
-![1787595149667](/assets/img/typora/1787595149667.png)
+![1787595149667](/assets/img/optimized/typora/1787595149667.webp)
 
 ```bash
 flag{root-57ef9bf79ec87b8179360756328fc252}
