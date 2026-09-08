@@ -1,5 +1,5 @@
 author: lilyzero
-avatar: /assets/img/b_d06ff1a0814bc6d063e847e30ce0fd8b.jpg
+avatar: /assets/img/optimized/b_d06ff1a0814bc6d063e847e30ce0fd8b.webp
 about:
   - "一个普通的web手"
 links:
@@ -11,8 +11,8 @@ friends:
   - name: abababcd
     url: https://abababcdcd.github.io/
     desc: pwn 手 · CTF / 二进制安全
-    avatar: /assets/img/friends/abababcdcd.png
+    avatar: /assets/img/optimized/friends/abababcdcd.webp
   - name: Sauy
     url: https://sauy.top/
     desc: web手 · Web安全 / 渗透测试
-    avatar: /assets/img/friends/sauy.png
+    avatar: /assets/img/optimized/friends/sauy.webp
