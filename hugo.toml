@@ -28,7 +28,7 @@ readingWidth = "standard"
 
 [params.welcome]
 enabled = true
-background = "/assets/img/optimized/【哲风壁纸】书屋-大海-晴天.webp"
+background = "/assets/img/qq_pic_merged_1789309416797..jpg"
 backgroundDark = "/assets/img/optimized/【哲风壁纸】星星-最终幻想-空间.webp"
   titleBefore = "Welcome to "
 accent = "Lily's"
