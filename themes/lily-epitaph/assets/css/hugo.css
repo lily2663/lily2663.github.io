@@ -1,6 +1,7 @@
 /* Hugo layer: preserves the fixed FloLo × 团子 palette from style.css. */
 :root { --maxw: 1200px; --readw: 760px; }
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+#app { scroll-margin-top:var(--header-clearance, 180px); }
 .nav a[aria-current="page"] { color:var(--mint); border-bottom:2px solid var(--mint); }
 .welcome-splash[hidden] { display:none; }
 .article-stats { color:var(--muted); font-size:.9rem; }
@@ -166,6 +167,10 @@
 .comment-section { border-top:1px solid var(--border); margin:3rem auto; max-width:var(--readw); padding-top:2rem; }.comment-section h2 { font-family:var(--serif); }.comment-form { display:grid; gap:.75rem; margin:1.25rem 0; }.comment-form label { color:var(--ink-soft); display:grid; font-size:.86rem; gap:.35rem; }.comment-form input,.comment-form textarea { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--ink); font:inherit; padding:.6rem; }.comment-submit { justify-self:start; }.comment-item { display:flex; gap:.8rem; border-top:1px solid var(--border-light); padding:1rem 0; }.comment-avatar { align-items:center; background:var(--mint); border-radius:50%; color:var(--bg); display:flex; font-weight:800; height:2.25rem; justify-content:center; width:2.25rem; }.comment-item time { color:var(--muted); font-size:.78rem; margin-left:.6rem; }.comment-item p { margin:.35rem 0 0; }.comment-error { color:var(--pink); }
 .lightbox { align-items:center; background:rgba(0,0,0,.9); display:none; inset:0; justify-content:center; padding:2rem; position:fixed; z-index:1300; }.lightbox.active { display:flex; }.lightbox img { max-height:90vh; max-width:92vw; }.lightbox button { background:rgba(255,255,255,.1); border:0; border-radius:50%; color:white; cursor:pointer; font-size:2rem; height:44px; position:absolute; right:1rem; top:1rem; width:44px; }
 .reading-progress { background:linear-gradient(90deg,var(--mint),var(--pink)); height:3px; left:0; position:fixed; top:0; transition:width .1s linear; width:0; z-index:1400; }.to-top.show { opacity:1; pointer-events:auto; }
+dialog.lightbox { border:0; margin:0; max-width:none; max-height:none; width:100%; height:100%; overflow:hidden; }
+dialog.lightbox:not([open]) { display:none; }
+dialog.lightbox::backdrop { background:rgba(0,0,0,.9); }
+html:has(dialog.lightbox[open]) { overflow:hidden; }
 .not-found { margin:clamp(3rem,12vw,9rem) auto; max-width:var(--readw); text-align:center; }.not-found h1 { font-family:var(--serif); font-size:clamp(2.5rem,8vw,5rem); line-height:1.1; margin:.25rem 0 1rem; }.not-found p { color:var(--ink-soft); }.not-found-link { background:var(--mint); border-radius:999px; color:white; display:inline-block; font-weight:700; margin-top:1.5rem; padding:.7rem 1.15rem; }
 :focus-visible { outline:3px solid var(--pink); outline-offset:3px; }
 .article-body pre { overscroll-behavior-inline:contain; scrollbar-color:var(--mint-light) transparent; }

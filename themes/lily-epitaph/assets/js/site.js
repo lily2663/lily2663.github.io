@@ -50,14 +50,17 @@
   const splash = document.querySelector('#welcome-splash');
   if (splash && !sessionStorage.getItem('lily-welcomed')) {
     let dismissed = false;
+    const previousActiveElement = document.activeElement;
     splash.hidden = false;
     document.body.classList.add('splash-active');
+    splash.querySelector('#welcome-enter')?.focus({ preventScroll: true });
     const dismiss = () => {
       if (dismissed) return;
       dismissed = true;
       sessionStorage.setItem('lily-welcomed', '1');
       document.body.classList.remove('splash-active');
       splash.classList.add('hidden');
+      if (previousActiveElement instanceof HTMLElement && previousActiveElement !== document.body && previousActiveElement.isConnected) previousActiveElement.focus({ preventScroll: true });
       setTimeout(() => { splash.style.display = 'none'; }, 1200);
     };
     splash.querySelector('#welcome-enter')?.addEventListener('click', dismiss);
@@ -103,6 +106,7 @@
   }
 
   let scrollFrame = 0;
+  let tocLastUpdate = 0;
   function updateScroll() {
     scrollFrame = 0;
     const max = document.documentElement.scrollHeight - innerHeight;
@@ -112,7 +116,13 @@
       progress.classList.toggle('show', !!document.querySelector('article.article') && pct > 0.02);
     }
     if (topButton) topButton.classList.toggle('show', scrollY > 500);
-    updateTocActive();
+    // TOC highlighting reads every heading's layout box. Keep the progress
+    // indicator frame-accurate, but cap this layout-heavy work while scrolling.
+    const now = performance.now();
+    if (!tocLastUpdate || now - tocLastUpdate >= 80) {
+      tocLastUpdate = now;
+      updateTocActive();
+    }
   }
   function onScroll() { if (!scrollFrame) scrollFrame = requestAnimationFrame(updateScroll); }
   addEventListener('scroll', onScroll, { passive: true });
@@ -124,7 +134,7 @@
     document.querySelectorAll('[data-search-mode]').forEach((item) => {
       const active = item === button;
       item.classList.toggle('active', active);
-      item.setAttribute('aria-selected', String(active));
+      item.setAttribute('aria-pressed', String(active));
     });
     if (search) {
       search.placeholder = mode === 'text' ? '搜索公开文章全文…' : '搜索文章标题/标签…';
@@ -181,22 +191,47 @@
   });
 
   function makeLightbox() {
-    const box = document.createElement('div');
+    const box = document.createElement('dialog');
     box.className = 'lightbox';
+    box.setAttribute('aria-label', '图片预览');
     box.innerHTML = '<button type="button" aria-label="关闭图片">×</button><img alt="">';
-    const close = () => { box.classList.remove('active'); box.querySelector('img').src = ''; };
-    box.querySelector('button').addEventListener('click', close);
-    box.addEventListener('click', (event) => { if (event.target === box) close(); });
-    document.addEventListener('keydown', (event) => { if (event.key === 'Escape') close(); });
+    let trigger = null;
+    const restoreTrigger = () => {
+      if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus({ preventScroll: true });
+      trigger = null;
+    };
+    box.addEventListener('close', () => {
+      box.classList.remove('active');
+      box.querySelector('img').removeAttribute('src');
+      restoreTrigger();
+    });
+    box.querySelector('button').addEventListener('click', () => box.close());
+    box.addEventListener('click', (event) => { if (event.target === box) box.close(); });
     document.body.append(box);
-    return box;
+    return {
+      open(image) {
+        trigger = image;
+        const preview = box.querySelector('img');
+        preview.src = image.currentSrc || image.src;
+        preview.alt = image.alt || '图片预览';
+        box.showModal();
+        box.classList.add('active');
+        box.querySelector('button')?.focus({ preventScroll: true });
+      }
+    };
   }
   const lightbox = makeLightbox();
   document.addEventListener('click', (event) => {
     const image = event.target.closest('.article-body img');
-    if (!image) return;
-    lightbox.querySelector('img').src = image.currentSrc || image.src;
-    lightbox.classList.add('active');
+    if (!image || image.closest('a[href]')) return;
+    lightbox.open(image);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (!['Enter', ' '].includes(event.key) || !(event.target instanceof HTMLImageElement)) return;
+    const image = event.target.closest('.article-body img');
+    if (!image || image.closest('a[href]')) return;
+    event.preventDefault();
+    lightbox.open(image);
   });
 
   function ensureHeadingIds(articleBody) {
@@ -220,6 +255,12 @@
     articleBody.querySelectorAll('img').forEach((image) => {
       if (!image.hasAttribute('loading')) image.loading = 'lazy';
       if (!image.hasAttribute('decoding')) image.decoding = 'async';
+      if (!image.closest('a[href]')) {
+        image.tabIndex = 0;
+        image.setAttribute('role', 'button');
+        image.setAttribute('aria-haspopup', 'dialog');
+        image.setAttribute('aria-label', image.alt ? `查看大图：${image.alt}` : '查看大图');
+      }
     });
     if (document.body.dataset.codeCopy === 'false') return;
     articleBody.querySelectorAll('pre').forEach((pre) => {
@@ -359,6 +400,7 @@
     return `data:image/svg+xml,${encodeURIComponent(svg)}`;
   }
   function attachPixelSprite(card) {
+    if (card.querySelector('.pixel-sprite')) return;
     const src = makePixelSprite(card.querySelector('.item-title')?.textContent || '');
     if (!src) return;
     const sprite = document.createElement('div');
@@ -370,6 +412,7 @@
 
   // 页面级初始化：首次加载与每次 pjax 替换 #app 后都要执行
   function initPage() {
+    tocLastUpdate = 0;
     grid = document.querySelector('[data-post-grid]');
     searchTitle = document.querySelector('[data-search-title]');
     searchCount = document.querySelector('[data-search-count]');
@@ -513,8 +556,10 @@
   });
 
   const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  const canPrefetch = document.body.dataset.prefetch !== 'false' && !connection?.saveData && !/2g/.test(connection?.effectiveType || '');
+  const coarsePointer = matchMedia('(pointer: coarse)').matches;
+  const canPrefetch = document.body.dataset.prefetch !== 'false' && !coarsePointer && !connection?.saveData && !/2g/.test(connection?.effectiveType || '');
   const prefetched = new Set();
+  const pendingPrefetch = new WeakMap();
   function prefetch(link) {
     if (!canPrefetch || !link || link.target || link.hasAttribute('download')) return;
     const url = new URL(link.href, location.href);
@@ -526,8 +571,26 @@
     hint.rel = 'prefetch'; hint.href = url.href; hint.as = 'document';
     document.head.append(hint);
   }
-  document.addEventListener('pointerover', (event) => prefetch(event.target.closest('a[href]')), { capture: true, passive: true });
-  document.addEventListener('focusin', (event) => prefetch(event.target.closest('a[href]')));
+  function schedulePrefetch(link, delay = 120) {
+    if (!canPrefetch || !link || pendingPrefetch.has(link)) return;
+    const timer = setTimeout(() => {
+      pendingPrefetch.delete(link);
+      prefetch(link);
+    }, delay);
+    pendingPrefetch.set(link, timer);
+  }
+  document.addEventListener('pointerover', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link || (event.relatedTarget instanceof Node && link.contains(event.relatedTarget))) return;
+    schedulePrefetch(link);
+  }, { capture: true, passive: true });
+  document.addEventListener('pointerout', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link || (event.relatedTarget instanceof Node && link.contains(event.relatedTarget))) return;
+    const timer = pendingPrefetch.get(link);
+    if (timer) { clearTimeout(timer); pendingPrefetch.delete(link); }
+  }, { capture: true, passive: true });
+  document.addEventListener('focusin', (event) => schedulePrefetch(event.target.closest('a[href]'), 0));
 
   initPage();
   flashFade();

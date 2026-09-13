@@ -1,20 +1,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Params.summary }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}{{ end }}">
+{{- $isArticle := and .IsPage (eq .Section "posts") -}}
+{{- $pageTitle := cond .IsHome .Site.Title .Title -}}
+{{- $description := .Description | default .Params.summary | default .Site.Params.description | plainify -}}
+<meta name="description" content="{{ $description }}">
 <meta name="theme-color" content="#7FB5B0">
 <link rel="canonical" href="{{ .Permalink }}">
 <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
-{{- $description := .Description | default .Params.summary | default .Site.Params.description -}}
 {{- $cover := .Params.cover | default .Site.Params.avatar -}}
-<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
-<meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta property="og:type" content="{{ if $isArticle }}article{{ else }}website{{ end }}">
+<meta property="og:site_name" content="{{ .Site.Title }}">
+<meta property="og:title" content="{{ $pageTitle }}">
 <meta property="og:description" content="{{ $description }}">
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:image" content="{{ $cover | absURL }}">
 <meta property="og:locale" content="zh_CN">
-{{ if .IsPage }}<meta property="article:published_time" content="{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}">{{ end }}
+{{ if $isArticle }}<meta property="article:published_time" content="{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}"><meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">{{ end }}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}">
+<meta name="twitter:title" content="{{ $pageTitle }}">
 <meta name="twitter:description" content="{{ $description }}">
 <meta name="twitter:image" content="{{ $cover | absURL }}">
 <link rel="icon" href="{{ .Site.Params.avatar | default "/assets/img/avatar.jpg" }}">
@@ -71,7 +74,8 @@
 {{- $viewTransitions := true -}}
 {{- with .Site.Params.features }}{{ if isset . "viewTransition" }}{{ $viewTransitions = .viewTransition }}{{ end }}{{ end -}}
 {{ if not $viewTransitions }}<style>@view-transition { navigation: none; }</style>{{ end }}
-{{- if .IsPage }}
-  {{- $articleSchema := dict "@context" "https://schema.org" "@type" "BlogPosting" "headline" .Title "description" $description "url" .Permalink "datePublished" (.PublishDate.Format "2006-01-02T15:04:05Z07:00") "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00") "image" ($cover | absURL) "author" (dict "@type" "Person" "name" .Site.Params.author) "publisher" (dict "@type" "Organization" "name" .Site.Title) -}}
-  <script type="application/ld+json">{{ $articleSchema | jsonify | safeJS }}</script>
-{{- end }}
+{{- $schema := dict "@context" "https://schema.org" "@type" (cond $isArticle "BlogPosting" (cond .IsHome "WebSite" "WebPage")) "name" $pageTitle "description" $description "url" .Permalink "inLanguage" .Site.Language.Lang -}}
+{{- if $isArticle -}}
+  {{- $schema = merge $schema (dict "headline" .Title "datePublished" (.PublishDate.Format "2006-01-02T15:04:05Z07:00") "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00") "image" ($cover | absURL) "mainEntityOfPage" (dict "@type" "WebPage" "@id" .Permalink) "author" (dict "@type" "Person" "name" .Site.Params.author) "publisher" (dict "@type" "Organization" "name" .Site.Title)) -}}
+{{- end -}}
+<script type="application/ld+json">{{ $schema | jsonify | safeJS }}</script>

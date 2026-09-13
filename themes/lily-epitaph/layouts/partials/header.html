@@ -12,9 +12,9 @@
     <div class="header-actions">
       {{ if .Site.Params.search.enabled }}
       <div class="search-box">
-        <div class="search-mode" role="tablist" aria-label="搜索模式">
-          <button class="search-mode-btn active" type="button" data-search-mode="article" role="tab" aria-selected="true">文章</button>
-          <button class="search-mode-btn" type="button" data-search-mode="text" role="tab" aria-selected="false">文字</button>
+        <div class="search-mode" role="group" aria-label="搜索范围">
+          <button class="search-mode-btn active" type="button" data-search-mode="article" aria-pressed="true">文章</button>
+          <button class="search-mode-btn" type="button" data-search-mode="text" aria-pressed="false">文字</button>
         </div>
         <label class="sr-only" for="search">搜索博客</label>
         <input id="search" class="search" type="search" placeholder="搜索文章标题/标签…" autocomplete="off" aria-controls="post-grid" aria-describedby="search-status">

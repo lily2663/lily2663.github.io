@@ -18,7 +18,7 @@
        position:fixed 后代的包含块，欢迎屏会错位成文档流区块盖住全页 */ -}}
   {{- if .IsHome }}{{ partial "lily/slot.html" (dict "layout" "home" "slot" "hero" "page" .) }}{{ end }}
   {{ partial "lily/slot.html" (dict "layout" "global" "slot" "header" "page" .) }}
-  <main class="container" id="app">
+  <main class="container" id="app" tabindex="-1">
     {{ block "main" . }}{{ end }}
   </main>
   {{ partial "lily/slot.html" (dict "layout" "global" "slot" "footer" "page" .) }}
