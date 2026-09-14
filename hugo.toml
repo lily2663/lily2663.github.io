@@ -28,8 +28,8 @@ readingWidth = "standard"
 
 [params.welcome]
 enabled = true
-background = "/assets/img/qq_pic_merged_1789309416797..jpg"
-backgroundDark = "/assets/img/optimized/【哲风壁纸】星星-最终幻想-空间.webp"
+background = "/assets/img/mmexport1789367721322..jpg"
+backgroundDark = "/assets/img/mmexport1789367740289..jpg"
   titleBefore = "Welcome to "
 accent = "Lily's"
   titleAfter = " House"
