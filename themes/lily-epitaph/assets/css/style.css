@@ -142,7 +142,7 @@ a:hover { color: var(--pink); }
 .container { 
   max-width: var(--maxw); 
   margin: 0 auto; 
-  padding: 0 24px; 
+  padding: 0 var(--page-gutter, 24px); 
 }
 
 /* ---------- Header ---------- */
@@ -383,7 +383,7 @@ a.post-link:hover .item-title {
 .front-grid {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: calc(16px + var(--card-gap-adjust, 0px));
 }
 
 .front-grid .post-item {
@@ -393,7 +393,7 @@ a.post-link:hover .item-title {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: calc(24px + var(--card-padding-adjust, 0px));
   box-shadow: var(--shadow);
   border: 1px solid var(--border-light);
   /* hover 只动边框/阴影/位移（合成器动画），不动 background ——
@@ -730,14 +730,14 @@ a.post-link:hover .item-title {
 .friend-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  gap: calc(20px + var(--card-gap-adjust, 0px));
 }
 
 .friend-card {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px;
+  padding: calc(20px + var(--card-padding-adjust, 0px));
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--bg-card);
@@ -1042,7 +1042,7 @@ a.post-link:hover .item-title {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: calc(20px + var(--card-padding-adjust, 0px));
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -1180,9 +1180,9 @@ a.post-link:hover .item-title {
 
 /* ---------- Responsive ---------- */
 @media (max-width: 640px) {
-  .container { padding: 0 16px; }
-  .masthead { padding: 10px 0 6px; }
-  .masthead-title { font-size: 24px; }
+  .container { padding: 0 var(--page-gutter, 16px); }
+  .masthead { padding: var(--mobile-header-padding, 4px) 0; }
+  .masthead-title { font-size: var(--mobile-header-title-size, 22px); }
   .masthead-top { font-size: 9px; }
   .masthead-sub { font-size: 11px; }
   .topbar { flex-wrap: wrap; gap: 10px; padding: 6px 0; }
@@ -1196,7 +1196,7 @@ a.post-link:hover .item-title {
   .post-nav { flex-direction: column; gap: 12px; }
   .post-nav .nav-next { text-align: left; }
   
-  .front-grid .post-item { padding: 20px; }
+  .front-grid .post-item { padding: calc(20px + var(--card-padding-adjust, 0px)); }
 }
 
 /* PJAX 页面切换（3-hexo / 旧站 SPA 同款）：旧内容上浮淡出 → 新内容浮现。
@@ -1474,6 +1474,10 @@ body:not(.splash-active) .site-footer {
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
 }
 .tuanzi:active,
 .tuanzi.dragging {
@@ -1569,6 +1573,21 @@ body:not(.splash-active) .site-footer {
 @media (max-width: 640px) {
   .tuanzi-img { width: 140px; }
   .tuanzi { right: 12px; bottom: 12px; }
+}
+
+/* 手机端：团子缩成侧栏入口，减少遮挡；桌面尺寸与拖拽行为不变。 */
+@media (max-width: 900px) {
+  body.mobile-hub-ready .tuanzi {
+    z-index: 10003;
+    right: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
+    left: auto;
+    top: auto;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  body.mobile-hub-ready .tuanzi-img { width: var(--mobile-hub-pet-size, 88px); }
+  body.mobile-hub-open .tuanzi-img { animation-play-state: paused; }
 }
 
 /* ---------- Comment System ---------- */

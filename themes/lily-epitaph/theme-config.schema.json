@@ -20,6 +20,13 @@
       {"path":"params.theme.fontPreset","label":"字体预设","type":"select","default":"editorial","options":[{"value":"editorial","label":"编辑风格（默认）"},{"value":"modern","label":"现代无衬线"},{"value":"classic","label":"经典衬线"}],"help":"控制全站标题与正文的字体组合"},
       {"path":"params.theme.readingWidth","label":"文章阅读宽度","type":"select","default":"standard","options":[{"value":"compact","label":"紧凑 680px"},{"value":"standard","label":"舒适 720px"},{"value":"wide","label":"宽松 800px"}],"help":"仅影响文章正文的舒适阅读宽度"}
     ]},
+    {"id":"desktopLayout","label":"电脑端尺寸","fields":[
+      {"path":"params.layout.desktop.pageWidth","label":"页面最大宽度（px）","type":"number","default":1200,"min":960,"max":1600,"step":20,"help":"控制电脑端内容和卡片区域的总宽度；推荐 1120–1280。"},
+      {"path":"params.layout.desktop.pageGutter","label":"页面左右留白（px）","type":"number","default":24,"min":12,"max":64,"step":2,"help":"浏览器边缘到内容之间的安全距离。"},
+      {"path":"params.layout.desktop.cardPaddingAdjust","label":"卡片内部留白增减（px）","type":"number","default":0,"min":-8,"max":24,"step":2,"help":"0 保持主题原比例；-4 会让文章卡、友链卡和模块卡各自收紧 4px。"},
+      {"path":"params.layout.desktop.cardGapAdjust","label":"卡片间距增减（px）","type":"number","default":0,"min":-8,"max":24,"step":2,"help":"0 保持原间距；负数更紧凑，正数更宽松。"},
+      {"path":"params.layout.desktop.cardRadius","label":"卡片圆角（px）","type":"number","default":12,"min":0,"max":32,"step":2,"help":"0 为直角；文章卡、友链卡和侧栏模块保持一致。"}
+    ]},
     {"id":"welcome","label":"欢迎页","fields":[
       {"path":"params.welcome.enabled","label":"启用欢迎页","type":"boolean"},
       {"path":"params.welcome.titleBefore","label":"标题前缀","type":"string"},
@@ -36,6 +43,27 @@
       {"path":"params.article.toc","label":"显示目录","type":"boolean"},
       {"path":"params.article.codeCopy","label":"显示代码复制","type":"boolean"},
       {"path":"params.protected.enabled","label":"启用受保护文章阅读器","type":"boolean"}
+    ]},
+    {"id":"mobileLayout","label":"手机端尺寸","fields":[
+      {"path":"params.layout.mobile.headerLayout","label":"手机页眉布局","type":"select","default":"compact","options":[{"value":"compact","label":"紧凑 · 导航与搜索同一行"},{"value":"standard","label":"标准 · 导航与搜索分行"}],"help":"紧凑模式显著缩短顶部方块；320px 小屏也会自动适配。"},
+      {"path":"params.layout.mobile.headerTitleSize","label":"手机博客标题字号（px）","type":"number","default":22,"min":18,"max":30,"step":1,"help":"只改变页眉里的博客名称，不影响文章标题。"},
+      {"path":"params.layout.mobile.headerPadding","label":"手机页眉上下留白（px）","type":"number","default":4,"min":0,"max":16,"step":1,"help":"直接控制标题区域的纵向厚度；推荐 3–6。"},
+      {"path":"params.layout.mobile.showHeaderDate","label":"手机页眉显示日期","type":"boolean","default":true,"help":"关闭可进一步缩短标题区域；电脑端不受影响。"},
+      {"path":"params.layout.mobile.showHeaderSubtitle","label":"手机页眉显示副标题","type":"boolean","default":true,"help":"关闭可进一步缩短标题区域；电脑端不受影响。"},
+      {"path":"params.layout.mobile.pageGutter","label":"手机页面左右留白（px）","type":"number","default":16,"min":8,"max":28,"step":2,"help":"控制所有页面和卡片距离屏幕边缘的宽度。"},
+      {"path":"params.layout.mobile.cardPaddingAdjust","label":"手机卡片留白增减（px）","type":"number","default":0,"min":-8,"max":16,"step":2,"help":"0 保持主题原比例；建议用 -2 或 -4 获得更紧凑的手机卡片。"},
+      {"path":"params.layout.mobile.cardGapAdjust","label":"手机卡片间距增减（px）","type":"number","default":0,"min":-8,"max":16,"step":2,"help":"0 保持原间距；调整后不会影响电脑端。"},
+      {"path":"params.layout.mobile.cardRadius","label":"手机卡片圆角（px）","type":"number","default":12,"min":0,"max":28,"step":2,"help":"手机端可以与电脑端使用不同圆角。"}
+    ]},
+    {"id":"mobile","label":"手机工具与性能","fields":[
+      {"path":"params.mobileHub.enabled","label":"启用团子工具面板","type":"boolean","default":true,"help":"手机端用团子收纳侧栏；关闭后恢复侧栏随正文排列。"},
+      {"path":"params.mobileHub.defaultModule","label":"默认打开模块","type":"select","default":"profile","options":[{"value":"first","label":"按布局顺序第一个"},{"value":"profile","label":"我 / 个人信息"},{"value":"weather","label":"天气"},{"value":"quote","label":"语录"},{"value":"music","label":"音乐"},{"value":"tags","label":"标签"},{"value":"toc","label":"文章目录"}],"help":"若当前页面没有该模块，会自动选择布局中的第一个；自定义模块也会使用 manifest 名称显示。"},
+      {"path":"params.mobileHub.rememberTab","label":"记住上次使用的模块","type":"boolean","default":true,"help":"例如上次打开音乐，下次进入首页仍优先显示音乐。"},
+      {"path":"params.mobileHub.petSize","label":"手机团子大小（px）","type":"number","default":88,"min":64,"max":128,"step":4,"help":"建议 80–96；数值过大会遮挡正文。"},
+      {"path":"params.mobileHub.panelHeight","label":"工具面板最大高度（屏幕 %）","type":"number","default":68,"min":45,"max":85,"step":1,"help":"内容超出时在面板内部滚动。"},
+      {"path":"params.performance.offlineCache","label":"启用线上加速缓存","type":"boolean","default":true,"help":"线上访问过的页面和资源保存在浏览器中；本地预览不启用，避免旧缓存干扰开发。"},
+      {"path":"params.performance.optimizeUploads","label":"LilyMap 自动优化外观图片","type":"boolean","default":true,"help":"上传壁纸和头像时自动缩放并转为 WebP，同时保留高清观感。"},
+      {"path":"params.performance.imageQuality","label":"外观图片质量","type":"select","default":"high","options":[{"value":"compact","label":"轻量 · 网络优先"},{"value":"high","label":"高清 · 推荐"},{"value":"ultra","label":"超清 · 文件较大"}],"help":"仅影响以后通过 LilyMap 上传的壁纸和头像。"}
     ]},
     {"id":"interaction","label":"交互与评论","fields":[
       {"path":"params.search.enabled","label":"启用搜索","type":"boolean"},

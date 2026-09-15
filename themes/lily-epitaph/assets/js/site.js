@@ -427,6 +427,7 @@
     document.querySelectorAll('.front-grid .post-item').forEach(attachPixelSprite);
     if (grid && search?.value.trim()) void filterPosts();
     updateScroll();
+    document.dispatchEvent(new CustomEvent('lily:page-ready'));
   }
 
   /* ---------- PJAX：拦截站内导航只替换 #app，永不整页刷新（3-hexo 同款机制） ---------- */
@@ -591,6 +592,29 @@
     if (timer) { clearTimeout(timer); pendingPrefetch.delete(link); }
   }, { capture: true, passive: true });
   document.addEventListener('focusin', (event) => schedulePrefetch(event.target.closest('a[href]'), 0));
+
+  // GitHub Pages 的静态资源缓存时间较短。生产环境用轻量 Service Worker
+  // 把访问过的页面与资源留在本机，后续访问先显示缓存、后台再更新。
+  const isLocalPreview = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && !isLocalPreview) {
+    addEventListener('load', () => {
+      const syncOfflineCache = async () => {
+        if (document.body.dataset.offlineCache !== 'false') {
+          await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+          return;
+        }
+        const registration = await navigator.serviceWorker.getRegistration('/');
+        await registration?.unregister();
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.filter((key) => key.startsWith('lily-runtime-')).map((key) => caches.delete(key)));
+        }
+      };
+      const run = () => syncOfflineCache().catch(() => {});
+      if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 2500 });
+      else setTimeout(run, 800);
+    }, { once: true });
+  }
 
   initPage();
   flashFade();

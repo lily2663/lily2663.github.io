@@ -55,6 +55,9 @@
 {{- $theme := .Site.Params.theme | default dict -}}
 {{- $fontPreset := $theme.fontPreset | default "editorial" -}}
 {{- $readingWidth := $theme.readingWidth | default "standard" -}}
+{{- $layout := .Site.Params.layout | default dict -}}
+{{- $desktopLayout := $layout.desktop | default dict -}}
+{{- $mobileLayout := $layout.mobile | default dict -}}
 <style id="site-theme-overrides">
   :root {
     {{- with $theme.accent }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--mint:{{ . }};{{ end }}{{ end -}}
@@ -62,6 +65,23 @@
     {{- if eq $fontPreset "modern" }}--serif:ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;--sans:ui-sans-serif,system-ui,"Microsoft YaHei",sans-serif;{{ end -}}
     {{- if eq $fontPreset "classic" }}--serif:Georgia,"Noto Serif SC",serif;--sans:Georgia,"Noto Serif SC",serif;{{ end -}}
     {{- if eq $readingWidth "compact" }}--readw:680px;{{ else if eq $readingWidth "wide" }}--readw:800px;{{ else }}--readw:720px;{{ end -}}
+    --maxw:{{ $desktopLayout.pageWidth | default 1200 | int }}px;
+    --page-gutter:{{ $desktopLayout.pageGutter | default 24 | int }}px;
+    --card-padding-adjust:{{ $desktopLayout.cardPaddingAdjust | default 0 | int }}px;
+    --card-gap-adjust:{{ $desktopLayout.cardGapAdjust | default 0 | int }}px;
+    --radius:{{ $desktopLayout.cardRadius | default 12 | int }}px;
+    --lily-radius-md:{{ $desktopLayout.cardRadius | default 12 | int }}px;
+    --mobile-header-title-size:{{ $mobileLayout.headerTitleSize | default 22 | int }}px;
+    --mobile-header-padding:{{ $mobileLayout.headerPadding | default 4 | int }}px;
+  }
+  @media (max-width: 640px) {
+    :root {
+      --page-gutter:{{ $mobileLayout.pageGutter | default 16 | int }}px;
+      --card-padding-adjust:{{ $mobileLayout.cardPaddingAdjust | default 0 | int }}px;
+      --card-gap-adjust:{{ $mobileLayout.cardGapAdjust | default 0 | int }}px;
+      --radius:{{ $mobileLayout.cardRadius | default 12 | int }}px;
+      --lily-radius-md:{{ $mobileLayout.cardRadius | default 12 | int }}px;
+    }
   }
   :root:not([data-theme="dark"]) {
     {{- with $theme.paper }}{{ if findRE `^#[0-9A-Fa-f]{6}$` . }}--bg:{{ . }};{{ end }}{{ end -}}

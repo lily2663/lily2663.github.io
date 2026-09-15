@@ -28,8 +28,8 @@ readingWidth = "standard"
 
 [params.welcome]
 enabled = true
-background = "/assets/img/mmexport1789367721322..jpg"
-backgroundDark = "/assets/img/mmexport1789367740289..jpg"
+background = "/assets/img/optimized/wallpaper-day.webp"
+backgroundDark = "/assets/img/optimized/wallpaper-night.webp"
   titleBefore = "Welcome to "
 accent = "Lily's"
   titleAfter = " House"
@@ -41,6 +41,36 @@ particles = 30
 [params.pet]
 enabled = true
   image = "/assets/img/optimized/pet/tuanzi.webp"
+
+[params.mobileHub]
+enabled = true
+defaultModule = "profile"
+rememberTab = true
+petSize = 88
+panelHeight = 68
+
+[params.layout.desktop]
+pageWidth = 1200
+pageGutter = 24
+cardPaddingAdjust = 0
+cardGapAdjust = 0
+cardRadius = 12
+
+[params.layout.mobile]
+pageGutter = 16
+cardPaddingAdjust = 0
+cardGapAdjust = 0
+cardRadius = 12
+headerLayout = "compact"
+headerTitleSize = 22
+headerPadding = 4
+showHeaderDate = true
+showHeaderSubtitle = true
+
+[params.performance]
+offlineCache = true
+optimizeUploads = true
+imageQuality = "high"
 
 [params.search]
 enabled = true

@@ -63,7 +63,7 @@
     "Slot" $slot
     "Layout" $layout
   -}}
-  <section class="lily-module lily-module--{{ $moduleID }}" data-lily-module="{{ $moduleID }}" data-lily-instance="{{ $instance.id }}" data-lily-slot="{{ $slot }}">
+  <section class="lily-module lily-module--{{ $moduleID }}" data-lily-module="{{ $moduleID }}" data-lily-module-label="{{ $manifest.name | default $moduleID }}" data-lily-instance="{{ $instance.id }}" data-lily-slot="{{ $slot }}">
     {{- $partialName := $manifest.template.partial | default (printf "lily/modules/%s/render.html" $moduleID) -}}
     {{- $safePartial := and (not (hasPrefix $partialName "/")) (not (in $partialName "..")) -}}
     {{- if and $safePartial (templates.Exists (printf "partials/%s" $partialName)) -}}

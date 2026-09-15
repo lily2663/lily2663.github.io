@@ -11,7 +11,26 @@
 {{- $welcomeConf := .Site.Params.welcome | default dict -}}
 {{- $dayImage := $welcomeConf.background | default "/lily-epitaph/welcome-watercolor.jpg" -}}
 {{- $nightImage := $welcomeConf.backgroundDark | default "/lily-epitaph/night-watercolor.jpg" -}}
-<body data-pet-image="{{ $petImage }}" data-prefetch="{{ $prefetchEnabled }}" data-code-copy="{{ $codeCopyEnabled }}" style="--watercolor-day:url('{{ $dayImage }}');--watercolor-night:url('{{ $nightImage }}')">
+{{- $mobileHub := .Site.Params.mobileHub | default dict -}}
+{{- $mobileHubEnabled := true -}}
+{{- if isset $mobileHub "enabled" }}{{ $mobileHubEnabled = $mobileHub.enabled }}{{ end -}}
+{{- $mobileHubDefault := $mobileHub.defaultModule | default "profile" -}}
+{{- $mobileHubRemember := true -}}
+{{- if isset $mobileHub "remembertab" }}{{ $mobileHubRemember = $mobileHub.rememberTab }}{{ end -}}
+{{- $mobilePetSize := $mobileHub.petSize | default 88 -}}
+{{- $mobilePanelHeight := $mobileHub.panelHeight | default 68 -}}
+{{- $performance := .Site.Params.performance | default dict -}}
+{{- $offlineCache := true -}}
+{{- if isset $performance "offlinecache" }}{{ $offlineCache = $performance.offlineCache }}{{ end -}}
+{{- $layout := .Site.Params.layout | default dict -}}
+{{- $mobileLayout := $layout.mobile | default dict -}}
+{{- $mobileHeaderLayout := $mobileLayout.headerLayout | default "compact" -}}
+{{- if ne $mobileHeaderLayout "standard" }}{{ $mobileHeaderLayout = "compact" }}{{ end -}}
+{{- $showHeaderDate := true -}}
+{{- if isset $mobileLayout "showheaderdate" }}{{ $showHeaderDate = $mobileLayout.showHeaderDate }}{{ end -}}
+{{- $showHeaderSubtitle := true -}}
+{{- if isset $mobileLayout "showheadersubtitle" }}{{ $showHeaderSubtitle = $mobileLayout.showHeaderSubtitle }}{{ end -}}
+<body data-pet-image="{{ $petImage }}" data-prefetch="{{ $prefetchEnabled }}" data-code-copy="{{ $codeCopyEnabled }}" data-mobile-hub="{{ $mobileHubEnabled }}" data-mobile-hub-default="{{ $mobileHubDefault }}" data-mobile-hub-remember="{{ $mobileHubRemember }}" data-mobile-header-layout="{{ $mobileHeaderLayout }}" data-mobile-header-date="{{ $showHeaderDate }}" data-mobile-header-subtitle="{{ $showHeaderSubtitle }}" data-offline-cache="{{ $offlineCache }}" style="--watercolor-day:url('{{ $dayImage }}');--watercolor-night:url('{{ $nightImage }}');--mobile-hub-pet-size:{{ $mobilePetSize }}px;--mobile-hub-panel-height:{{ $mobilePanelHeight }}dvh">
   <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
   {{- /* home.hero（欢迎屏）必须渲染在 #app 外：
        #app 在欢迎屏期间带 filter:blur，CSS 规范下 filter 祖先会成为
