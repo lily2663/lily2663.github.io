@@ -37,6 +37,16 @@ slots:
       config:
         text: The house of the dead.
         author: ""
+    - id: home-music
+      module: music
+      config:
+        title: Lily Radio
+        artist: ""
+        source: ""
+        cover: ""
+        playlistId: "2672160214"
+        showPlaylist: true
+        rememberPlayback: true
     - id: home-tags
       module: tags
       config:
@@ -44,11 +54,3 @@ slots:
         limit: 24
         showCount: true
         sort: count
-    - id: home-music
-      module: music
-      enabled: false
-      config:
-        title: 正在播放
-        artist: ""
-        source: ""
-        cover: ""

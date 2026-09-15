@@ -1,10 +1,10 @@
 apiVersion: lily-module/v1
 id: music
-name: Music Player
-version: 1.0.0
+name: Lily Radio
+version: 2.0.0
 category: media
 icon: "♫"
-description: 原生 HTML5 音乐播放器，适用于站内音频或公开音频 URL。
+description: 薄荷色歌单播放器，支持网易云歌单快照和站内/公开音频。
 context: any
 allowedSlots:
   - home.sidebar
@@ -15,13 +15,20 @@ template:
 assets:
   styles:
     - lily/modules/music.css
+  scripts:
+    - lily/modules/music.js
 capabilities:
   audio: true
+  playlist: true
+  neteaseSnapshot: true
 defaults:
-  title: 正在播放
+  title: Lily Radio
   artist: ""
   source: ""
   cover: ""
+  playlistId: ""
+  showPlaylist: true
+  rememberPlayback: true
 schema:
   title:
     type: string
@@ -39,3 +46,15 @@ schema:
     type: url
     label: 封面地址
     help: 可选，填写站内图片路径或 https:// 图片地址。
+  playlistId:
+    type: string
+    label: 网易云歌单 ID
+    help: 先在 LilyMap 模块库中安全导入歌单，再填写这里；Cookie 不会进入博客。
+  showPlaylist:
+    type: boolean
+    label: 显示播放列表
+    help: 允许访客展开并切换曲目。
+  rememberPlayback:
+    type: boolean
+    label: 记住播放位置
+    help: 只保存在访客自己的浏览器中。
