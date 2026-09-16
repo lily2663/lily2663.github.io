@@ -28,7 +28,7 @@ readingWidth = "standard"
 
 [params.welcome]
 enabled = true
-background = "/assets/media/wallpapers/day-wallpaper-q-anime-nekomimi.mp4"
+background = "/assets/img/optimized/wallpapers/welcome-1789547451700.webp"
 backgroundDark = "/assets/img/optimized/wallpapers/night-1789542813605.webp"
 backgroundFit = "contain"
 backgroundEffect = "original"
