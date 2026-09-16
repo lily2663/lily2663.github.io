@@ -44,7 +44,7 @@ slots:
         artist: ""
         source: ""
         cover: ""
-        playlistId: "2672160214"
+        playlistId: "4977745263"
         showPlaylist: true
         rememberPlayback: true
     - id: home-tags

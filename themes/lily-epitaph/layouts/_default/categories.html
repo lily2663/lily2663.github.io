@@ -1,0 +1,38 @@
+{{ define "main" }}
+{{- $drawers := hugo.Data.lily.drawers.drawers | default slice -}}
+<section class="drawer-page" aria-labelledby="drawer-page-title">
+  <div class="drawer-page__head">
+    <span class="drawer-page__eyebrow">COLLECTIONS · 按你的方式整理</span>
+    <h1 id="drawer-page-title">分类抽屉</h1>
+    <p>这里按主题收藏文章；同一篇文章可以放进多个抽屉，标签仍然保持独立。</p>
+  </div>
+  {{ if $drawers }}
+  <div class="drawer-list">
+    {{ range $drawers }}
+      {{- $pages := slice -}}
+      {{- range .posts -}}
+        {{- $file := strings.TrimPrefix "content/" . -}}
+        {{- range site.RegularPages -}}
+          {{- if and (eq .Section "posts") (eq (replace .File.Path "\\" "/") $file) }}{{ $pages = $pages | append . }}{{ end -}}
+        {{- end -}}
+      {{- end -}}
+      <details class="drawer" id="{{ .id }}">
+        <summary class="drawer__handle">
+          <span class="drawer__icon" aria-hidden="true">▥</span>
+          <span class="drawer__heading"><strong>{{ .title }}</strong>{{ with .description }}<small>{{ . }}</small>{{ end }}</span>
+          <span class="drawer__count">{{ len $pages }} 篇</span>
+          <span class="drawer__chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="drawer__body">
+          {{ if $pages }}<div class="front-grid" data-drawer-grid>{{ range $pages }}{{ partial "post-card.html" . }}{{ end }}</div>
+          {{ if gt (len $pages) 10 }}<nav class="drawer__pagination" data-drawer-pagination aria-label="{{ .title }}文章翻页"><button type="button" data-drawer-prev disabled>← 上一页</button><span data-drawer-page>1 / {{ div (add (len $pages) 9) 10 }}</span><button type="button" data-drawer-next>下一页 →</button></nav>{{ end }}
+          {{ else }}<p class="drawer__empty">这个抽屉暂时还没有已发布文章。</p>{{ end }}
+        </div>
+      </details>
+    {{ end }}
+  </div>
+  {{ else }}
+  <div class="drawer-page__empty">抽屉还空着。可以在 LilyMap 的「分类抽屉」中创建，再把文章放进来。</div>
+  {{ end }}
+</section>
+{{ end }}

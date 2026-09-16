@@ -6,13 +6,22 @@
 {{- $section := $cfg.section | default "posts" -}}
 {{- $posts := (site.GetPage "section" $section).RegularPages -}}
 {{- $limit := $cfg.limit | default 0 -}}
+{{- $posts = $posts.ByDate.Reverse -}}
 {{- if gt $limit 0 }}{{ $posts = first $limit $posts }}{{ end -}}
 {{- if gt (len $posts) 0 -}}
+  {{- $pager := .Page.Paginate $posts 10 -}}
   <section class="post-list" data-search-list>
     <h2 class="section-title"><span data-search-title>{{ $cfg.title | default "全部文章" }}</span>{{ if $cfg.showCount }} <span class="count" data-search-count>{{ len $posts }} 篇</span>{{ end }}</h2>
-    <div class="front-grid" id="post-grid" data-post-grid>
-      {{ range $posts.ByDate.Reverse }}{{ partial "post-card.html" . }}{{ end }}
+    <div class="front-grid" id="post-grid" data-post-grid data-post-total="{{ len $posts }}">
+      {{ range $pager.Pages }}{{ partial "post-card.html" . }}{{ end }}
     </div>
+    {{- if gt $pager.TotalPages 1 }}
+    <nav class="post-pagination" data-post-pagination aria-label="文章翻页">
+      {{ with $pager.Prev }}<a class="post-pagination__step" href="{{ .URL }}#post-grid" rel="prev">← 上一页</a>{{ else }}<span class="post-pagination__step is-disabled">← 上一页</span>{{ end }}
+      <div class="post-pagination__pages">{{ range $pager.Pagers }}<a href="{{ .URL }}#post-grid"{{ if eq .PageNumber $pager.PageNumber }} aria-current="page"{{ end }} aria-label="第 {{ .PageNumber }} 页">{{ .PageNumber }}</a>{{ end }}</div>
+      {{ with $pager.Next }}<a class="post-pagination__step" href="{{ .URL }}#post-grid" rel="next">下一页 →</a>{{ else }}<span class="post-pagination__step is-disabled">下一页 →</span>{{ end }}
+    </nav>
+    {{- end }}
     <p class="empty search-empty" role="status" hidden>没有找到匹配的文章。</p>
   </section>
 {{- end -}}

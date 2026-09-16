@@ -2,6 +2,33 @@
   'use strict';
 
   const players = new Set();
+  const persistentPlayers = new Map();
+  let dock = null;
+  function ensureDock() {
+    if (dock) return dock;
+    dock = document.createElement('aside');
+    dock.className = 'lily-music-dock';
+    dock.setAttribute('aria-label', '持续播放的音乐');
+    dock.hidden = true;
+    document.body.append(dock);
+    return dock;
+  }
+  function syncDock() {
+    if (!dock) return;
+    for (const player of persistentPlayers.values()) {
+      const docked = dock.contains(player.module);
+      player.module.hidden = docked && !player.engaged;
+    }
+    dock.hidden = ![...persistentPlayers.values()].some((player) => player.engaged && dock.contains(player.module));
+  }
+  function reconcilePlayers() {
+    for (const player of persistentPlayers.values()) {
+      const fresh = [...document.querySelectorAll('#app [data-lily-module="music"]')]
+        .find((module) => module.dataset.lilyInstance === player.id && module !== player.module);
+      if (fresh) fresh.replaceWith(player.module);
+    }
+    syncDock();
+  }
   const safeSource = (value) => {
     try {
       const url = new URL(String(value || ''), window.location.href);
@@ -27,6 +54,7 @@
     } catch { payload = {}; }
     const tracks = (Array.isArray(payload.tracks) ? payload.tracks : [])
       .map((track) => ({
+        id: /^\d{1,20}$/.test(String(track.id || '')) ? String(track.id) : '',
         title: String(track.title || '未命名音乐'),
         artist: String(track.artist || '未知艺术家'),
         cover: safeSource(track.cover),
@@ -37,6 +65,7 @@
     const artist = root.querySelector('.lily-music__artist');
     const cover = root.querySelector('.lily-music__cover');
     const status = root.querySelector('.lily-music__status');
+    const official = root.querySelector('.lily-music__official');
     const progress = root.querySelector('.lily-music__progress');
     const currentTime = root.querySelector('.lily-music__time--current');
     const duration = root.querySelector('.lily-music__time--duration');
@@ -44,12 +73,18 @@
     const queueButton = root.querySelector('[data-player-action="queue"]');
     const queue = root.querySelector('.lily-music__queue');
     const storageKey = `lily-player:${String(payload.playlistId || 'direct')}`;
+    const module = root.closest('[data-lily-module="music"]');
+    const instanceId = module?.dataset.lilyInstance || '';
     let index = 0;
     let resumeAt = 0;
     let saveTimer = 0;
 
     if (!tracks.length || !audio) return;
     root.dataset.lilyPlayerReady = 'true';
+    // 音频节点必须留在 #app 外：PJAX 更换文章内容时不能销毁它。
+    document.body.append(audio);
+    const persistent = module && instanceId ? { id: instanceId, module, audio, engaged: false } : null;
+    if (persistent) persistentPlayers.set(instanceId, persistent);
 
     if (payload.rememberPlayback) {
       try {
@@ -72,16 +107,23 @@
     });
     const syncPlay = () => {
       const playing = !audio.paused;
+      if (playing && persistent) persistent.engaged = true;
       root.dataset.playing = String(playing);
       playButton.textContent = playing ? 'Ⅱ' : '▶';
       playButton.setAttribute('aria-label', playing ? '暂停' : '播放');
       playButton.setAttribute('aria-pressed', String(playing));
       syncQueue();
+      syncDock();
     };
     const load = (nextIndex, autoplay = false) => {
       index = (nextIndex + tracks.length) % tracks.length;
       const track = tracks[index];
       audio.src = track.source;
+      if (official) {
+        official.hidden = true;
+        if (track.id) official.href = `https://music.163.com/#/song?id=${encodeURIComponent(track.id)}`;
+        else official.removeAttribute('href');
+      }
       title.textContent = track.title;
       artist.textContent = track.artist;
       if (track.cover) {
@@ -110,7 +152,7 @@
         button.innerHTML = '<span class="lily-music__track-index"></span><span class="lily-music__track-copy"><span class="lily-music__track-title"></span><span class="lily-music__track-artist"></span></span>';
         button.querySelector('.lily-music__track-title').textContent = track.title;
         button.querySelector('.lily-music__track-artist').textContent = track.artist;
-        button.addEventListener('click', () => load(trackIndex, true));
+        button.addEventListener('click', () => { if (persistent) persistent.engaged = true; load(trackIndex, true); syncDock(); });
         item.append(button);
         fragment.append(item);
       });
@@ -122,9 +164,14 @@
       if (!action) return;
       if (action === 'toggle') {
         if (audio.paused) {
+          if (persistent) persistent.engaged = true;
           players.forEach((other) => { if (other !== audio) other.pause(); });
-          audio.play().catch(() => { status.textContent = '这首音乐暂时无法播放，请尝试下一首。'; });
+          audio.play().catch(() => {
+            status.textContent = '这首歌的公开音源不可用；可切换下一首或在网易云播放。';
+            if (official?.hasAttribute('href')) official.hidden = false;
+          });
         } else audio.pause();
+        syncDock();
       }
       if (action === 'previous') load(index - 1, !audio.paused);
       if (action === 'next') load(index + 1, !audio.paused);
@@ -147,11 +194,12 @@
       progress.value = Number.isFinite(audio.duration) && audio.duration > 0 ? String(Math.round((audio.currentTime / audio.duration) * 1000)) : '0';
       save();
     });
-    audio.addEventListener('play', syncPlay);
+    audio.addEventListener('play', () => { if (official) official.hidden = true; syncPlay(); });
     audio.addEventListener('pause', syncPlay);
     audio.addEventListener('ended', () => load(index + 1, true));
     audio.addEventListener('error', () => {
-      status.textContent = '当前歌曲不可用，可切换下一首。';
+      status.textContent = '这首歌的公开音源不可用；可切换下一首或在网易云播放。';
+      if (official?.hasAttribute('href')) official.hidden = false;
       syncPlay();
     });
     players.add(audio);
@@ -159,10 +207,20 @@
   }
 
   function initPlayers() {
+    reconcilePlayers();
     players.forEach((audio) => { if (!audio.isConnected) players.delete(audio); });
     document.querySelectorAll('[data-lily-player]').forEach(createPlayer);
   }
 
   initPlayers();
+  document.addEventListener('lily:before-page-swap', () => {
+    for (const player of persistentPlayers.values()) {
+      if (!document.querySelector('#app')?.contains(player.module)) continue;
+      player.module.querySelector('.lily-music__queue')?.setAttribute('hidden', '');
+      player.module.querySelector('[data-player-action="queue"]')?.setAttribute('aria-expanded', 'false');
+      ensureDock().append(player.module);
+    }
+    syncDock();
+  });
   document.addEventListener('lily:page-ready', initPlayers);
 })();

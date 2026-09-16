@@ -1,0 +1,34 @@
+drawers:
+  - id: drawer-e22896c3
+    title: CTF_WP
+    description: Spiderman
+    posts:
+      - content/posts/PCTF2025web/index.md
+      - content/posts/BroncoCTF/index.md
+      - content/posts/POLARIS-web简单/index.md
+      - content/posts/PICKLE/index.md
+      - content/posts/JinjaMark/index.md
+      - content/posts/BASECTF2024/index.md
+      - content/posts/back_to_the_future/index.md
+      - content/posts/宽字节注入/index.md
+      - content/posts/0XGAME2024/index.md
+  - id: drawer-2a22b76f
+    title: knowledge
+    description: /ˈnäləj/
+    posts:
+      - content/posts/宽字节注入/index.md
+      - content/posts/SSTI/index.md
+      - content/posts/SSRF基础/index.md
+      - content/posts/复现低版本log4shell/index.md
+  - id: drawer-c62ef56b
+    title: Maze_Community_Lab
+    description: socold
+    posts:
+      - content/posts/Core_lily2663/index.md
+      - content/posts/wellplayed_lily2663/index.md
+      - content/posts/Tran_lily2663/index.md
+      - content/posts/Publish/index.md
+      - content/posts/orchard_lily2663/index.md
+      - content/posts/Md_lily2663/index.md
+      - content/posts/preference_lily2663/index.md
+      - content/posts/netdata2_lily2663/index.md

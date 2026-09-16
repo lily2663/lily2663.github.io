@@ -157,6 +157,8 @@
   }));
   let searchIndex;
   let searchTimer;
+  let searchGrid = null;
+  let originalPostCards = [];
   function updateSearchState(query, visible, total) {
     if (!query) {
       if (searchTitle) searchTitle.textContent = '全部文章';
@@ -176,20 +178,47 @@
   async function filterPosts() {
     if (!grid || !search) return;
     const q = search.value.trim().toLowerCase();
-    const cards = [...grid.querySelectorAll('[data-search]')];
-    if (mode === 'article' || !q) {
-      let visible = 0;
-      cards.forEach((card) => { const hit = !q || card.dataset.search.includes(q); card.hidden = !hit; if (hit) visible++; });
-      updateSearchState(search.value.trim(), visible, cards.length);
+    if (searchGrid !== grid) { searchGrid = grid; originalPostCards = [...grid.children]; }
+    const pagination = document.querySelector('[data-post-pagination]');
+    if (!q) {
+      grid.replaceChildren(...originalPostCards);
+      if (pagination) pagination.hidden = false;
+      updateSearchState('', originalPostCards.length, Number(grid.dataset.postTotal) || originalPostCards.length);
       return;
     }
+    if (pagination) pagination.hidden = true;
+    const activeMode = mode;
     searchIndex ||= fetch('/index.json').then((response) => response.ok ? response.json() : []).catch(() => []);
     const entries = await searchIndex;
-    if (mode !== 'text' || q !== search.value.trim().toLowerCase()) return;
-    const visibleUrls = new Set(entries.filter((item) => `${item.title} ${item.tags.join(' ')} ${item.summary} ${item.text}`.toLowerCase().includes(q)).map((item) => item.url));
-    let visible = 0;
-    cards.forEach((card) => { const hit = visibleUrls.has(card.querySelector('a')?.getAttribute('href')); card.hidden = !hit; if (hit) visible++; });
-    updateSearchState(search.value.trim(), visible, cards.length);
+    if (grid !== searchGrid || q !== search.value.trim().toLowerCase() || mode !== activeMode) return;
+    const matches = entries.filter((item) => {
+      const base = `${item.title || ''} ${(item.tags || []).join(' ')} ${item.summary || ''}`;
+      return `${base} ${activeMode === 'text' ? item.text || '' : ''}`.toLowerCase().includes(q);
+    });
+    const cards = matches.map((item) => {
+      const card = document.createElement('article');
+      card.className = 'post-item';
+      card.dataset.search = '';
+      const link = document.createElement('a');
+      link.className = 'post-link';
+      const url = new URL(item.url || '/', location.origin);
+      link.href = url.origin === location.origin ? url.pathname + url.search + url.hash : '/';
+      const kicker = document.createElement('div');
+      kicker.className = 'kicker';
+      kicker.textContent = item.tags?.[0] || '随笔';
+      const title = document.createElement('h3');
+      title.className = 'item-title';
+      title.textContent = item.title || '未命名文章';
+      const excerpt = document.createElement('p');
+      excerpt.className = 'item-excerpt';
+      excerpt.textContent = item.protected ? '该文章已加密，需输入密码查看。' : (item.summary || '').slice(0, 140);
+      link.append(kicker, title, excerpt);
+      card.append(link);
+      attachPixelSprite(card);
+      return card;
+    });
+    grid.replaceChildren(...cards);
+    updateSearchState(search.value.trim(), matches.length, Number(grid.dataset.postTotal) || originalPostCards.length);
   }
   search?.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(() => void filterPosts(), 80); });
   search?.addEventListener('keydown', (event) => {
@@ -424,6 +453,24 @@
     card.append(sprite);
   }
 
+  function setupDrawerPagination() {
+    document.querySelectorAll('[data-drawer-pagination]').forEach((pagination) => {
+      const drawer = pagination.closest('.drawer');
+      const cards = [...drawer.querySelectorAll('[data-drawer-grid] > .post-item')];
+      const totalPages = Math.ceil(cards.length / 10);
+      let page = 1;
+      const renderPage = () => {
+        cards.forEach((card, index) => { card.hidden = index < (page - 1) * 10 || index >= page * 10; });
+        pagination.querySelector('[data-drawer-page]').textContent = `${page} / ${totalPages}`;
+        pagination.querySelector('[data-drawer-prev]').disabled = page === 1;
+        pagination.querySelector('[data-drawer-next]').disabled = page === totalPages;
+      };
+      pagination.querySelector('[data-drawer-prev]').onclick = () => { if (page > 1) { page--; renderPage(); drawer.querySelector('summary')?.scrollIntoView({ block: 'start' }); } };
+      pagination.querySelector('[data-drawer-next]').onclick = () => { if (page < totalPages) { page++; renderPage(); drawer.querySelector('summary')?.scrollIntoView({ block: 'start' }); } };
+      renderPage();
+    });
+  }
+
   // 页面级初始化：首次加载与每次 pjax 替换 #app 后都要执行
   function initPage() {
     tocLastUpdate = 0;
@@ -439,6 +486,7 @@
     articleToc = document.querySelector('.toc-wrap:not([data-protected-toc]) .toc');
     if (articleBody && articleToc) window.LilyArticle.buildToc(articleBody, articleToc);
     document.querySelectorAll('.front-grid .post-item').forEach(attachPixelSprite);
+    setupDrawerPagination();
     if (grid && search?.value.trim()) void filterPosts();
     updateScroll();
     document.dispatchEvent(new CustomEvent('lily:page-ready'));
@@ -557,6 +605,7 @@
     if (token !== navToken) return;
     if (push) history.replaceState({ scroll: scrollY }, '', location.href);
     app.classList.remove('leaving');
+    document.dispatchEvent(new CustomEvent('lily:before-page-swap'));
     // 直接移入已解析节点，避免 innerHTML 字符串二次解析挤占换帧
     app.replaceChildren(...doc.getElementById('app').childNodes);
     document.title = doc.title;
@@ -573,6 +622,10 @@
     const settle = () => {
       if (token !== navToken) return;
       initPage();
+      if (push && navigated.hash) {
+        const anchor = document.getElementById(decodeURIComponent(navigated.hash.slice(1)));
+        anchor?.scrollIntoView({ block: 'start' });
+      }
       syncPageScripts(doc);
     };
     if ('requestIdleCallback' in window) requestIdleCallback(settle, { timeout: 300 });

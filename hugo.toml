@@ -6,8 +6,10 @@ theme = "lily-epitaph"
 timeZone = "Asia/Shanghai"
 enableRobotsTXT = true
 hasCJKLanguage = true
-paginate = 12
 ignoreLogs = ["warning-goldmark-raw-html"]
+
+[pagination]
+  pagerSize = 10
 
 [params]
 subtitle = "the house of the dead"
@@ -100,6 +102,11 @@ viewTransition = true
   name = "首页"
   url = "/"
   weight = 10
+
+[[menus.main]]
+  name = "分类"
+  url = "/categories/"
+  weight = 15
 
 [[menus.main]]
   name = "友链"

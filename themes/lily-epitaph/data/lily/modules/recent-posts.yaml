@@ -2,7 +2,7 @@ id: recent-posts
 name: Recent Posts
 version: 0.1.0
 type: content
-description: 文章列表，Hugo Content Query 驱动（site.GetPage + RegularPages）
+description: 文章列表，每页 10 篇并自动生成翻页
 context: home
 allowedSlots:
   - home.main
@@ -22,11 +22,11 @@ schema:
     label: 内容分区
   limit:
     type: number
-    label: 数量限制（0 = 全部）
+    label: 文章总数上限（0 = 全部）
     min: 0
     max: 1000
     step: 1
-    help: 首页建议 0（全部）或 10 到 20。
+    help: 建议保持 0，展示所有文章并按每页 10 篇翻页。大于 0 会截断文章总数。
   showCount:
     type: boolean
     label: 显示篇数

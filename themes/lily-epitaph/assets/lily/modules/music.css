@@ -62,6 +62,41 @@
 .lily-music__artist { margin-top: .14rem; font-size: .78rem; }
 .lily-music__audio { display: none; }
 
+/* PJAX 页面切换时，正在使用的播放器暂驻正文外；音频节点本身始终不被替换。 */
+.lily-music-dock {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 180;
+  width: min(340px, calc(100vw - 36px));
+  max-height: min(70dvh, 560px);
+  overflow: auto;
+  border: 1px solid var(--lily-color-border-light);
+  border-radius: var(--lily-radius-md);
+  background: color-mix(in srgb, var(--lily-bg-card) 94%, transparent);
+  box-shadow: var(--lily-shadow-card-lg);
+  backdrop-filter: blur(14px);
+}
+.lily-music-dock[hidden], .lily-music-dock > .lily-module[hidden] { display: none; }
+.lily-music-dock > .lily-module { padding: 1rem 1.1rem; }
+.lily-music-dock > .lily-module + .lily-module { border-top: 1px solid var(--lily-color-border-light); }
+@media (max-width: 640px) {
+  .lily-music-dock { left: 10px; bottom: 10px; width: min(220px, calc(100vw - 176px)); max-height: 54dvh; }
+  .lily-music-dock > .lily-module { padding: .72rem .8rem; }
+  .lily-music-dock .lily-music { grid-template-columns: 44px minmax(0, 1fr); gap: .45rem .55rem; }
+  .lily-music-dock .lily-music__art { width: 44px; border-radius: 10px; }
+  .lily-music-dock .lily-music__status,
+  .lily-music-dock .lily-music__timeline,
+  .lily-music-dock .lily-music__queue-toggle { display: none; }
+  .lily-music-dock .lily-music__controls { gap: .25rem; }
+  .lily-music-dock .lily-music__control { width: 30px; height: 30px; }
+  .lily-music-dock .lily-music__control--play { width: 34px; height: 34px; }
+}
+@media (max-width: 360px) {
+  .lily-music-dock .lily-music { grid-template-columns: minmax(0, 1fr); }
+  .lily-music-dock .lily-music__art { display: none; }
+}
+
 .lily-music__timeline {
   grid-column: 1 / -1;
   display: grid;
@@ -132,6 +167,17 @@
   margin: -.2rem 0 0;
   font-size: .7rem;
 }
+.lily-music__official {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: -.35rem;
+  color: var(--lily-color-primary-deep);
+  font-size: .72rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+.lily-music__official[hidden] { display: none; }
 .lily-music__queue {
   grid-column: 1 / -1;
   max-height: 220px;
