@@ -16,12 +16,12 @@ author = "lilyzero"
 avatar = "/assets/img/optimized/b_d06ff1a0814bc6d063e847e30ce0fd8b.webp"
 
 [params.theme]
-accent = "#7FB5B0"
-accentLight = "#A8D5D1"
-paper = "#FAFAF8"
-panel = "#FFFFFF"
-ink = "#2C3E50"
-codeBackground = "#F8F9FA"
+accent = "#7fb5b0"
+accentLight = "#a8d5d1"
+paper = "#fafaf8"
+panel = "#ffffff"
+ink = "#2c3e50"
+codeBackground = "#f8f9fa"
 fontPreset = "editorial"
 webFonts = false
 readingWidth = "standard"
@@ -30,19 +30,19 @@ readingWidth = "standard"
 enabled = true
 background = "/assets/img/optimized/wallpapers/welcome-1789547451700.webp"
 backgroundDark = "/assets/img/optimized/wallpapers/night-1789542813605.webp"
-backgroundFit = "contain"
+backgroundFit = "cover"
 backgroundEffect = "original"
-  titleBefore = "Welcome to "
+titleBefore = "Welcome to "
 accent = "Lily's"
-  titleAfter = " House"
-  subtitle = "the house of the dead"
+titleAfter = " House"
+subtitle = "the house of the dead"
 enterText = "Enter"
-  hint = "Press any key or click to enter"
+hint = "Press any key or click to enter"
 particles = 30
 
 [params.pet]
 enabled = true
-  image = "/assets/img/optimized/pet/tuanzi.webp"
+image = "/assets/img/optimized/pet/tuanzi.webp"
 
 [params.mobileHub]
 enabled = true
@@ -78,7 +78,7 @@ imageQuality = "high"
 enabled = true
 
 [params.protected]
-  enabled = true
+enabled = true
 
 [params.article]
 toc = true
@@ -86,7 +86,7 @@ codeCopy = true
 
 [params.comments]
 enabled = false
-  api = "https://api.lily2663.top"
+api = "https://api.lily2663.top"
 
 [params.footer]
 copyright = "用 Hugo 驱动的技术博客"
