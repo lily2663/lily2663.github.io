@@ -9,8 +9,21 @@
   if (siteHeader && 'ResizeObserver' in window) new ResizeObserver(syncHeaderClearance).observe(siteHeader);
   else addEventListener('resize', syncHeaderClearance, { passive: true });
   const themeButton = document.querySelector('#theme-toggle');
+  const backgroundVideos = [...document.querySelectorAll('.site-background-video')];
+  const staticBackgroundPreferred = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean((navigator.connection || navigator.mozConnection || navigator.webkitConnection)?.saveData);
+  function syncBackgroundVideos() {
+    const dark = root.dataset.theme === 'dark';
+    backgroundVideos.forEach((video) => {
+      const active = dark ? video.classList.contains('site-background-video--night') : video.classList.contains('site-background-video--day');
+      if (active && !document.hidden && !staticBackgroundPreferred) video.play().catch(() => {});
+      else video.pause();
+    });
+  }
+  syncBackgroundVideos();
+  document.addEventListener('visibilitychange', syncBackgroundVideos);
   const topButton = document.querySelector('#to-top');
   const progress = document.querySelector('#reading-progress');
+  const navigationProgress = document.querySelector('#navigation-progress');
   const search = document.querySelector('#search');
   // 页面级引用：pjax 替换 #app 后由 initPage() 重新获取
   let grid = document.querySelector('[data-post-grid]');
@@ -73,6 +86,7 @@
       root.dataset.theme = theme;
       localStorage.setItem('blog-theme', theme);
       if (themeButton) themeButton.setAttribute('aria-label', theme === 'dark' ? '切换到日间模式' : '切换到夜间模式');
+      syncBackgroundVideos();
     };
     if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
       swap();
@@ -434,6 +448,8 @@
   const app = document.getElementById('app');
   let navToken = 0;
   let navAbort = null;
+  let navProgressTimer = 0;
+  const pageCache = new Map();
   history.scrollRestoration = 'manual';
   // Identifies the page currently rendered inside #app. Fragment-only history
   // moves (TOC anchors) keep this key unchanged, real page navigations do not.
@@ -459,6 +475,51 @@
     });
   }
 
+  function pageKey(input) {
+    const url = new URL(input, location.href);
+    return `${url.pathname}${url.search}`;
+  }
+
+  function fetchPage(input, signal) {
+    const key = pageKey(input);
+    const cached = pageCache.get(key);
+    if (cached) return cached;
+    let request = fetch(input, { signal, credentials: 'same-origin' })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.text();
+      })
+      .catch((error) => {
+        if (pageCache.get(key) === request) pageCache.delete(key);
+        throw error;
+      });
+    pageCache.set(key, request);
+    while (pageCache.size > 8) pageCache.delete(pageCache.keys().next().value);
+    return request;
+  }
+
+  function beginNavigation() {
+    clearTimeout(navProgressTimer);
+    app.classList.remove('leaving', 'fade');
+    root.classList.add('is-navigating');
+    app.setAttribute('aria-busy', 'true');
+    if (!navigationProgress) return;
+    navigationProgress.classList.remove('active', 'complete');
+    void navigationProgress.offsetWidth;
+    navigationProgress.classList.add('active');
+  }
+
+  function completeNavigation(token) {
+    if (token !== navToken) return;
+    app.removeAttribute('aria-busy');
+    navigationProgress?.classList.add('complete');
+    navProgressTimer = setTimeout(() => {
+      if (token !== navToken) return;
+      navigationProgress?.classList.remove('active', 'complete');
+      root.classList.remove('is-navigating');
+    }, 220);
+  }
+
   // 入场动画结束后摘掉 .fade：动画期间内容区毛玻璃是关闭的（见 CSS），不能一直留着
   let fadeTimer = 0;
   function flashFade() {
@@ -468,30 +529,31 @@
     clearTimeout(fadeTimer);
     fadeTimer = setTimeout(() => {
       if (!app.classList.contains('leaving')) app.classList.remove('fade');
-    }, 420);
+    }, 260);
   }
 
   async function pjaxNavigate(url, { push = true, restore = 0 } = {}) {
     const token = ++navToken;
     navAbort?.abort();
     navAbort = new AbortController();
-    app.classList.add('leaving');
-    const started = performance.now();
+    beginNavigation();
     let doc;
     try {
-      const response = await fetch(url, { signal: navAbort.signal });
-      if (!response.ok) throw new Error('bad response');
-      doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+      const html = await fetchPage(url, navAbort.signal);
+      doc = new DOMParser().parseFromString(html, 'text/html');
       if (!doc.getElementById('app')) throw new Error('no app container');
     } catch (error) {
       if (token !== navToken || error.name === 'AbortError') return;
+      completeNavigation(token);
       location.href = url;
       return;
     }
     if (token !== navToken) return;
-    // 出场动画保底 200ms，与旧站 setTimeout(200) 完全一致：fetch 再快也不抢拍
-    const elapsed = performance.now() - started;
-    await new Promise((resolve) => setTimeout(resolve, Math.max(0, 200 - elapsed)));
+    // 请求期间保留旧内容；数据就绪后才进行一次短淡出，避免慢网下出现空白页。
+    app.classList.add('leaving');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      await new Promise((resolve) => setTimeout(resolve, 140));
+    }
     if (token !== navToken) return;
     if (push) history.replaceState({ scroll: scrollY }, '', location.href);
     app.classList.remove('leaving');
@@ -505,6 +567,8 @@
     flashFade();
     syncNav(new URL(url, location.href).pathname);
     updateScroll();
+    app.focus({ preventScroll: true });
+    completeNavigation(token);
     // 像素画/代码增强/评论脚本推迟到浏览器空闲帧，不与入场动画抢帧
     const settle = () => {
       if (token !== navToken) return;
@@ -568,9 +632,8 @@
     const key = `${url.pathname}${url.search}`;
     if (prefetched.has(key)) return;
     prefetched.add(key);
-    const hint = document.createElement('link');
-    hint.rel = 'prefetch'; hint.href = url.href; hint.as = 'document';
-    document.head.append(hint);
+    // 显式缓存 HTML，点击时直接复用，不依赖浏览器是否执行 rel=prefetch。
+    void fetchPage(url.href).catch(() => prefetched.delete(key));
   }
   function schedulePrefetch(link, delay = 120) {
     if (!canPrefetch || !link || pendingPrefetch.has(link)) return;

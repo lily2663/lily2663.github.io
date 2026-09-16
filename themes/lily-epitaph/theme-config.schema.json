@@ -29,6 +29,8 @@
     ]},
     {"id":"welcome","label":"欢迎页","fields":[
       {"path":"params.welcome.enabled","label":"启用欢迎页","type":"boolean"},
+      {"path":"params.welcome.backgroundFit","label":"日间壁纸显示比例","type":"select","default":"cover","options":[{"value":"cover","label":"铺满屏幕 · 允许裁切"},{"value":"contain","label":"完整原比例 · 不裁切"}],"help":"适用于图片、GIF 和视频；完整原比例不会裁切，手机竖屏可能出现留白。夜间壁纸不受影响。"},
+      {"path":"params.welcome.backgroundEffect","label":"日间壁纸色彩效果","type":"select","default":"watercolor","options":[{"value":"original","label":"原图原色 · 不叠加效果"},{"value":"watercolor","label":"水彩融合 · 半透明混合"}],"help":"原图原色会关闭日间透明混合、渐变遮罩和环境色晕。"},
       {"path":"params.welcome.titleBefore","label":"标题前缀","type":"string"},
       {"path":"params.welcome.accent","label":"强调标题","type":"string"},
       {"path":"params.welcome.titleAfter","label":"标题后缀","type":"string"},
@@ -62,7 +64,7 @@
       {"path":"params.mobileHub.petSize","label":"手机团子大小（px）","type":"number","default":88,"min":64,"max":128,"step":4,"help":"建议 80–96；数值过大会遮挡正文。"},
       {"path":"params.mobileHub.panelHeight","label":"工具面板最大高度（屏幕 %）","type":"number","default":68,"min":45,"max":85,"step":1,"help":"内容超出时在面板内部滚动。"},
       {"path":"params.performance.offlineCache","label":"启用线上加速缓存","type":"boolean","default":true,"help":"线上访问过的页面和资源保存在浏览器中；本地预览不启用，避免旧缓存干扰开发。"},
-      {"path":"params.performance.optimizeUploads","label":"LilyMap 自动优化外观图片","type":"boolean","default":true,"help":"上传壁纸和头像时自动缩放并转为 WebP，同时保留高清观感。"},
+      {"path":"params.performance.optimizeUploads","label":"LilyMap 自动优化外观媒体","type":"boolean","default":true,"help":"图片自动缩放并转为 WebP；视频统一转为最高 1080p、30fps 的 H.264 MP4，兼顾电脑和手机。"},
       {"path":"params.performance.imageQuality","label":"外观图片质量","type":"select","default":"high","options":[{"value":"compact","label":"轻量 · 网络优先"},{"value":"high","label":"高清 · 推荐"},{"value":"ultra","label":"超清 · 文件较大"}],"help":"仅影响以后通过 LilyMap 上传的壁纸和头像。"}
     ]},
     {"id":"interaction","label":"交互与评论","fields":[

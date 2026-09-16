@@ -75,6 +75,41 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* 图片与动态壁纸共用同一层级和裁切规则。视频只播放当前主题对应的一路，
+   转换后的 H.264/30fps 文件负责兼容手机浏览器并降低解码压力。 */
+.site-background-media {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+.site-background-video {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.62;
+  mix-blend-mode: multiply;
+}
+html:not([data-theme="dark"]) body[data-day-background-kind="video"] .site-background-video--day,
+[data-theme="dark"] body[data-night-background-kind="video"] .site-background-video--night {
+  display: block;
+}
+html:not([data-theme="dark"]) body[data-day-background-fit="contain"] .site-background-video--day {
+  object-fit: contain;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"] .site-background-video--day {
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+[data-theme="dark"] .site-background-video--night {
+  opacity: 0.6;
+  mix-blend-mode: normal;
+}
+
 /* ---------- 水彩画布（日/夜） ---------- */
 /* 日间：欢迎页同款水彩以 multiply 叠在纸色底上，白色晕开、只留色彩，像水彩纸上的晕染 */
 body::before {
@@ -85,14 +120,32 @@ body::before {
   background-image: var(--watercolor-day);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   mix-blend-mode: multiply;
   opacity: 0.62;
   pointer-events: none;
+}
+html:not([data-theme="dark"]) body[data-day-background-kind="video"]::before,
+[data-theme="dark"] body[data-night-background-kind="video"]::before {
+  background-image: none;
+}
+
+/* 原图模式：完整保留日间壁纸的构图、色彩和透明度。 */
+html:not([data-theme="dark"]) body[data-day-background-fit="contain"]::before {
+  background-size: contain;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"]::before {
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"]::after {
+  display: none;
 }
 
 /* 夜间：深色水彩半透明平铺，青紫玫瑰的色晕从夜色里透出来 */
 [data-theme="dark"] body::before {
   background-image: var(--watercolor-night);
+  background-size: cover;
   mix-blend-mode: normal;
   opacity: 0.6;
 }
@@ -941,6 +994,41 @@ a.post-link:hover .item-title {
 }
 .reading-progress.show { opacity: 1; }
 
+/* PJAX feedback: the page shell remains stable while content is fetched. */
+.navigation-progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 1450;
+  height: 3px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+.navigation-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--mint), var(--pink));
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.navigation-progress.active { opacity: 1; }
+.navigation-progress.active span {
+  animation: navigationProgress 8s cubic-bezier(0.1, 0.7, 0.25, 1) forwards;
+}
+.navigation-progress.complete span {
+  animation: none;
+  transform: scaleX(1);
+  transition: transform 0.14s ease-out;
+}
+@keyframes navigationProgress {
+  0% { transform: scaleX(0.04); }
+  18% { transform: scaleX(0.42); }
+  55% { transform: scaleX(0.72); }
+  100% { transform: scaleX(0.92); }
+}
+
 /* Back to top */
 .to-top {
   position: fixed; 
@@ -974,25 +1062,6 @@ a.post-link:hover .item-title {
   border-color: var(--mint);
   transform: translateY(-2px);
 }
-
-/* Fade animation */
-.fade { 
-  animation: fadeIn 0.4s ease; 
-}
-@keyframes fadeIn { 
-  from { opacity: 0; transform: translateY(12px); } 
-  to { opacity: 1; transform: none; } 
-}
-
-#app.leaving { 
-  animation: fadeOut 0.25s ease forwards; 
-}
-@keyframes fadeOut { 
-  from { opacity: 1; transform: translateY(0); } 
-  to { opacity: 0; transform: translateY(-8px); } 
-}
-
-#app { min-height: calc(100vh - 200px); }
 
 /* Code copy button */
 .code-copy {
@@ -1199,13 +1268,12 @@ a.post-link:hover .item-title {
   .front-grid .post-item { padding: calc(20px + var(--card-padding-adjust, 0px)); }
 }
 
-/* PJAX 页面切换（3-hexo / 旧站 SPA 同款）：旧内容上浮淡出 → 新内容浮现。
-   参数与旧站逐项一致：fadeOut .25s forwards / fadeIn .4s / min-height 撑住页高 */
+/* PJAX 页面切换：只动 opacity，避免整块正文位移时触发毛玻璃重采样。 */
 #app { min-height: calc(100vh - 200px); }
-#app.leaving { animation: appOut 0.25s ease forwards; }
-#app.fade { animation: appIn 0.4s ease; }
-@keyframes appOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-8px); } }
-@keyframes appIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+#app.leaving { animation: appOut 0.14s ease-out forwards; pointer-events: none; will-change: opacity; }
+#app.fade { animation: appIn 0.22s ease-out; will-change: opacity; }
+@keyframes appOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes appIn { from { opacity: 0; } to { opacity: 1; } }
 /* 切换动画期间关闭内容区毛玻璃：#app 在移动，磨砂卡片就得逐帧重采样背景，
    19 张卡片足以让动画掉帧（旧站卡片无毛玻璃所以丝滑）。
    背景本就是柔和水彩，几百毫秒无 blur 几乎不可察觉；.fade 由 JS 在动画结束时摘除 */
@@ -1216,6 +1284,15 @@ a.post-link:hover .item-title {
 #app.leaving .comment-form, #app.fade .comment-form {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+
+/* 切页时暂停与正文无关的循环动画，把合成线程留给页面交换。 */
+html.is-navigating body::after,
+html.is-navigating .watercolor-dot,
+html.is-navigating .welcome-hint,
+html.is-navigating .tuanzi-img,
+html.is-navigating .pixel-sprite {
+  animation-play-state: paused !important;
 }
 
 /* ---------- Lightbox ---------- */
@@ -1291,8 +1368,20 @@ a.post-link:hover .item-title {
   overflow: hidden;
   transform: scale(1);
 }
+html:not([data-theme="dark"]) body[data-day-background-kind="video"] .welcome-splash,
+[data-theme="dark"] body[data-night-background-kind="video"] .welcome-splash {
+  background-color: transparent;
+  background-image: none;
+}
+html:not([data-theme="dark"]) body[data-day-background-fit="contain"] .welcome-splash {
+  background-size: contain;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"] .welcome-splash::before {
+  background: transparent;
+}
 [data-theme="dark"] .welcome-splash {
   background-image: var(--watercolor-night, url('/lily-epitaph/night-watercolor.jpg'));
+  background-size: cover;
 }
 .welcome-splash::before {
   content: '';
@@ -1739,5 +1828,25 @@ body:not(.splash-active) .site-footer {
 @media (max-width: 640px) {
   .comment-input-row {
     flex-direction: column;
+  }
+
+  /* 手机 GPU 预算更紧：以更实的半透明底色替代实时毛玻璃。 */
+  .site-header,
+  .front-grid .post-item,
+  .friend-card,
+  .toc-wrap,
+  .lock-box,
+  .comment-form {
+    background: color-mix(in srgb, var(--bg-card) 92%, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #app.leaving,
+  #app.fade,
+  .navigation-progress span {
+    animation: none !important;
   }
 }

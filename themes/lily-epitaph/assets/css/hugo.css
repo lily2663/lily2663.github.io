@@ -183,13 +183,11 @@ html:has(dialog.lightbox[open]) { overflow:hidden; }
 html.theme-vt::view-transition-old(root),html.theme-vt::view-transition-new(root) { animation:none; mix-blend-mode:normal; }
 html.theme-vt::view-transition-old(root) { z-index:1; } html.theme-vt::view-transition-new(root) { z-index:2147483646; }
 
-/* 跨文档导航过渡：页面间跳转不再硬切，复刻旧站“旧内容上浮淡出→新内容浮现”的丝滑感
-   （html:not(.theme-vt) 作用域避免与亮暗切换的圆形揭示动画互相干扰；
-   新页面 60ms 延迟入场形成先后顺序感，与旧站 fadeOut→fadeIn 节奏一致） */
+/* 无 JavaScript / 跨文档回退也只做合成器友好的透明度过渡。 */
 @view-transition { navigation: auto; }
 @media (prefers-reduced-motion: no-preference) {
-  html:not(.theme-vt)::view-transition-old(root) { animation: 220ms cubic-bezier(0.4,0,0.2,1) both mpa-out; }
-  html:not(.theme-vt)::view-transition-new(root) { animation: 360ms cubic-bezier(0.4,0,0.2,1) 60ms both mpa-in; }
+  html:not(.theme-vt)::view-transition-old(root) { animation: 140ms ease-out both mpa-out; }
+  html:not(.theme-vt)::view-transition-new(root) { animation: 220ms ease-out both mpa-in; }
 }
-@keyframes mpa-out { to { opacity: 0; transform: translateY(-8px); } }
-@keyframes mpa-in { from { opacity: 0; transform: translateY(12px); } }
+@keyframes mpa-out { to { opacity: 0; } }
+@keyframes mpa-in { from { opacity: 0; } }

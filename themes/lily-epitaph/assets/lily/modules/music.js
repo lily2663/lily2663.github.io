@@ -15,6 +15,7 @@
   };
 
   function createPlayer(root) {
+    if (root.dataset.lilyPlayerReady === 'true') return;
     const dataNode = root.querySelector('.lily-music__data');
     const audio = root.querySelector('.lily-music__audio');
     let payload = {};
@@ -157,5 +158,11 @@
     load(index);
   }
 
-  document.querySelectorAll('[data-lily-player]').forEach(createPlayer);
+  function initPlayers() {
+    players.forEach((audio) => { if (!audio.isConnected) players.delete(audio); });
+    document.querySelectorAll('[data-lily-player]').forEach(createPlayer);
+  }
+
+  initPlayers();
+  document.addEventListener('lily:page-ready', initPlayers);
 })();

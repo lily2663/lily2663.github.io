@@ -101,6 +101,12 @@
   .lily-slot[data-lily-slot="home.sidebar"],
   .lily-slot[data-lily-slot="article.sidebar"] { margin-top: 2rem; }
 
+  .lily-slot[data-lily-slot$=".sidebar"] > .lily-module {
+    background: color-mix(in srgb, var(--lily-bg-card) 94%, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   body.mobile-hub-ready .lily-slot[data-lily-slot$=".sidebar"] {
     position: fixed;
     z-index: 10002;
