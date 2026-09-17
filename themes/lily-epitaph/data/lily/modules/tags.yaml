@@ -8,7 +8,9 @@ allowedSlots:
   - home.sidebar
   - article.sidebar
   - page.sidebar
+  - page.main
   - home.main
+  - article.after
 template:
   partial: lily/modules/tags/render.html
 assets:

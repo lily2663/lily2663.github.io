@@ -172,6 +172,13 @@
   function syncMobileHub() {
     closeHub();
     resetSidebar(activeSidebar);
+    const attachedMusic = activeSidebar?.querySelector(':scope > .lily-module.is-persistent-music');
+    if (attachedMusic) {
+      const musicDock = document.querySelector('.lily-music-dock');
+      attachedMusic.classList.remove('is-persistent-music');
+      musicDock?.append(attachedMusic);
+      document.dispatchEvent(new Event('lily:music-dock-sync'));
+    }
     activeSidebar = null;
     document.body.classList.remove('mobile-hub-ready');
     pet.removeAttribute('aria-controls');
@@ -186,6 +193,13 @@
     }
 
     const sidebar = document.querySelector('#app .lily-slot[data-lily-slot$=".sidebar"]');
+    const musicDock = document.querySelector('.lily-music-dock');
+    const dockedMusic = musicDock?.querySelector(':scope > .lily-module[data-lily-module="music"]:not([hidden])');
+    if (sidebar && dockedMusic && !sidebar.querySelector(':scope > .lily-module[data-lily-module="music"]')) {
+      dockedMusic.classList.add('is-persistent-music');
+      sidebar.append(dockedMusic);
+      document.dispatchEvent(new Event('lily:music-dock-sync'));
+    }
     const modules = sidebar ? Array.from(sidebar.querySelectorAll(':scope > .lily-module')) : [];
     if (!sidebar || modules.length === 0) {
       pet.setAttribute('aria-label', '戳戳团子');

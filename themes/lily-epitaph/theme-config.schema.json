@@ -7,7 +7,8 @@
       {"path":"params.subtitle","label":"副标题","type":"string","help":"页眉中的简短说明"},
       {"path":"params.description","label":"站点描述","type":"string","help":"用于搜索与分享摘要"},
       {"path":"params.author","label":"作者","type":"string","help":"文章结构化信息中的作者名"},
-      {"path":"params.avatar","label":"头像路径","type":"string","help":"从“外观”页上传后可在此微调"}
+      {"path":"params.avatar","label":"头像路径","type":"string","help":"从“外观”页上传后可在此微调"},
+      {"path":"params.favicon","label":"浏览器图标路径","type":"string","help":"留空时沿用作者头像；可填资源库中的 /assets/... 图片路径"}
     ]},
     {"id":"theme","label":"主题外观","fields":[
       {"path":"params.theme.webFonts","label":"加载在线字体","type":"boolean","default":false,"help":"默认使用系统字体，减少外部请求；开启后加载 Google Fonts，访问较慢的网络可能延迟显示。字体预设仍然有效。"},
@@ -17,6 +18,14 @@
       {"path":"params.theme.panel","label":"日间卡片底色","type":"color","default":"#FFFFFF","help":"只作用于日间模式"},
       {"path":"params.theme.ink","label":"日间正文颜色","type":"color","default":"#2C3E50","help":"只作用于日间模式"},
       {"path":"params.theme.codeBackground","label":"日间代码背景","type":"color","default":"#F8F9FA","help":"只作用于日间模式"},
+      {"path":"params.theme.darkPaper","label":"夜间页面底色","type":"color","default":"#1A1A1A"},
+      {"path":"params.theme.darkPanel","label":"夜间卡片底色","type":"color","default":"#242424"},
+      {"path":"params.theme.darkHover","label":"夜间悬停底色","type":"color","default":"#2A2A2A"},
+      {"path":"params.theme.darkInk","label":"夜间正文颜色","type":"color","default":"#E8E8E8"},
+      {"path":"params.theme.darkInkSoft","label":"夜间次要文字","type":"color","default":"#B8B8B8"},
+      {"path":"params.theme.darkMuted","label":"夜间辅助文字","type":"color","default":"#888888"},
+      {"path":"params.theme.darkBorder","label":"夜间边框颜色","type":"color","default":"#333333"},
+      {"path":"params.theme.darkCodeBackground","label":"夜间代码背景","type":"color","default":"#1E1E1E"},
       {"path":"params.theme.fontPreset","label":"字体预设","type":"select","default":"editorial","options":[{"value":"editorial","label":"编辑风格（默认）"},{"value":"modern","label":"现代无衬线"},{"value":"classic","label":"经典衬线"}],"help":"控制全站标题与正文的字体组合"},
       {"path":"params.theme.readingWidth","label":"文章阅读宽度","type":"select","default":"standard","options":[{"value":"compact","label":"紧凑 680px"},{"value":"standard","label":"舒适 720px"},{"value":"wide","label":"宽松 800px"}],"help":"仅影响文章正文的舒适阅读宽度"}
     ]},

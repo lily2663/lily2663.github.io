@@ -11,6 +11,7 @@ resources/
 .cache/
 private-content/
 .secrets/
+.lilymap-local.json
 reports/
 
 # Local-only admin tooling — never published to GitHub

@@ -65,10 +65,10 @@
 /* PJAX 页面切换时，正在使用的播放器暂驻正文外；音频节点本身始终不被替换。 */
 .lily-music-dock {
   position: fixed;
-  left: 18px;
-  bottom: 18px;
+  right: 18px;
+  bottom: 210px;
   z-index: 180;
-  width: min(340px, calc(100vw - 36px));
+  width: 48px;
   max-height: min(70dvh, 560px);
   overflow: auto;
   border: 1px solid var(--lily-color-border-light);
@@ -77,17 +77,43 @@
   box-shadow: var(--lily-shadow-card-lg);
   backdrop-filter: blur(14px);
 }
+.lily-music-dock[data-expanded="true"] { width: min(340px, calc(100vw - 36px)); }
+.lily-music-dock__toggle {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 0;
+  border-radius: inherit;
+  background: var(--lily-color-primary-soft);
+  color: var(--lily-color-primary-deep);
+  cursor: pointer;
+  font-size: 1.35rem;
+}
+.lily-music-dock.is-playing .lily-music-dock__toggle::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22a46c;
+}
+.lily-music-dock[data-expanded="false"] > .lily-module { display: none; }
+.lily-music-dock__toggle:focus-visible { outline: 2px solid var(--lily-color-primary); outline-offset: 3px; }
 .lily-music-dock[hidden], .lily-music-dock > .lily-module[hidden] { display: none; }
 .lily-music-dock > .lily-module { padding: 1rem 1.1rem; }
 .lily-music-dock > .lily-module + .lily-module { border-top: 1px solid var(--lily-color-border-light); }
+@media (max-width: 900px) {
+  .lily-music-dock { bottom: calc(102px + env(safe-area-inset-bottom)); }
+}
 @media (max-width: 640px) {
-  .lily-music-dock { left: 10px; bottom: 10px; width: min(220px, calc(100vw - 176px)); max-height: 54dvh; }
+  .lily-music-dock { right: 18px; bottom: calc(102px + env(safe-area-inset-bottom)); max-height: min(65dvh, 500px); }
+  .lily-music-dock[data-expanded="true"] { width: min(300px, calc(100vw - 36px)); }
   .lily-music-dock > .lily-module { padding: .72rem .8rem; }
   .lily-music-dock .lily-music { grid-template-columns: 44px minmax(0, 1fr); gap: .45rem .55rem; }
   .lily-music-dock .lily-music__art { width: 44px; border-radius: 10px; }
-  .lily-music-dock .lily-music__status,
-  .lily-music-dock .lily-music__timeline,
-  .lily-music-dock .lily-music__queue-toggle { display: none; }
   .lily-music-dock .lily-music__controls { gap: .25rem; }
   .lily-music-dock .lily-music__control { width: 30px; height: 30px; }
   .lily-music-dock .lily-music__control--play { width: 34px; height: 34px; }

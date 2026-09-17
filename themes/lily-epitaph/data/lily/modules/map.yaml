@@ -8,8 +8,11 @@ description: 用 OpenStreetMap 嵌入一个可配置位置的地图。
 context: any
 allowedSlots:
   - home.main
+  - home.sidebar
   - page.main
+  - page.sidebar
   - article.after
+  - article.sidebar
 template:
   partial: lily/modules/map/render.html
 assets:

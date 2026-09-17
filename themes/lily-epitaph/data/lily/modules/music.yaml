@@ -1,15 +1,18 @@
 apiVersion: lily-module/v1
 id: music
 name: Lily Radio
-version: 2.0.0
+version: 2.1.0
 category: media
 icon: "♫"
-description: 薄荷色歌单播放器，支持网易云歌单快照和站内/公开音频。
+description: 薄荷色歌单播放器，支持网易云快照、循环与随机播放和跨页驻留。
 context: any
 allowedSlots:
   - home.sidebar
+  - home.main
   - page.sidebar
+  - page.main
   - article.sidebar
+  - article.after
 template:
   partial: lily/modules/music/render.html
 assets:

@@ -8,8 +8,11 @@ description: 使用 Open-Meteo 显示当前位置或指定坐标的实时天气�
 context: any
 allowedSlots:
   - home.sidebar
+  - home.main
   - page.sidebar
+  - page.main
   - article.sidebar
+  - article.after
 template:
   partial: lily/modules/weather/render.html
 assets:

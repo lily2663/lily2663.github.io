@@ -884,7 +884,7 @@ a.post-link:hover .item-title {
   flex: 0 0 auto;
   border: 2px solid var(--border-light);
 }
-.friend-avatar--text {
+.friend-card .friend-avatar--text {
   display: flex; 
   align-items: center; 
   justify-content: center;

@@ -6,8 +6,11 @@ description: 个人资料卡片，读取 data/site.yaml
 context: any
 allowedSlots:
   - home.sidebar
+  - home.main
   - article.sidebar
+  - article.after
   - page.sidebar
+  - page.main
 template:
   partial: lily/modules/profile/render.html
 assets:

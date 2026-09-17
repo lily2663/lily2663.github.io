@@ -2,7 +2,7 @@ id: recent-posts
 name: Recent Posts
 version: 0.1.0
 type: content
-description: 文章列表，每页 10 篇并自动生成翻页
+description: 文章列表，支持置顶、排序、每页篇数与自动翻页
 context: home
 allowedSlots:
   - home.main
@@ -12,6 +12,9 @@ defaults:
   title: 全部文章
   section: posts
   limit: 0
+  pageSize: 10
+  sort: date-desc
+  pinned: ""
   showCount: true
 schema:
   title:
@@ -26,7 +29,29 @@ schema:
     min: 0
     max: 1000
     step: 1
-    help: 建议保持 0，展示所有文章并按每页 10 篇翻页。大于 0 会截断文章总数。
+    help: 建议保持 0，展示所有文章；每页篇数由下方设置。大于 0 会截断文章总数。
+  pageSize:
+    type: number
+    label: 每页文章数
+    min: 1
+    max: 50
+    step: 1
+  sort:
+    type: select
+    label: 排序方式
+    options:
+      - value: date-desc
+        label: 发布日期（新到旧）
+      - value: date-asc
+        label: 发布日期（旧到新）
+      - value: updated-desc
+        label: 更新日期（新到旧）
+      - value: title
+        label: 标题
+  pinned:
+    type: string
+    label: 置顶文章路径
+    help: 输入文章目录名，多个用英文逗号分隔，顺序即置顶顺序。
   showCount:
     type: boolean
     label: 显示篇数

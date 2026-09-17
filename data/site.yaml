@@ -1,7 +1,7 @@
 author: lilyzero
 avatar: /assets/img/optimized/b_d06ff1a0814bc6d063e847e30ce0fd8b.webp
 about:
-  - "一个普通的web手"
+  - 一个普通的web手
 links:
   - label: GitHub
     url: https://github.com/lily2663/
@@ -10,21 +10,22 @@ links:
 friends:
   - name: abababcd
     url: https://abababcdcd.github.io/
-    desc: pwn 手 · CTF / 二进制安全
+    desc: 番茄
     avatar: /assets/img/optimized/friends/abababcdcd.webp
   - name: Sauy
     url: https://sauy.top/
-    desc: web手 · Web安全 / 渗透测试
+    desc: 敬爱的土豆猫大人
     avatar: /assets/img/optimized/friends/sauy.webp
-  - name: GINKA
+  - name: mm9527
     url: https://www.mm9527.top/
-    desc: 专注于逆向工程和二进制安全研究
+    desc: 塔菲
     avatar: https://www.mm9527.top/images/favicon.png
-  - name: N0rmal7's Blog
+  - name: N0rmal7
     url: https://n0rmal7.github.io/
-    desc: 个人技术博客 · Astro / Fuwari
+    desc: 康神开播了？
     avatar: https://n0rmal7.github.io/favicon/avatar-192.png
-  - name: 叮咚鸡の外卖袋
+  - name: 叮咚鸡
     url: https://blog.sl33pd1n0.workers.dev/
-    desc: 学习笔记 · 题解 / 碎碎念
+    desc: 邓队
     avatar: https://blog.sl33pd1n0.workers.dev/avatar.jpg
+aboutTitle: 关于我？

@@ -9,6 +9,20 @@
     dock = document.createElement('aside');
     dock.className = 'lily-music-dock';
     dock.setAttribute('aria-label', '持续播放的音乐');
+    dock.dataset.expanded = 'false';
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'lily-music-dock__toggle';
+    toggle.textContent = '♫';
+    toggle.setAttribute('aria-label', '展开持续播放的音乐');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', () => {
+      const expanded = dock.dataset.expanded !== 'true';
+      dock.dataset.expanded = String(expanded);
+      toggle.setAttribute('aria-expanded', String(expanded));
+      toggle.setAttribute('aria-label', expanded ? '收起音乐播放器' : '展开持续播放的音乐');
+    });
+    dock.append(toggle);
     dock.hidden = true;
     document.body.append(dock);
     return dock;
@@ -20,6 +34,7 @@
       player.module.hidden = docked && !player.engaged;
     }
     dock.hidden = ![...persistentPlayers.values()].some((player) => player.engaged && dock.contains(player.module));
+    dock.classList.toggle('is-playing', [...persistentPlayers.values()].some((player) => !player.audio.paused && dock.contains(player.module)));
   }
   function reconcilePlayers() {
     for (const player of persistentPlayers.values()) {
@@ -71,6 +86,7 @@
     const duration = root.querySelector('.lily-music__time--duration');
     const playButton = root.querySelector('[data-player-action="toggle"]');
     const queueButton = root.querySelector('[data-player-action="queue"]');
+    const modeButton = root.querySelector('[data-player-action="mode"]');
     const queue = root.querySelector('.lily-music__queue');
     const storageKey = `lily-player:${String(payload.playlistId || 'direct')}`;
     const module = root.closest('[data-lily-module="music"]');
@@ -78,6 +94,8 @@
     let index = 0;
     let resumeAt = 0;
     let saveTimer = 0;
+    let mode = 'list';
+    const history = [];
 
     if (!tracks.length || !audio) return;
     root.dataset.lilyPlayerReady = 'true';
@@ -91,6 +109,7 @@
         const saved = JSON.parse(localStorage.getItem(storageKey) || '{}');
         if (Number.isInteger(saved.index)) index = Math.min(Math.max(saved.index, 0), tracks.length - 1);
         if (Number.isFinite(saved.time) && saved.time > 0) resumeAt = saved.time;
+        if (['list', 'one', 'shuffle'].includes(saved.mode)) mode = saved.mode;
       } catch {}
     }
 
@@ -98,7 +117,7 @@
       if (!payload.rememberPlayback) return;
       clearTimeout(saveTimer);
       saveTimer = window.setTimeout(() => {
-        try { localStorage.setItem(storageKey, JSON.stringify({ index, time: audio.currentTime || 0 })); } catch {}
+        try { localStorage.setItem(storageKey, JSON.stringify({ index, time: audio.currentTime || 0, mode })); } catch {}
       }, 250);
     };
     const syncQueue = () => queue?.querySelectorAll('.lily-music__track').forEach((button, itemIndex) => {
@@ -115,8 +134,23 @@
       syncQueue();
       syncDock();
     };
-    const load = (nextIndex, autoplay = false) => {
-      index = (nextIndex + tracks.length) % tracks.length;
+    const syncMode = () => {
+      const labels = { list: '列表循环', one: '单曲循环', shuffle: '随机播放' };
+      const icons = { list: '↻', one: '↺₁', shuffle: '⤨' };
+      modeButton.textContent = icons[mode];
+      modeButton.setAttribute('aria-label', labels[mode]);
+      modeButton.title = `${labels[mode]}，点击切换播放模式`;
+      modeButton.dataset.mode = mode;
+    };
+    const nextIndex = () => {
+      if (mode !== 'shuffle' || tracks.length < 2) return (index + 1) % tracks.length;
+      const offset = 1 + Math.floor(Math.random() * (tracks.length - 1));
+      return (index + offset) % tracks.length;
+    };
+    const load = (nextIndex, autoplay = false, recordHistory = true) => {
+      const resolved = (nextIndex + tracks.length) % tracks.length;
+      if (recordHistory && resolved !== index) history.push(index);
+      index = resolved;
       const track = tracks[index];
       audio.src = track.source;
       if (official) {
@@ -173,8 +207,16 @@
         } else audio.pause();
         syncDock();
       }
-      if (action === 'previous') load(index - 1, !audio.paused);
-      if (action === 'next') load(index + 1, !audio.paused);
+      if (action === 'previous') {
+        if (mode === 'shuffle' && history.length) load(history.pop(), !audio.paused, false);
+        else load(index - 1, !audio.paused);
+      }
+      if (action === 'next') load(nextIndex(), !audio.paused);
+      if (action === 'mode') {
+        mode = mode === 'list' ? 'one' : mode === 'one' ? 'shuffle' : 'list';
+        syncMode(); save();
+        status.textContent = `${modeButton.getAttribute('aria-label')} · 共 ${tracks.length} 首`;
+      }
       if (action === 'queue' && queue) {
         const expanded = queue.hidden;
         queue.hidden = !expanded;
@@ -196,13 +238,17 @@
     });
     audio.addEventListener('play', () => { if (official) official.hidden = true; syncPlay(); });
     audio.addEventListener('pause', syncPlay);
-    audio.addEventListener('ended', () => load(index + 1, true));
+    audio.addEventListener('ended', () => {
+      if (mode === 'one') { audio.currentTime = 0; audio.play().catch(() => {}); }
+      else load(nextIndex(), true);
+    });
     audio.addEventListener('error', () => {
       status.textContent = '这首歌的公开音源不可用；可切换下一首或在网易云播放。';
       if (official?.hasAttribute('href')) official.hidden = false;
       syncPlay();
     });
     players.add(audio);
+    syncMode();
     load(index);
   }
 
@@ -214,6 +260,12 @@
 
   initPlayers();
   document.addEventListener('lily:before-page-swap', () => {
+    if (dock) {
+      dock.dataset.expanded = 'false';
+      const toggle = dock.querySelector('.lily-music-dock__toggle');
+      toggle?.setAttribute('aria-expanded', 'false');
+      toggle?.setAttribute('aria-label', '展开持续播放的音乐');
+    }
     for (const player of persistentPlayers.values()) {
       if (!document.querySelector('#app')?.contains(player.module)) continue;
       player.module.querySelector('.lily-music__queue')?.setAttribute('hidden', '');
@@ -223,4 +275,5 @@
     syncDock();
   });
   document.addEventListener('lily:page-ready', initPlayers);
+  document.addEventListener('lily:music-dock-sync', syncDock);
 })();
