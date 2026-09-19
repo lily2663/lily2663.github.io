@@ -10,6 +10,8 @@ Copy or add this directory as `themes/lily-epitaph`, then set the theme in the s
 theme = "lily-epitaph"
 ```
 
+The theme is released under the [MIT License](./LICENSE). Its public example site contains no personal posts, credentials, or deployment settings.
+
 Run the bundled example with Hugo 0.165.0 or newer:
 
 ```powershell

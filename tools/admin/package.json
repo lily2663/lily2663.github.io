@@ -1,0 +1,31 @@
+{
+  "name": "lilymap",
+  "version": "0.1.0",
+  "description": "A local Hugo workspace for the lily-epitaph theme.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "type": "module",
+  "bin": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "check": "node --check server.mjs",
+    "build": "esbuild server.mjs --bundle --platform=node --target=node22 --format=cjs --define:import.meta.url=undefined --outfile=server.cjs",
+    "exe": "npm run build && pkg --config package.json server.cjs --targets=node22-win-x64 --output=dist/LilyMap.exe",
+    "release": "node scripts/prepare-release.mjs"
+  },
+  "pkg": {
+    "assets": [
+      "public/index.html",
+      "public/**/*"
+    ]
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.0.0",
+    "esbuild": "^0.24.0"
+  },
+  "dependencies": {
+    "yaml": "2.9.0"
+  }
+}

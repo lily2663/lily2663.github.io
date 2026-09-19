@@ -1,10 +1,10 @@
-# Lily Epitaph
+# Lily Epitaph Blog
 
 个人 Hugo 博客与模块化主题。站点内容、布局和功能模块由声明式配置组合；本地管理工作台 **LilyMap** 用于写作导入、资源管理、页面编排、外观设置和发布前检查。
 
 ## 本地使用
 
-双击 `start-hugo-desk.bat`，或在仓库根目录运行：
+双击 `LilyMap.exe`（先运行一次 `npm run lilymap:exe` 生成），双击保留的 `start-hugo-desk.bat`，或在仓库根目录运行：
 
 ```powershell
 npm run admin
@@ -33,3 +33,10 @@ npm run audit:assets
 LilyMap 的“布局”页面可视化组合模块；“模块库”支持把网易云歌单导入为本地静态快照。登录 Cookie 仅用于单次本机请求，不应写入配置、源码或 Git。
 
 详细日常操作见本地文档 `docs/USAGE.md`（该目录按设计不发布）。
+
+## Reusable projects
+
+- `tools/admin/`：LilyMap 源码与 Windows EXE 打包配置。
+- `themes/lily-epitaph/`：可独立使用的 Hugo 主题和示例站点。
+
+两个目录正按独立开源仓库整理；边界、兼容协议和最终拆分步骤见 [OPEN_SOURCE.md](./OPEN_SOURCE.md)。

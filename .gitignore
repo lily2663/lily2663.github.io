@@ -12,10 +12,19 @@ resources/
 private-content/
 .secrets/
 .lilymap-local.json
+LilyMap.exe
+lilymap.json
 reports/
 
-# Local-only admin tooling — never published to GitHub
-tools/
+# LilyMap source is maintained here until it is split into its own repository.
+# Runtime output and local diagnostics stay private.
+tools/*
+!tools/admin/
+!tools/admin/**
+tools/admin/node_modules/
+tools/admin/dist/
+tools/admin/*.log
+tools/admin/server.cjs
 static/admin/
 docs/
 content/lily-debug/

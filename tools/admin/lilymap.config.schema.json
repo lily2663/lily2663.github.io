@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LilyMap local project configuration",
+  "type": "object",
+  "properties": {
+    "repoRoot": {
+      "type": "string",
+      "description": "Absolute or EXE-relative path to a Hugo project containing hugo.toml and content/."
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1024,
+      "maximum": 65535,
+      "default": 5174,
+      "description": "Loopback port for the LilyMap management UI."
+    },
+    "openBrowser": {
+      "type": "boolean",
+      "default": true,
+      "description": "Open the management UI after the local server is ready."
+    },
+    "hugoPath": {
+      "type": "string",
+      "description": "Optional absolute or project-relative Hugo executable. LilyMap otherwise uses the project's bundled Hugo and then Hugo on PATH."
+    }
+  },
+  "additionalProperties": false
+}

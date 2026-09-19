@@ -1,0 +1,91 @@
+# LilyMap
+
+LilyMap 是面向 `lily-epitaph` 主题的本地 Hugo 博客管理器，不是网页版 Typora。它管理项目配置、资源、布局、构建与发布；Markdown 正文仍可以由 Typora、Obsidian 或任意编辑器完成。
+
+    Typora      写 Markdown 正文
+    lilymap     导入、整理元数据、资源、设置、Build 与本地 Git 状态
+    Hugo        构建
+
+## 启动
+
+### Windows EXE
+
+把 `LilyMap.exe` 放到博客根目录（与 `hugo.toml` 同级）后双击即可启动。首次构建当前项目的 EXE：
+
+```powershell
+npm run lilymap:exe
+```
+
+构建会生成根目录的 `LilyMap.exe` 和本机 `lilymap.json`。EXE 会自动打开管理页；重复启动会打开已经运行的页面。保留的 `start-hugo-desk.bat` 仍适合源码排错。
+
+独立 LilyMap 仓库发布 Windows 便携包时使用 `npm run release`。它在 `dist/` 生成 `LilyMap.exe` 和 `lilymap.json.example`；把 EXE 放进博客根目录，或编辑示例中的 `repoRoot` 后再运行。
+
+若 EXE 不在博客根目录，在 EXE 旁创建 `lilymap.json`：
+
+```json
+{
+  "repoRoot": "C:/blog/my-site",
+  "port": 5174,
+  "openBrowser": true,
+  "hugoPath": "C:/tools/hugo.exe"
+}
+```
+
+`repoRoot` 和 `hugoPath` 也可以使用相对 EXE 或项目根目录的路径。`hugoPath` 可省略：LilyMap 会依次使用项目 `.tools/` 内的 Hugo 和系统 PATH 中的 Hugo。完整字段见 [lilymap.config.schema.json](./lilymap.config.schema.json)。
+
+### 源码运行
+
+    npm run admin
+
+默认监听 `127.0.0.1:5174`；管理端地址为 `http://localhost:5174/`，博客预览地址为 `http://localhost:1414/`。
+
+博客预览端口 `1414` 同时监听局域网，概览页会显示并复制手机访问地址；管理端 `5174` 始终只监听本机。首次启用手机预览时，在管理员 PowerShell 中运行 `scripts/enable-lan-preview.ps1`，它只向同一子网放行 TCP 1414。
+
+## 日常使用
+
+1. 在 Typora 写完 Markdown 和图片。
+2. 在“导入文章”拖入 `.md`，或选择整个文章目录。
+3. 确认自动识别的标题、目标 Page Bundle 与关联资源。
+4. 在“文章”管理标签、日期、草稿、封面等属性；“新建页面”可创建首页之外的普通页面。受保护文章用密码按钮加密/解除保护，不是普通复选框。
+5. 在“友链”填写名称、网站地址、简介和可选头像；可新增、编辑、删除和调整顺序，保存后自动更新博客预览。
+6. 在“布局”中将模块拖拽、排序、复制或移除；模块字段会按布尔、数字、颜色、选项等真实类型编辑。
+7. 在“模块库”查看内置模块，或安装审阅过的本地模块包；天气、地图、音乐和语录可直接加入允许的 Slot。
+8. 首页或文章页的 `sidebar` 模块会按布局顺序自动进入手机端团子工具面板；不需要额外维护一份手机布局。
+9. 在“博客设置 → 电脑端尺寸 / 手机端尺寸”分别调整页面宽度、边距、卡片留白/间距/圆角；手机端还可切换紧凑页眉及控制标题字号、上下留白、日期和副标题。
+10. 在“博客设置 → 手机工具与性能”调整团子入口、默认模块、面板高度、记忆行为和线上缓存；原始 `hugo.toml` 收在高级配置。
+11. 从“外观”上传壁纸或头像时，默认在本机浏览器中生成高清 WebP，并显示压缩前后大小；质量档位和自动优化开关同样位于“手机工具与性能”。
+12. 在“个人资料”编辑作者名、简介和社交链接；作者名同时更新 `data/site.yaml` 和 `hugo.toml`。
+13. 在“资源”可替换、重命名或删除受管理的文件；重命名不会自动改写文章引用，删除会先移到 `.admin-trash/`。
+14. 在“布局 → 首页 → Recent Posts”设置文章置顶、排序和每页篇数；“博客设置”可调整深色配色与 favicon。
+15. 在“发布”可修改本机 GitHub 仓库目标；在“系统诊断”可导出 LilyMap 源码包，用于迁移到另一份博客仓库。
+16. 在“模块库 → 网易云音乐 → 歌曲筛选与音源检测”点击“一键检测并精简”，仅将明确不可用的公开音源从博客播放器排除；网络异常保持待确认，可随时恢复全部歌曲。播放器支持列表循环、单曲循环、随机播放。
+17. 跨页播放在页面角落以小音乐入口驻留，点击才展开；窄屏有侧栏时播放器进入团子工具面板，没有侧栏时才在团子上方显示小入口，避免常驻面板遮挡正文。
+
+Markdown 正文不会被导入流程格式化，也不会转换为私有格式。快速源码修改是次级故障排查能力，不是写作入口。
+
+## 本地安全边界
+
+- API 仅监听本机，所有路径经仓库白名单校验。
+- 新建和导入使用 `content/posts/<slug>/index.md` Page Bundle。
+- 写入使用临时文件再 rename 的原子方式。
+- 删除文章移入 `.admin-trash/`，该目录不进入 Git。
+- 资源操作仅限站点 assets 与文章 Page Bundle 内受管理的文件；加密原文和密码保存在忽略目录，不进入 Git。
+- 模块包是可信本地代码：模板和脚本会参与构建/浏览器执行。lilymap 不会自动下载或执行远程市场代码。
+- 发布目标从现有 `github` Git remote 读取，也可在“发布”修改为其他 GitHub HTTPS 仓库和分支；目标保存在本机 `.lilymap-local.json`，不进入 Git。Token 可在发布页更新，只写入本机 `.token`，绝不经 API 回显。点击发布后会按校验、暂存、提交、同步远程、推送等真实阶段显示进度；离开页面再返回仍可继续查看当前任务。
+- LilyMap 源码可独立提取为开源仓库；导出的源码包不含 `.token`、`.secrets/`、私密原文或本机发布目标。迁移后需在目标博客仓库安装依赖并启动服务。
+
+LilyMap 从 `hugo.toml` 的 `theme` 字段识别兼容主题，并读取主题根目录的 `theme-config.schema.json`。当主题目录改名或通过 `LILY_THEME_PATH` 指定路径时，仍可正常工作。
+
+## Lily Module Protocol v1
+
+内置模块位于 `themes/lily-epitaph/data/lily/modules/`；用户安装的模块位于
+`data/lily/modules/`，优先级更高。一个本地模块包至少包含：
+
+```text
+manifest.yaml                 # id、版本、Slot、schema、能力与资源声明
+layouts/partials/lily/modules/<id>/render.html
+assets/lily/modules/<id>.css  # 可选，需在 manifest 声明
+assets/lily/modules/<id>.js   # 可选，需在 manifest 声明
+```
+
+`npm run check` 会校验模块 manifest、模板与资源路径、Slot 兼容性、布局引用和已声明的配置类型。卸载模块前必须先从所有布局中移除；卸载文件会进入 `.admin-trash/modules/`。
