@@ -8,6 +8,10 @@ links:
   - label: 邮箱
     url: mailto:2139186436@qq.com
 friends:
+  - name: NSSCTF
+    url: https://www.nssctf.cn/
+    desc: ""
+    avatar: https://www.nssctf.cn/favicon.ico
   - name: abababcd
     url: https://abababcdcd.github.io/
     desc: 番茄
