@@ -4,6 +4,18 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Get-Sha256Hex([string]$Path) {
+  $stream = [System.IO.File]::OpenRead($Path)
+  $sha256 = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    return ([System.BitConverter]::ToString($sha256.ComputeHash($stream))).Replace('-', '')
+  } finally {
+    $sha256.Dispose()
+    $stream.Dispose()
+  }
+}
+
 $version = '0.165.0'
 $root = Split-Path -Parent $PSScriptRoot
 $targetDir = Join-Path $root ".tools\hugo-$version"
@@ -43,7 +55,7 @@ if (-not $checksumLine) {
 }
 
 $expectedHash = ($checksumLine -split '\s+')[0].ToUpperInvariant()
-$actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $archive).Hash.ToUpperInvariant()
+$actualHash = (Get-Sha256Hex $archive).ToUpperInvariant()
 if ($actualHash -ne $expectedHash) {
   throw "Hugo archive checksum mismatch. Expected $expectedHash, got $actualHash."
 }
