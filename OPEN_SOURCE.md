@@ -34,6 +34,10 @@ git add tools/admin themes/lily-epitaph .gitmodules
 git commit -m "chore: update reusable project dependencies"
 ```
 
+The root build script automatically bootstraps and verifies the required Hugo
+0.165.0 binary on Windows. Set `LILY_HUGO_PATH` when the project must use a
+pre-installed Hugo executable instead.
+
 ## Compatibility contract
 
 LilyMap discovers the active Hugo theme from `hugo.toml` and requires

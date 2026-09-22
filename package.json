@@ -14,6 +14,7 @@
     "preview": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 server --renderToMemory",
     "deps:init": "git submodule update --init --recursive",
     "deps:update": "git submodule update --remote --merge --recursive",
+    "tools:bootstrap": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap-hugo.ps1",
     "admin": "npm --prefix tools/admin run start",
     "lilymap:exe": "node scripts/build-lilymap-exe.mjs"
   },

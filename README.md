@@ -16,6 +16,8 @@ git clone --recurse-submodules https://github.com/lily2663/lily2663.github.io.gi
 npm run deps:init
 ```
 
+首次执行 `npm run build`、`npm run dev` 或 `npm run preview` 会自动下载并校验 Hugo 0.165.0 到本机 `.tools/`；也可以提前运行 `npm run tools:bootstrap`。如需使用其他本机位置的 Hugo，可设置 `LILY_HUGO_PATH`。
+
 双击 `LilyMap.exe`（先运行一次 `npm run lilymap:exe` 生成），双击保留的 `start-hugo-desk.bat`，或在仓库根目录运行：
 
 ```powershell
