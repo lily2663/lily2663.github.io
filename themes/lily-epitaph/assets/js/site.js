@@ -1,26 +1,11 @@
+import { attachPixelSprite } from './features/pixel-sprite.js';
+import { initSiteShell } from './features/site-shell.js';
+
 (() => {
   'use strict';
   const root = document.documentElement;
   const siteHeader = document.querySelector('.site-header');
-  function syncHeaderClearance() {
-    if (siteHeader) root.style.setProperty('--header-clearance', `${Math.ceil(siteHeader.getBoundingClientRect().height) + 16}px`);
-  }
-  syncHeaderClearance();
-  if (siteHeader && 'ResizeObserver' in window) new ResizeObserver(syncHeaderClearance).observe(siteHeader);
-  else addEventListener('resize', syncHeaderClearance, { passive: true });
-  const themeButton = document.querySelector('#theme-toggle');
-  const backgroundVideos = [...document.querySelectorAll('.site-background-video')];
-  const staticBackgroundPreferred = matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean((navigator.connection || navigator.mozConnection || navigator.webkitConnection)?.saveData);
-  function syncBackgroundVideos() {
-    const dark = root.dataset.theme === 'dark';
-    backgroundVideos.forEach((video) => {
-      const active = dark ? video.classList.contains('site-background-video--night') : video.classList.contains('site-background-video--day');
-      if (active && !document.hidden && !staticBackgroundPreferred) video.play().catch(() => {});
-      else video.pause();
-    });
-  }
-  syncBackgroundVideos();
-  document.addEventListener('visibilitychange', syncBackgroundVideos);
+  initSiteShell({ root, siteHeader });
   const topButton = document.querySelector('#to-top');
   const progress = document.querySelector('#reading-progress');
   const navigationProgress = document.querySelector('#navigation-progress');
@@ -36,88 +21,6 @@
   let articleBody = null;
   let articleToc = null;
   let articleHeadings = [];
-
-  // A site can retain incoming links from a former hash-router simply by
-  // setting `params.legacyId` on its content. The map is rendered by Hugo,
-  // so this theme does not carry a site's article list.
-  function migrateLegacyHash() {
-    if (!location.hash.startsWith('#/')) return;
-    const parts = location.hash.slice(2).split('/').filter(Boolean);
-    const route = parts.shift();
-    let target = '';
-    if (route === 'post' && parts.length) {
-      try {
-        const routes = JSON.parse(document.querySelector('#legacy-hash-routes')?.textContent || '{}');
-        target = routes[decodeURIComponent(parts.join('/'))] || '';
-      } catch { return; }
-    } else if (route === 'tag' && parts.length) {
-      target = `/tags/${encodeURIComponent(decodeURIComponent(parts.join('/')))}/`;
-    } else if (route === 'tags') target = '/tags/';
-    else if (route === 'about') target = '/about/';
-    else if (route === 'links') target = '/links/';
-    else if (!route || route === 'home') target = '/';
-    if (target) location.replace(target);
-  }
-  migrateLegacyHash();
-
-  const splash = document.querySelector('#welcome-splash');
-  if (splash && !sessionStorage.getItem('lily-welcomed')) {
-    let dismissed = false;
-    const previousActiveElement = document.activeElement;
-    splash.hidden = false;
-    document.body.classList.add('splash-active');
-    splash.querySelector('#welcome-enter')?.focus({ preventScroll: true });
-    const dismiss = () => {
-      if (dismissed) return;
-      dismissed = true;
-      sessionStorage.setItem('lily-welcomed', '1');
-      document.body.classList.remove('splash-active');
-      splash.classList.add('hidden');
-      if (previousActiveElement instanceof HTMLElement && previousActiveElement !== document.body && previousActiveElement.isConnected) previousActiveElement.focus({ preventScroll: true });
-      setTimeout(() => { splash.style.display = 'none'; }, 1200);
-    };
-    splash.querySelector('#welcome-enter')?.addEventListener('click', dismiss);
-    splash.addEventListener('click', (event) => { if (event.target === splash) dismiss(); });
-    document.addEventListener('keydown', dismiss, { once: true });
-  }
-
-  function applyTheme(theme, event) {
-    const swap = () => {
-      root.dataset.theme = theme;
-      localStorage.setItem('blog-theme', theme);
-      if (themeButton) themeButton.setAttribute('aria-label', theme === 'dark' ? '切换到日间模式' : '切换到夜间模式');
-      syncBackgroundVideos();
-    };
-    if (!document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      swap();
-      return;
-    }
-    const rect = themeButton?.getBoundingClientRect();
-    const x = event?.clientX ?? (rect ? rect.left + rect.width / 2 : innerWidth - 40);
-    const y = event?.clientY ?? (rect ? rect.top + rect.height / 2 : 40);
-    root.classList.add('theme-vt');
-    const transition = document.startViewTransition(swap);
-    transition.ready.then(() => {
-      const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-      document.documentElement.animate(
-        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-        {
-          duration: 480,
-          easing: 'cubic-bezier(0.3, 0, 0.15, 1)',
-          pseudoElement: '::view-transition-new(root)',
-          fill: 'forwards'
-        }
-      );
-    });
-    // 双 rAF：等浏览器清理完 transition 伪元素再摘类，避免同帧样式突变造成末尾卡顿
-    transition.finished.finally(() => {
-      requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-vt')));
-    });
-  }
-  if (themeButton) {
-    themeButton.setAttribute('aria-label', root.dataset.theme === 'dark' ? '切换到日间模式' : '切换到夜间模式');
-    themeButton.addEventListener('click', (event) => applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark', event));
-  }
 
   let scrollFrame = 0;
   let tocLastUpdate = 0;
@@ -407,51 +310,6 @@
   }
 
   window.LilyArticle = Object.freeze({ enhance: enhanceArticleBody, buildToc: buildArticleToc, setupTocSpy });
-
-  // 像素小画：以文章标题为种子生成稳定的对称像素精灵，贴在卡片右上角
-  function hashString(str) {
-    let h = 2166136261;
-    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
-    return h >>> 0;
-  }
-  function seedRandom(seed) {
-    return () => {
-      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
-      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-  const spritePalettes = [
-    ['#7FB5B0', '#E8839B'], ['#A8D5D1', '#E8839B'], ['#E8839B', '#7FB5B0'],
-    ['#F4A7B9', '#A8D5D1'], ['#7FB5B0', '#F4A7B9'], ['#5A8F8A', '#C96B82']
-  ];
-  function makePixelSprite(title) {
-    const rand = seedRandom(hashString(title || 'lily'));
-    const palette = spritePalettes[Math.floor(rand() * spritePalettes.length)];
-    let cells = '';
-    for (let y = 0; y < 8; y++) {
-      const half = [];
-      for (let x = 0; x < 4; x++) half.push(rand() < 0.48 ? (rand() < 0.3 ? 2 : 1) : 0);
-      const row = half.concat(half.slice().reverse());
-      row.forEach((cell, x) => {
-        if (cell) cells += `<rect x="${x}" y="${y}" width="1" height="1" fill="${cell === 2 ? palette[1] : palette[0]}"/>`;
-      });
-    }
-    if (!cells) return '';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges">${cells}</svg>`;
-    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
-  }
-  function attachPixelSprite(card) {
-    if (card.querySelector('.pixel-sprite')) return;
-    const src = makePixelSprite(card.querySelector('.item-title')?.textContent || '');
-    if (!src) return;
-    const sprite = document.createElement('div');
-    sprite.className = 'pixel-sprite';
-    sprite.setAttribute('aria-hidden', 'true');
-    sprite.style.backgroundImage = `url("${src}")`;
-    card.append(sprite);
-  }
 
   function setupDrawerPagination() {
     document.querySelectorAll('[data-drawer-pagination]').forEach((pagination) => {

@@ -10,6 +10,7 @@ template:
   partial: lily/modules/welcome/render.html
 defaults:
   enabled: true
+  background: ""
   titleBefore: Welcome to
   accent: Lily's
   titleAfter: " House"
@@ -18,6 +19,10 @@ defaults:
   hint: Press any key or click to enter
   particles: 30
 schema:
+  background:
+    type: url
+    label: 欢迎页背景
+    help: 填写站内图片路径或 https:// 地址；留空使用主题水彩背景。
   enabled:
     type: boolean
     label: 启用欢迎屏

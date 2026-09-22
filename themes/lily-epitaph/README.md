@@ -15,7 +15,7 @@ The theme is released under the [MIT License](./LICENSE). Its public example sit
 Run the bundled example with Hugo 0.165.0 or newer:
 
 ```powershell
-Set-Location themes/lily-epitaph/exampleSite
+Set-Location lily-epitaph/exampleSite
 hugo server --themesDir ../..
 ```
 
@@ -81,6 +81,8 @@ theme = "lily-epitaph"
 
 The bundled defaults are intentionally stylistic. Site configuration owns the title, navigation, welcome wording, asset overrides, comment endpoint, GitHub account and footer copy; the theme owns presentation and behavior.
 
+Welcome module instances can override the legacy `params.welcome` defaults, including the background image. An empty instance background uses the bundled watercolor image. Header search/theme controls, footer text visibility and comments respect explicit `false` settings. LilyMap exposes these fields under each module's own configuration page.
+
 ## Lily Module Protocol v1
 
 Every visible page is assembled from Slots and modules. Built-ins live in
@@ -131,6 +133,22 @@ Comments load only when both `params.comments.enabled` and `params.comments.api`
 ## Theme assets
 
 The theme ships default welcome and pet assets below `static/lily-epitaph/`. A site may override them through the welcome background and pet image parameters; no project-relative paths are required.
+
+## Theme architecture
+
+The browser runtime and styles are assembled from small, ordered modules:
+
+```text
+assets/js/site.js             site lifecycle and PJAX composition
+assets/js/features/           independent browser features
+assets/css/theme/             ordered theme style responsibilities
+assets/lily/core/             Lily layout primitives and tokens
+assets/lily/modules/          optional Lily Module Protocol assets
+layouts/partials/scripts.html JavaScript build composition
+layouts/partials/head.html    CSS build composition
+```
+
+`site.js` is bundled with Hugo `js.Build`, so feature modules may use standard ES imports while the published theme still serves one fingerprinted script. Theme CSS fragments are concatenated in an explicit cascade order before minification; add new files to `head.html` rather than relying on filesystem enumeration.
 
 ## Production build
 

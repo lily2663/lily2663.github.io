@@ -50,6 +50,16 @@
 {{- else -}}
   {{- /* 配置优先级: defaults → 当前模块的 layout moduleDefaults → instance config */ -}}
   {{- $defaults := $manifest.defaults | default dict -}}
+  {{- /* Legacy welcome settings are defaults; explicit module settings win. */ -}}
+  {{- if eq $moduleID "welcome" -}}
+    {{- $siteDefaults := dict -}}
+    {{- range $key, $definition := $manifest.schema -}}
+      {{- range $siteKey, $value := site.Params.welcome -}}
+        {{- if eq (lower $key) (lower $siteKey) }}{{ $siteDefaults = merge $siteDefaults (dict $key $value) }}{{ end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $defaults = partial "lily/utils/merge.html" (dict "base" $defaults "over" $siteDefaults) -}}
+  {{- end -}}
   {{- $layoutDefaults := dict -}}
   {{- with index hugo.Data.lily.layouts $layout }}{{ with .moduleDefaults }}{{ $layoutDefaults = index . $moduleID | default dict }}{{ end }}{{ end -}}
   {{- $config := partial "lily/utils/merge.html" (dict "base" $defaults "over" $layoutDefaults) -}}

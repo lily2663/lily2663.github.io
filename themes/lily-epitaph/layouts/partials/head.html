@@ -27,10 +27,25 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Noto+Serif+SC:wght@400;600;700;900&display=swap"></noscript>
 {{- end -}}
-{{- with resources.Get "css/style.css" -}}
-  {{- $style := . | minify | fingerprint -}}
-  <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
-{{- end -}}
+{{- $themeStyles := slice
+  "css/theme/foundation.css"
+  "css/theme/header.css"
+  "css/theme/layout.css"
+  "css/theme/content.css"
+  "css/theme/pages.css"
+  "css/theme/enhancements.css"
+  "css/theme/responsive.css"
+  "css/theme/lightbox.css"
+  "css/theme/welcome.css"
+  "css/theme/pet.css"
+  "css/theme/comments.css"
+-}}
+{{- $themeCss := slice -}}
+{{- range $themeStyles -}}{{- with resources.Get . -}}{{- $themeCss = $themeCss | append . -}}{{- end -}}{{- end -}}
+{{- /* Compatibility extension point: a site-level assets/css/style.css is appended last. */ -}}
+{{- with resources.Get "css/style.css" -}}{{- $themeCss = $themeCss | append . -}}{{- end -}}
+{{- $style := $themeCss | resources.Concat "css/theme.css" | minify | fingerprint -}}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">
 {{- with resources.Get "css/hugo.css" -}}
   {{- $style := . | minify | fingerprint -}}
   <link rel="stylesheet" href="{{ $style.RelPermalink }}" integrity="{{ $style.Data.Integrity }}">

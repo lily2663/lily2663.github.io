@@ -13,6 +13,6 @@
   <p class="lock-status" aria-live="polite"></p>
 </section>
 {{ end -}}
-<div class="article-layout lily-article-body-wrap"{{ if $protected }} data-protected-layout hidden{{ end }}>
+<div class="article-layout lily-article-body-wrap" data-content-layout="{{ .Config.layout | default "auto" }}"{{ if $protected }} data-protected-layout hidden{{ end }}>
   <div class="article-body{{ if $protected }} protected-body{{ end }}"{{ if $protected }} data-protected-body{{ end }}>{{ if not $protected }}{{ $page.Content }}{{ end }}</div>
 </div>

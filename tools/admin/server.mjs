@@ -1,13 +1,21 @@
 import { createServer } from 'node:http';
-import { createHash, randomUUID, randomBytes, pbkdf2Sync, createCipheriv, createDecipheriv } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import fsSync from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { inflateSync, gzipSync } from 'node:zlib';
+import { gzipSync } from 'node:zlib';
 import { networkInterfaces } from 'node:os';
 import YAML from 'yaml';
+import { formatYamlValue, parseFrontMatter, patchFrontMatter } from './src/domain/front-matter.mjs';
+import { parseToml, patchMenus, patchTomlValue } from './src/domain/toml.mjs';
+import { decryptProtectedBody, encryptProtectedBody } from './src/domain/protected-content.mjs';
+import { isObject, parseYaml } from './src/domain/value.mjs';
+import { normalizeLayout, normalizeModuleManifest, parseLayout, serializeLayout, validateLayoutAgainstRegistry } from './src/domain/layout.mjs';
+import { validateFriends, validateProfile } from './src/domain/profile.mjs';
+import { createHttpPrimitives } from './src/http/primitives.mjs';
+import { updateModulePlacement } from './src/domain/module-config.mjs';
 
 // esbuild 打包成 cjs 后 __dirname 可用；dev 模式（node 直接跑 ESM）下 __dirname 不存在，
 // 用 import.meta.url 兜底推导。
@@ -55,6 +63,8 @@ const projectCandidates = [
 repoRoot = projectCandidates.find(isBlogRoot) || '';
 if (!repoRoot) throw new Error(`未找到 Hugo 博客项目。请把 LilyMap.exe 放入含 hugo.toml 与 content 的博客目录，或在 ${configPath} 设置 repoRoot，也可使用 --project "博客目录"。`);
 const openBrowserOnStart = shouldOpenBrowser && configOpenBrowser;
+const port = Number(process.env.ADMIN_PORT || configPort || 5174);
+const blogPort = Number(process.env.BLOG_PORT || 1414);
 function resolveToolPath(value) {
   if (!value) return '';
   return path.resolve(path.isAbsolute(value) ? value : path.join(repoRoot, value));
@@ -104,6 +114,11 @@ const maxBodyBytes = 8 * 1024 * 1024;
 const maxMediaBodyBytes = 160 * 1024 * 1024;
 const maxDecodedImageBytes = 64 * 1024 * 1024;
 const maxBuildOutputBytes = 16 * 1024;
+const { adminOriginAllowed, fail, hasExpectedImageSignature, httpError, readBody, send, staticSecurityHeaders } = createHttpPrimitives({
+  port,
+  maxBodyBytes,
+  maxDecodedImageBytes,
+});
 // lilymap 管理的图片一律限制为栅格格式。SVG 是可执行文档，和管理 API
 // 同源时会扩大本地 XSS 攻击面；已有的主题 SVG 仍可由静态站点正常使用。
 const uploadImageExtensions = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif', '.avif']);
@@ -186,94 +201,6 @@ function previewSnapshot() {
     lanUrl: addresses[0] ? `http://${addresses[0]}:${blogPort}` : '',
     lanUrls: addresses.map((address) => `http://${address}:${blogPort}`),
   };
-}
-
-function httpError(status, message) {
-  const error = new Error(message);
-  error.statusCode = status;
-  return error;
-}
-
-function adminOriginAllowed(req) {
-  const origin = req.headers.origin;
-  const fetchSite = req.headers['sec-fetch-site'];
-  // 命令行/本机自动化通常不带 Origin；管理页只接受自身的两个本地域名。
-  // 现代浏览器还会发送 Sec-Fetch-Site；即使某个异常请求没有 Origin，
-  // 也不能让 cross-site 页面借此调用本地写接口。
-  if (fetchSite && !['same-origin', 'none'].includes(fetchSite)) return false;
-  if (!origin) return true;
-  return origin === `http://127.0.0.1:${port}` || origin === `http://localhost:${port}`;
-}
-
-function staticSecurityHeaders(target) {
-  const extension = path.extname(target).toLowerCase();
-  return {
-    'x-content-type-options': 'nosniff',
-    'referrer-policy': 'same-origin',
-    'x-frame-options': 'DENY',
-    'cross-origin-resource-policy': 'same-origin',
-    'permissions-policy': 'camera=(), microphone=(), geolocation=(), payment=()',
-    // 管理页目前有内联样式和脚本；二进制/资源则使用更严格的隔离策略，
-    // 即使仓库中已有 SVG 被直接打开，也不能在管理端 origin 执行脚本。
-    'content-security-policy': extension === '.html'
-      ? "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; form-action 'self'"
-      : "default-src 'none'; base-uri 'none'; frame-ancestors 'none'; sandbox",
-  };
-}
-
-function isValidPng(bytes) {
-  if (!bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return false;
-  let offset = 8; let sawHeader = false; let sawEnd = false;
-  const compressed = [];
-  while (offset + 12 <= bytes.length) {
-    const length = bytes.readUInt32BE(offset); const type = bytes.subarray(offset + 4, offset + 8).toString('ascii');
-    const start = offset + 8; const end = start + length;
-    if (end + 4 > bytes.length) return false;
-    if (type === 'IHDR') { if (sawHeader || length !== 13) return false; sawHeader = true; }
-    if (type === 'IDAT') compressed.push(bytes.subarray(start, end));
-    if (type === 'IEND') { if (length !== 0) return false; sawEnd = true; offset = end + 4; break; }
-    offset = end + 4;
-  }
-  if (!sawHeader || !sawEnd || !compressed.length || offset !== bytes.length) return false;
-  try { inflateSync(Buffer.concat(compressed), { maxOutputLength: maxDecodedImageBytes }); return true; } catch { return false; }
-}
-
-function hasExpectedImageSignature(bytes, extension) {
-  if (!Buffer.isBuffer(bytes) || bytes.length < 12) return false;
-  const ext = extension.toLowerCase();
-  if (ext === '.png') return isValidPng(bytes);
-  if (ext === '.jpg' || ext === '.jpeg') return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
-  if (ext === '.gif') return bytes.subarray(0, 6).toString('ascii') === 'GIF87a' || bytes.subarray(0, 6).toString('ascii') === 'GIF89a';
-  if (ext === '.webp') return bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP';
-  if (ext === '.avif') return bytes.subarray(4, 8).toString('ascii') === 'ftyp' && bytes.subarray(8, 12).toString('ascii').startsWith('avi');
-  return false;
-}
-
-function send(res, status, payload, headers = {}) {
-  const body = typeof payload === 'string' ? payload : JSON.stringify(payload);
-  res.writeHead(status, {
-    'content-type': typeof payload === 'string' ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8',
-    'cache-control': 'no-store',
-    'x-content-type-options': 'nosniff',
-    'referrer-policy': 'same-origin',
-    'x-frame-options': 'DENY',
-    'cross-origin-resource-policy': 'same-origin',
-    ...headers,
-  });
-  res.end(body);
-}
-
-function fail(res, status, message) { send(res, status, { error: message }); }
-
-async function readBody(req, limit = maxBodyBytes) {
-  const chunks = [];
-  let size = 0;
-  for await (const chunk of req) {
-    size += chunk.length;
-    if (size > limit) throw new Error('请求内容过大。');
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks);
 }
 
 function inside(root, candidate) {
@@ -362,164 +289,6 @@ async function walk(root, predicate = () => true) {
   return entries;
 }
 
-function scalar(raw) {
-  const value = String(raw ?? '').trim();
-  if (!value) return '';
-  if (value === 'true') return true;
-  if (value === 'false') return false;
-  if (/^-?\d+(\.\d+)?$/.test(value)) return Number(value);
-  if (value.startsWith('[') && value.endsWith(']')) return value.slice(1, -1).split(',').map((item) => scalar(item)).filter(Boolean);
-  return value.replace(/^(['"])(.*)\1$/, '$2');
-}
-
-function parseFrontMatter(raw) {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!match) return { frontMatter: {}, body: raw, rawFrontMatter: '' };
-  const frontMatter = {};
-  let currentList = null;
-  let currentObject = null;
-  for (const line of match[1].split(/\r?\n/)) {
-    const list = line.match(/^\s+-\s+(.+)$/);
-    if (list && currentList) { frontMatter[currentList].push(scalar(list[1])); continue; }
-    const nested = line.match(/^\s{2,}([\w-]+):\s*(.*)$/);
-    if (nested && currentObject) { frontMatter[currentObject][nested[1]] = scalar(nested[2]); continue; }
-    const pair = line.match(/^([\w-]+):\s*(.*)$/);
-    if (!pair) { currentList = null; currentObject = null; continue; }
-    const [, key, value] = pair;
-    if (!value) {
-      frontMatter[key] = [];
-      currentList = key;
-      currentObject = key === 'params' ? key : null;
-      if (currentObject) frontMatter[key] = {};
-    } else {
-      frontMatter[key] = scalar(value);
-      currentList = null;
-      currentObject = null;
-    }
-  }
-  return { frontMatter, body: match[2], rawFrontMatter: match[1] };
-}
-
-function formatYamlValue(value) {
-  if (typeof value === 'boolean') return String(value);
-  if (typeof value === 'number') return String(value);
-  return `"${String(value ?? '').replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
-}
-
-function patchYamlBlock(lines, key, value) {
-  const start = lines.findIndex((line) => new RegExp(`^${key}:`).test(line));
-  const replacement = Array.isArray(value) ? [`${key}:`, ...value.map((item) => `  - ${formatYamlValue(item)}`)] : [`${key}: ${formatYamlValue(value)}`];
-  if (start < 0) return [...lines, ...replacement];
-  let end = start + 1;
-  while (end < lines.length && (/^\s/.test(lines[end]) || lines[end] === '')) end += 1;
-  return [...lines.slice(0, start), ...replacement, ...lines.slice(end)];
-}
-
-function patchFrontMatter(raw, changes) {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---(\r?\n?)([\s\S]*)$/);
-  const body = match ? match[3] : raw;
-  let lines = match ? match[1].split(/\r?\n/) : [];
-  for (const key of ['title', 'date', 'lastmod', 'slug', 'summary', 'description', 'cover', 'draft', 'tags', 'categories']) {
-    if (Object.hasOwn(changes, key)) lines = patchYamlBlock(lines, key, changes[key]);
-  }
-  if (Object.hasOwn(changes, 'protected') || Object.hasOwn(changes, 'commentId')) {
-    if (!lines.some((line) => /^params:\s*$/.test(line))) lines.push('params:');
-    const start = lines.findIndex((line) => /^params:\s*$/.test(line));
-    for (const [field, value] of Object.entries(changes).filter(([key]) => key === 'protected' || key === 'commentId')) {
-      const formatted = field === 'protected' ? String(Boolean(value)) : formatYamlValue(value);
-      let end = start + 1;
-      while (end < lines.length && /^\s/.test(lines[end])) end += 1;
-      const fieldLine = lines.slice(start + 1, end).findIndex((line) => new RegExp(`^\\s+${field}:`).test(line));
-      if (fieldLine < 0) lines.splice(start + 1, 0, `  ${field}: ${formatted}`);
-      else lines[start + 1 + fieldLine] = `  ${field}: ${formatted}`;
-    }
-  }
-  return `---\n${lines.join('\n')}\n---\n${body}`;
-}
-
-function encryptProtectedBody(id, body, password) {
-  const salt = randomBytes(16), iv = randomBytes(12);
-  const key = pbkdf2Sync(password, salt, 600000, 32, 'sha256');
-  const cipher = createCipheriv('aes-256-gcm', key, iv);
-  const data = Buffer.concat([cipher.update(body, 'utf8'), cipher.final()]);
-  return {
-    version: 2, pageId: id,
-    kdf: { name: 'PBKDF2', hash: 'SHA-256', iterations: 600000, salt: salt.toString('base64') },
-    cipher: { name: 'AES-256-GCM', iv: iv.toString('base64'), data: data.toString('base64'), tag: cipher.getAuthTag().toString('base64') },
-  };
-}
-
-function decryptProtectedBody(payload, password) {
-  if (payload.version !== 2 || payload.kdf?.iterations !== 600000 || payload.cipher?.name !== 'AES-256-GCM') throw httpError(400, '加密文章格式不受支持。');
-  try {
-    const key = pbkdf2Sync(password, Buffer.from(payload.kdf.salt, 'base64'), 600000, 32, 'sha256');
-    const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(payload.cipher.iv, 'base64'));
-    decipher.setAuthTag(Buffer.from(payload.cipher.tag, 'base64'));
-    return Buffer.concat([decipher.update(Buffer.from(payload.cipher.data, 'base64')), decipher.final()]).toString('utf8');
-  } catch { throw httpError(400, '密码错误或加密文章已损坏。'); }
-}
-
-function parseToml(raw) {
-  const values = {}; const menus = []; let section = '';
-  for (const line of raw.split(/\r?\n/)) {
-    const array = line.match(/^\[\[menus\.main\]\]/);
-    if (array) { section = 'menus.main'; menus.push({ name: '', url: '/', weight: menus.length * 10 + 10 }); continue; }
-    const heading = line.match(/^\[([^\]]+)\]$/);
-    if (heading) { section = heading[1]; continue; }
-    const pair = line.match(/^\s*([\w-]+)\s*=\s*(.+?)\s*$/);
-    if (!pair) continue;
-    const value = scalar(pair[2]);
-    if (section === 'menus.main') Object.assign(menus.at(-1), { [pair[1]]: value });
-    else values[section ? `${section}.${pair[1]}` : pair[1]] = value;
-  }
-  return { values, menus };
-}
-
-function formatTomlValue(value) {
-  if (typeof value === 'boolean' || typeof value === 'number') return String(value);
-  return `"${String(value ?? '').replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
-}
-
-function patchTomlValue(raw, fieldPath, value) {
-  const parts = fieldPath.split('.'); const key = parts.pop(); const section = parts.join('.');
-  const lines = raw.split(/\r?\n/); const heading = section ? `[${section}]` : null;
-  let start = heading ? lines.findIndex((line) => line.trim() === heading) : 0;
-  if (start < 0 && heading) { lines.push('', heading); start = lines.length - 1; }
-  const end = lines.findIndex((line, index) => index > start && /^\[/.test(line));
-  const stop = end < 0 ? lines.length : end;
-  const lineIndex = lines.findIndex((line, index) => index >= start && index < stop && new RegExp(`^${key}\\s*=`).test(line.trim()));
-  const formatted = `${key} = ${formatTomlValue(value)}`;
-  if (lineIndex >= 0) lines[lineIndex] = formatted;
-  else lines.splice(stop, 0, formatted);
-  return lines.join('\n');
-}
-
-function patchMenus(raw, menus) {
-  const lines = raw.split(/\r?\n/); const starts = lines.map((line, index) => line.trim() === '[[menus.main]]' ? index : -1).filter((index) => index >= 0);
-  const first = starts[0] ?? -1;
-  let end = first >= 0 ? first + 1 : lines.length;
-  if (first >= 0) {
-    while (end < lines.length) {
-      const table = lines[end].trim();
-      if (/^\[/.test(table) && table !== '[[menus.main]]') break;
-      end += 1;
-    }
-  }
-  const output = menus.map((menu) => `[[menus.main]]\n  name = ${formatTomlValue(menu.name)}\n  url = ${formatTomlValue(menu.url)}\n  weight = ${Number(menu.weight) || 10}`).join('\n\n');
-  if (first < 0) return `${raw.trimEnd()}\n\n${output}\n`;
-  return [...lines.slice(0, first), output, ...lines.slice(end)].join('\n');
-}
-
-function isObject(value) { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
-
-function parseYaml(raw, label) {
-  const document = YAML.parseDocument(raw, { prettyErrors: true, uniqueKeys: true });
-  if (document.errors.length) throw new Error(`${label} YAML 无效：${document.errors[0].message}`);
-  const value = document.toJS({ mapAsMap: false });
-  if (!isObject(value)) throw new Error(`${label} 必须是 YAML 对象。`);
-  return value;
-}
-
 async function readFriends() {
   const raw = await fs.readFile(siteDataFile, 'utf8');
   const site = parseYaml(raw, '站点数据');
@@ -537,9 +306,35 @@ async function readProfile() {
 }
 
 async function lilymapSourceArchive() {
-  const names = ['server.mjs', 'package.json', 'package-lock.json', 'README.md', 'CONTRIBUTING.md', 'LICENSE', '.gitignore', 'lilymap.config.schema.json', 'lilymap.json.example', 'scripts/prepare-release.mjs', '.github/workflows/validate.yml', 'public/index.html', 'public/favicon.png', 'public/favicon.ico'];
-  const sourceRoot = await exists(path.join(repoRoot, 'tools', 'admin', 'server.mjs'))
-    ? path.join(repoRoot, 'tools', 'admin') : adminDir;
+  const names = [
+    'server.mjs',
+    'src/domain/value.mjs',
+    'src/domain/front-matter.mjs',
+    'src/domain/toml.mjs',
+    'src/domain/protected-content.mjs',
+    'src/domain/layout.mjs',
+    'src/domain/profile.mjs',
+    'src/http/primitives.mjs',
+    'test/domain.test.mjs',
+    'test/http.test.mjs',
+    'package.json', 'package-lock.json', 'README.md', 'CONTRIBUTING.md', 'LICENSE', '.gitignore',
+    'lilymap.config.schema.json', 'lilymap.json.example', 'scripts/prepare-release.mjs', '.github/workflows/validate.yml',
+    'public/index.html', 'public/css/app.css', 'public/css/base.css', 'public/css/refinements.css', 'public/css/workspace.css', 'public/js/app.js',
+    'public/js/core/api.js', 'public/js/core/dom.js', 'public/js/core/state.js',
+    'public/css/studio.css', 'public/js/core/icons.js', 'public/js/core/studio.js',
+    'public/css/modules.css', 'public/js/features/module-library.js', 'public/js/features/music-module.js', 'public/js/features/module-installer.js',
+    'src/domain/module-config.mjs', 'test/module-config.test.mjs',
+    'public/favicon.png', 'public/favicon.ico'
+  ];
+  const sourceCandidates = [path.join(repoRoot, 'tools', 'admin'), adminDir];
+  let sourceRoot = '';
+  for (const candidate of sourceCandidates) {
+    if ((await Promise.all(names.map((name) => exists(path.join(candidate, ...name.split('/')))))).every(Boolean)) {
+      sourceRoot = candidate;
+      break;
+    }
+  }
+  if (!sourceRoot) throw new Error('当前 LilyMap 源码目录不完整，无法生成迁移包。');
   const blocks = [];
   for (const name of names) {
     const data = await fs.readFile(path.join(sourceRoot, ...name.split('/')));
@@ -562,70 +357,6 @@ async function lilymapSourceArchive() {
   blocks.push(Buffer.alloc(1024));
   return gzipSync(Buffer.concat(blocks));
 }
-
-function validProfileLink(input) {
-  try {
-    const url = new URL(input);
-    return ['https:', 'http:', 'mailto:'].includes(url.protocol) && !url.username && !url.password;
-  } catch { return false; }
-}
-
-function validateProfile(value) {
-  if (!isObject(value)) throw httpError(400, '个人资料无效。');
-  const author = typeof value.author === 'string' ? value.author.trim() : '';
-  const aboutTitle = typeof value.aboutTitle === 'string' ? value.aboutTitle.trim() : '';
-  if (!author || author.length > 80 || aboutTitle.length > 80) throw httpError(400, '作者名或关于页标题长度无效。');
-  if (!Array.isArray(value.about) || value.about.length > 20 || value.about.some((item) => typeof item !== 'string' || item.length > 500)) throw httpError(400, '简介段落无效。');
-  if (!Array.isArray(value.links) || value.links.length > 30) throw httpError(400, '社交链接列表无效。');
-  const links = value.links.map((link, index) => {
-    const label = typeof link?.label === 'string' ? link.label.trim() : '';
-    const url = typeof link?.url === 'string' ? link.url.trim() : '';
-    if (!label || label.length > 60 || !validProfileLink(url)) throw httpError(400, `第 ${index + 1} 条社交链接无效。`);
-    return { label, url };
-  });
-  return { author, aboutTitle, about: value.about.map((item) => item.trim()).filter(Boolean), links };
-}
-
-function validateFriends(value) {
-  if (!Array.isArray(value) || value.length > 200) throw httpError(400, '友链列表无效或超过 200 条。');
-  const urls = new Set();
-  return value.map((friend, index) => {
-    if (!isObject(friend)) throw httpError(400, `第 ${index + 1} 条友链无效。`);
-    const name = typeof friend.name === 'string' ? friend.name.trim() : '';
-    const url = typeof friend.url === 'string' ? friend.url.trim() : '';
-    const desc = typeof friend.desc === 'string' ? friend.desc.trim() : '';
-    const avatar = typeof friend.avatar === 'string' ? friend.avatar.trim() : '';
-    if (!name || name.length > 80 || desc.length > 240) throw httpError(400, `第 ${index + 1} 条友链的名称或简介长度无效。`);
-    const validRemote = (input) => { try { const parsed = new URL(input); return ['http:', 'https:'].includes(parsed.protocol) && Boolean(parsed.hostname) && !parsed.username && !parsed.password; } catch { return false; } };
-    if (!validRemote(url)) throw httpError(400, `第 ${index + 1} 条友链需要 http(s) 网站地址。`);
-    if (avatar && !validRemote(avatar) && !/^\/(?!\/)[^\s?#]+(?:\?[^\s#]*)?$/.test(avatar)) throw httpError(400, `第 ${index + 1} 条友链的头像地址无效。`);
-    const key = new URL(url).href;
-    if (urls.has(key)) throw httpError(400, `第 ${index + 1} 条友链的网站地址重复。`);
-    urls.add(key);
-    return { name, url, desc, avatar };
-  });
-}
-
-function normalizeLayout(value, label) {
-  if (!isObject(value.slots)) throw new Error(`${label} 缺少 slots 对象。`);
-  const slots = {};
-  for (const [slot, instances] of Object.entries(value.slots)) {
-    const normalizedInstances = instances == null ? [] : instances;
-    if (!/^[A-Za-z_][\w-]*$/.test(slot) || !Array.isArray(normalizedInstances)) throw new Error(`${label} 的 slot ${slot} 无效。`);
-    slots[slot] = normalizedInstances.map((instance, index) => {
-      if (!isObject(instance) || !String(instance.id || '').trim() || !String(instance.module || '').trim()) throw new Error(`${label} 的 ${slot}[${index}] 缺少 id 或 module。`);
-      if (Object.hasOwn(instance, 'enabled') && typeof instance.enabled !== 'boolean') throw new Error(`${label} 的 ${slot}[${index}].enabled 必须是布尔值。`);
-      if (Object.hasOwn(instance, 'order') && (typeof instance.order !== 'number' || !Number.isFinite(instance.order))) throw new Error(`${label} 的 ${slot}[${index}].order 必须是数字。`);
-      return { ...instance, id: String(instance.id), module: String(instance.module), config: isObject(instance.config) ? instance.config : {} };
-    });
-  }
-  const declared = Array.isArray(value.slotOrder) ? value.slotOrder.map(String) : Object.keys(slots);
-  const slotOrder = [...new Set([...declared.filter((slot) => Object.hasOwn(slots, slot)), ...Object.keys(slots)])];
-  return { ...value, kind: String(value.kind || 'page'), slots, slotOrder };
-}
-
-function parseLayout(raw, label = '布局') { return normalizeLayout(parseYaml(raw, label), label); }
-function serializeLayout(layout) { return YAML.stringify(normalizeLayout(layout, '布局')); }
 
 function layoutRevisionRoot(name) { return path.join(trashRoot, 'layouts', name); }
 
@@ -654,27 +385,20 @@ async function layoutHistory(name) {
   }));
 }
 
-function normalizeModuleManifest(fileId, raw, source) {
-  const manifest = parseYaml(raw, `模块 ${fileId}`);
-  const id = String(manifest.id || fileId).trim();
-  if (!/^[a-z][a-z0-9-]*$/.test(id)) throw new Error(`模块 ${fileId} 的 id 不合法。`);
-  if (id !== fileId) throw new Error(`模块文件 ${fileId}.yaml 与 manifest id ${id} 不一致。`);
-  if (!Array.isArray(manifest.allowedSlots) || !manifest.allowedSlots.every((slot) => typeof slot === 'string' && /^[a-z][\w-]*\.[A-Za-z_][\w-]*$/.test(slot))) throw new Error(`模块 ${id} 缺少合法的 allowedSlots。`);
-  const partial = manifest.template?.partial || `lily/modules/${id}/render.html`;
-  if (typeof partial !== 'string' || partial.startsWith('/') || partial.includes('..')) throw new Error(`模块 ${id} 的模板路径不安全。`);
-  const assets = isObject(manifest.assets) ? manifest.assets : {};
-  for (const key of ['styles', 'scripts']) {
-    if (assets[key] != null && (!Array.isArray(assets[key]) || !assets[key].every((resource) => typeof resource === 'string' && !resource.startsWith('/') && !resource.includes('..')))) throw new Error(`模块 ${id} 的 assets.${key} 无效。`);
-  }
-  return { ...manifest, id, apiVersion: manifest.apiVersion || 'lily-module/v1', name: manifest.name || id, description: manifest.description || '', category: manifest.category || 'general', version: String(manifest.version || '0.1.0'), context: manifest.context || 'any', defaults: isObject(manifest.defaults) ? manifest.defaults : {}, schema: isObject(manifest.schema) ? manifest.schema : {}, template: { ...(isObject(manifest.template) ? manifest.template : {}), partial }, assets, capabilities: isObject(manifest.capabilities) ? manifest.capabilities : {}, source };
-}
-
 async function yamlFiles(root) { return (await exists(root)) ? (await fs.readdir(root)).filter((name) => name.endsWith('.yaml')).sort().map((name) => path.join(root, name)) : []; }
 
 async function loadModuleRegistry() {
   const modules = {};
   for (const [root, source] of [[builtInModulesRoot, 'built-in'], [userModulesRoot, 'site']]) {
     for (const file of await yamlFiles(root)) { const id = path.basename(file, '.yaml'); modules[id] = normalizeModuleManifest(id, await fs.readFile(file, 'utf8'), source); }
+  }
+  if (modules.welcome) {
+    const values = parseToml(await fs.readFile(path.join(repoRoot, 'hugo.toml'), 'utf8')).values;
+    modules.welcome.siteDefaults = {};
+    for (const key of Object.keys(modules.welcome.schema)) {
+      const setting = Object.keys(values).find((name) => name.toLowerCase() === `params.welcome.${key}`.toLowerCase());
+      if (setting) modules.welcome.siteDefaults[key] = values[setting];
+    }
   }
   return modules;
 }
@@ -685,40 +409,6 @@ async function loadLayoutEditor() {
     for (const file of await yamlFiles(root)) { const name = path.basename(file, '.yaml'); const raw = await fs.readFile(file, 'utf8'); layouts.set(name, { name, parsed: parseLayout(raw, `布局 ${name}`), raw, source }); }
   }
   return { layouts: [...layouts.values()].sort((a, b) => a.name.localeCompare(b.name)), modules: await loadModuleRegistry() };
-}
-
-function validateModuleValue(value, definition, label) {
-  const type = definition?.type || 'string';
-  if (type === 'boolean' && typeof value !== 'boolean') throw new Error(`${label} 必须是布尔值。`);
-  if (type === 'number') {
-    if (typeof value !== 'number' || !Number.isFinite(value)) throw new Error(`${label} 必须是数字。`);
-    if (Number.isFinite(definition?.min) && value < definition.min) throw new Error(`${label} 不能小于 ${definition.min}。`);
-    if (Number.isFinite(definition?.max) && value > definition.max) throw new Error(`${label} 不能大于 ${definition.max}。`);
-  }
-  if ((type === 'string' || type === 'color' || type === 'url') && typeof value !== 'string') throw new Error(`${label} 必须是文本。`);
-  if (type === 'select') {
-    if (typeof value !== 'string') throw new Error(`${label} 必须是选项值。`);
-    const options = Array.isArray(definition.options) ? definition.options : [];
-    if (options.length && !options.some((option) => option?.value === value)) throw new Error(`${label} 不在允许选项中。`);
-  }
-  if (type === 'url' && value && !/^(?:https?:\/\/|\/|\.\/|\.\.\/)/i.test(value)) throw new Error(`${label} 必须是 http(s) 地址或站内相对路径。`);
-}
-
-function validateLayoutAgainstRegistry(layout, modules) {
-  const ids = new Set();
-  for (const [slot, instances] of Object.entries(layout.slots)) {
-    const fullSlot = `${layout.kind}.${slot}`;
-    for (const instance of instances) {
-      if (ids.has(instance.id)) throw new Error(`布局实例 id 重复：${instance.id}`);
-      ids.add(instance.id);
-      const manifest = modules[instance.module];
-      if (!manifest) throw new Error(`未知模块：${instance.module}`);
-      if (!manifest.allowedSlots.includes(fullSlot)) throw new Error(`模块 ${instance.module} 不能放入 ${fullSlot}。`);
-      for (const [key, value] of Object.entries(instance.config || {})) {
-        if (manifest.schema?.[key]) validateModuleValue(value, manifest.schema[key], `模块 ${instance.module} 的 ${key}`);
-      }
-    }
-  }
 }
 
 function siteModulePaths(id, manifest) {
@@ -1327,7 +1017,6 @@ async function publishToBlog(commitMessage, force, report = () => {}) {
 
 // 博客预览由 admin server 自己托管 public/（见底部 blogServer），
 // 不再探测外部 hugo server，因此恒为运行中。
-const blogPort = Number(process.env.BLOG_PORT || 1414);
 const blogHost = process.env.BLOG_HOST || '0.0.0.0';
 
 async function blogStatus() {
@@ -2049,6 +1738,22 @@ async function handleApi(req, res, url) {
     try { return send(res, 201, { ok: true, ...(await installSiteModule(JSON.parse((await readBody(req)).toString('utf8')))) }); }
     catch (error) { return fail(res, 400, error.message || '模块安装失败。'); }
   }
+  if (req.method === 'PUT' && pathname === '/api/modules/config') {
+    try {
+      const request = JSON.parse((await readBody(req)).toString('utf8'));
+      if (!/^[\w-]+$/.test(request.layout || '')) throw new Error('布局名称不合法。');
+      const { layouts, modules } = await loadLayoutEditor();
+      const current = layouts.find((entry) => entry.name === request.layout);
+      if (!current) throw new Error('布局不存在。');
+      const { layout, placement } = updateModulePlacement(current.parsed, modules, request);
+      const target = inside(userLayoutsRoot, `${request.layout}.yaml`);
+      if (!target) throw new Error('布局路径不安全。');
+      const backup = await snapshotLayout(request.layout, target);
+      await atomicWrite(target, serializeLayout(layout));
+      scheduleBuild();
+      return send(res, 200, { ok: true, placement, backup });
+    } catch (error) { return fail(res, error.statusCode || 400, error.message || '保存模块失败。'); }
+  }
   if (req.method === 'POST' && pathname === '/api/music/netease/import') {
     try { return send(res, 201, { ok: true, ...(await importNeteasePlaylist(JSON.parse((await readBody(req, 32 * 1024)).toString('utf8')))) }); }
     catch (error) { return fail(res, 400, error.message || '网易云歌单导入失败。'); }
@@ -2311,7 +2016,6 @@ const server = createServer(async (req, res) => {
   }
 });
 
-const port = Number(process.env.ADMIN_PORT || configPort || 5174);
 let browserOpened = false;
 function openLocalPage(targetPort = port) {
   if (!openBrowserOnStart || browserOpened) return;

@@ -10,7 +10,8 @@
   "bin": "server.mjs",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs",
+    "check": "node --check server.mjs && node --check public/js/app.js && node --check public/js/core/api.js && node --check public/js/core/dom.js && node --check public/js/core/state.js && node --check public/js/core/icons.js && node --check public/js/core/studio.js && node --check public/js/features/module-library.js && node --check public/js/features/music-module.js && node --check public/js/features/module-installer.js",
+    "test": "node --test",
     "build": "esbuild server.mjs --bundle --platform=node --target=node22 --format=cjs --define:import.meta.url=undefined --outfile=server.cjs",
     "exe": "npm run build && pkg --config package.json server.cjs --targets=node22-win-x64 --output=dist/LilyMap.exe",
     "release": "node scripts/prepare-release.mjs"

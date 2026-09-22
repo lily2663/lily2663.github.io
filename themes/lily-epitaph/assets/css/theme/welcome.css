@@ -1,0 +1,204 @@
+/* ---------- Welcome Splash (Watercolor) ---------- */
+.welcome-splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  background-image: var(--welcome-image, url('/lily-epitaph/welcome-watercolor.jpg'));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  opacity: 1;
+  transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 1.2s ease,
+              transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  transform: scale(1);
+}
+html:not([data-theme="dark"]) body[data-day-background-kind="video"] .welcome-splash,
+[data-theme="dark"] body[data-night-background-kind="video"] .welcome-splash {
+  background-color: transparent;
+  background-image: none;
+}
+html:not([data-theme="dark"]) body[data-day-background-fit="contain"] .welcome-splash {
+  background-size: contain;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"] .welcome-splash::before {
+  background: transparent;
+}
+[data-theme="dark"] .welcome-splash {
+  background-image: var(--watercolor-night, url('/lily-epitaph/night-watercolor.jpg'));
+  background-size: cover;
+}
+.welcome-splash::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+  pointer-events: none;
+}
+.welcome-splash.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(1.1);
+}
+/* 欢迎页展示时底层内容保持模糊，进入后再浮现（与旧站一致） */
+body.splash-active .site-header,
+body.splash-active main,
+body.splash-active .site-footer {
+  filter: blur(8px);
+  opacity: 0;
+  transition: filter 1.2s ease, opacity 1.2s ease;
+}
+body:not(.splash-active) .site-header,
+body:not(.splash-active) main,
+body:not(.splash-active) .site-footer {
+  filter: blur(0);
+  opacity: 1;
+  transition: filter 1.2s ease 0.3s, opacity 1.2s ease 0.3s;
+}
+.welcome-content {
+  text-align: center;
+  animation: welcomeFadeIn 1.5s ease;
+  position: relative;
+  z-index: 10;
+  padding: 40px;
+}
+@keyframes welcomeFadeIn {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.welcome-title {
+  font-family: var(--serif);
+  font-size: clamp(48px, 12vw, 96px);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.welcome-title .accent {
+  color: var(--mint);
+  font-style: italic;
+  position: relative;
+}
+.welcome-title .accent::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--mint), var(--pink));
+  border-radius: 2px;
+  animation: underlineGrow 1.5s ease 0.5s both;
+}
+@keyframes underlineGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.welcome-subtitle {
+  font-size: clamp(20px, 4vw, 28px);
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 60px;
+  letter-spacing: 0.05em;
+  animation: subtitleFade 1.5s ease 0.3s both;
+}
+@keyframes subtitleFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.welcome-enter {
+  display: inline-block;
+  padding: 18px 60px;
+  background: linear-gradient(135deg, var(--mint) 0%, var(--mint-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  box-shadow: 0 8px 30px rgba(127, 181, 176, 0.4);
+  position: relative;
+  overflow: hidden;
+  animation: buttonFade 1.5s ease 0.6s both;
+}
+@keyframes buttonFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.welcome-enter::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+.welcome-enter:hover {
+  background: linear-gradient(135deg, var(--mint-dark) 0%, var(--mint) 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(127, 181, 176, 0.5);
+}
+.welcome-enter:hover::before {
+  width: 300px;
+  height: 300px;
+}
+.welcome-hint {
+  margin-top: 40px;
+  font-size: 15px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  animation: hintFloat 3s ease-in-out infinite;
+}
+@keyframes hintFloat {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* 水彩晕染粒子 */
+.watercolor-dot {
+  position: absolute;
+  left: var(--dot-x);
+  top: var(--dot-y);
+  width: var(--dot-size);
+  height: var(--dot-size);
+  background: var(--dot-color);
+  filter: blur(18px);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: dotFloat var(--dot-duration, 10s) ease-in-out var(--dot-delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+@keyframes dotFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  25% { opacity: 0.3; }
+  50% {
+    transform: translate(30px, -30px) scale(1.2);
+    opacity: 0.2;
+  }
+  75% { opacity: 0.3; }
+}

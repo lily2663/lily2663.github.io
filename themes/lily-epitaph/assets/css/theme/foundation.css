@@ -1,0 +1,199 @@
+﻿/* =========================================================
+ * lily'epitaph · Modern Minimalist Style
+ * 配色：薄荷绿 + 粉红（贴合头像）
+ * 设计：圆角卡片、柔和阴影、充足留白
+ * ========================================================= */
+
+:root {
+  /* 主色调 - 基于头像 */
+  --mint: #7FB5B0;
+  --mint-light: #A8D5D1;
+  --mint-dark: #5A8F8A;
+  --pink: #E8839B;
+  --pink-light: #F4A7B9;
+  --pink-dark: #C96B82;
+
+  /* 中性色 */
+  --bg: #FAFAF8;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F5F5F3;
+  --ink: #2C3E50;
+  --ink-soft: #5A6B7C;
+  --muted: #8B95A5;
+  --border: #E8E8E6;
+  --border-light: #F0F0EE;
+
+  /* 代码块 */
+  --code-bg: #F8F9FA;
+  --code-border: #E9ECEF;
+
+  /* 水彩背景（欢迎页同款）：日间纸上晕染 / 夜间夜色晕染 */
+  --watercolor-day: url('/lily-epitaph/welcome-watercolor.jpg');
+  --watercolor-night: url('/lily-epitaph/night-watercolor.jpg');
+
+  /* 布局 */
+  --maxw: 1200px;
+  --readw: 720px;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+
+  /* 字体 */
+  --serif: "Playfair Display", Georgia, "Noto Serif SC", "Songti SC", "SimSun", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --mono: "SFMono-Regular", "JetBrains Mono", Consolas, Menlo, monospace;
+}
+
+[data-theme="dark"] {
+  --bg: #1A1A1A;
+  --bg-card: #242424;
+  --bg-hover: #2A2A2A;
+  --ink: #E8E8E8;
+  --ink-soft: #B8B8B8;
+  --muted: #888888;
+  --border: #333333;
+  --border-light: #2A2A2A;
+  --code-bg: #1E1E1E;
+  --code-border: #333333;
+  --shadow: 0 2px 8px rgba(0,0,0,0.2);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  isolation: isolate;
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 图片与动态壁纸共用同一层级和裁切规则。视频只播放当前主题对应的一路，
+   转换后的 H.264/30fps 文件负责兼容手机浏览器并降低解码压力。 */
+.site-background-media {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+}
+.site-background-video {
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.62;
+  mix-blend-mode: multiply;
+}
+html:not([data-theme="dark"]) body[data-day-background-kind="video"] .site-background-video--day,
+[data-theme="dark"] body[data-night-background-kind="video"] .site-background-video--night {
+  display: block;
+}
+html:not([data-theme="dark"]) body[data-day-background-fit="contain"] .site-background-video--day {
+  object-fit: contain;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"] .site-background-video--day {
+  opacity: 1;
+  mix-blend-mode: normal;
+}
+[data-theme="dark"] .site-background-video--night {
+  opacity: 0.6;
+  mix-blend-mode: normal;
+}
+
+/* ---------- 水彩画布（日/夜） ---------- */
+/* 日间：欢迎页同款水彩以 multiply 叠在纸色底上，白色晕开、只留色彩，像水彩纸上的晕染 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--watercolor-day);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.62;
+  pointer-events: none;
+}
+html:not([data-theme="dark"]) body[data-day-background-kind="video"]::before,
+[data-theme="dark"] body[data-night-background-kind="video"]::before {
+  background-image: none;
+}
+
+/* 原图模式：完整保留日间壁纸的构图、色彩和透明度。 */
+html:not([data-theme="dark"]) body[data-day-background-fit="contain"]::before {
+  background-size: contain;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"]::before {
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+html:not([data-theme="dark"]) body[data-day-background-effect="original"]::after {
+  display: none;
+}
+
+/* 夜间：深色水彩半透明平铺，青紫玫瑰的色晕从夜色里透出来 */
+[data-theme="dark"] body::before {
+  background-image: var(--watercolor-night);
+  background-size: cover;
+  mix-blend-mode: normal;
+  opacity: 0.6;
+}
+
+/* 缓慢漂移的环境水彩晕染，让页面“活”起来。
+   radial-gradient 本身已足够柔和，不加 filter: blur —— 避免全屏图层
+   每帧参与 backdrop-filter 采样，拖垮全站交互流畅度 */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -12%;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(42vmax 42vmax at 14% 24%, rgba(127,181,176,0.13), transparent 70%),
+    radial-gradient(48vmax 48vmax at 86% 76%, rgba(232,131,155,0.10), transparent 70%),
+    radial-gradient(36vmax 36vmax at 76% 14%, rgba(168,213,209,0.11), transparent 70%),
+    radial-gradient(40vmax 40vmax at 22% 84%, rgba(244,167,185,0.09), transparent 70%);
+  animation: watercolor-drift 47s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+[data-theme="dark"] body::after {
+  background-image:
+    radial-gradient(42vmax 42vmax at 14% 24%, rgba(64,140,148,0.20), transparent 70%),
+    radial-gradient(48vmax 48vmax at 86% 76%, rgba(168,92,124,0.18), transparent 70%),
+    radial-gradient(36vmax 36vmax at 76% 14%, rgba(96,110,190,0.16), transparent 70%),
+    radial-gradient(40vmax 40vmax at 22% 84%, rgba(70,150,140,0.15), transparent 70%);
+}
+
+@keyframes watercolor-drift {
+  from { transform: translate3d(-1.2%, -1%, 0) rotate(-0.6deg) scale(1.04); }
+  to { transform: translate3d(1.2%, 1.4%, 0) rotate(0.6deg) scale(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; }
+}
+
+a {
+  color: var(--mint-dark);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:hover { color: var(--pink); }
+
+.container {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 var(--page-gutter, 24px);
+}
