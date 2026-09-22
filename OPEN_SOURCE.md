@@ -1,33 +1,56 @@
-# Open-source split plan
+# Reusable-project integration
 
-This working blog contains two reusable projects that will be extracted without bringing personal content with them.
+The open-source split is complete. This repository is the private/content-bearing
+Hugo site, while reusable code lives in two public repositories and is consumed
+here as pinned Git submodules.
 
-| Future repository | Current source boundary | Contains | Must not contain |
+| Project | Canonical repository | Mounted path | Responsibility |
 | --- | --- | --- | --- |
-| `lilymap` | `tools/admin/` | Local management UI, API, EXE packaging, configuration contract | Tokens, project config, post sources, uploaded media |
-| `hugo-theme-lily` | `themes/lily-epitaph/` | Hugo theme, Lily module protocol, example site, theme assets | Personal content, deployment settings, private payloads |
+| LilyMap | [`lily2663/lilymap`](https://github.com/lily2663/lilymap) | `tools/admin/` | Local management UI, API, EXE packaging, and configuration contract |
+| Lily theme | [`lily2663/lily-epitaph`](https://github.com/lily2663/lily-epitaph) | `themes/lily-epitaph/` | Hugo presentation layer, Lily module protocol, example site, and theme assets |
 
-## Readiness contract
+## Working with the relationship
 
-LilyMap detects the active Hugo theme from `hugo.toml` and requires the theme to expose `theme-config.schema.json`. The paired theme exposes built-in Lily modules under `data/lily/modules/`. Both projects use the MIT license.
-
-Each boundary contains its own contribution guide and GitHub Actions validation workflow so the workflow moves with the extracted history.
-
-## Extraction procedure
-
-When both source boundaries have passed their independent checks, create separate history-preserving branches from this repository:
+Clone the blog together with its dependencies:
 
 ```powershell
-git subtree split --prefix=tools/admin -b release/lilymap
-git subtree split --prefix=themes/lily-epitaph -b release/hugo-theme-lily
+git clone --recurse-submodules https://github.com/lily2663/lily2663.github.io.git
 ```
 
-Push those branches into newly created repositories. Do not create the remote repositories until the public asset audit, README review, and clean-clone validation are complete.
+For an existing checkout, initialize the pinned versions:
 
-## Pre-publication checklist
+```powershell
+npm run deps:init
+```
 
-- Verify no private text, tokens, encryption sources, machine paths, or personal media exist in either source boundary.
-- Verify LilyMap starts from an EXE and a clean source checkout.
-- Verify the theme example site builds with the documented Hugo version.
-- Verify a fresh Hugo project can use the theme and LilyMap together.
-- Tag compatible LilyMap and theme releases together in the first release notes.
+The pinned commits are deliberate: a blog build must always use a known-compatible
+LilyMap and theme pair. To deliberately adopt the latest `main` commits from both
+projects, run:
+
+```powershell
+npm run deps:update
+npm run build
+git add tools/admin themes/lily-epitaph .gitmodules
+git commit -m "chore: update reusable project dependencies"
+```
+
+## Compatibility contract
+
+LilyMap discovers the active Hugo theme from `hugo.toml` and requires
+`theme-config.schema.json`. The Lily theme provides built-in modules under
+`data/lily/modules/`; the site provides its own layouts and module configuration
+under `data/lily/`.
+
+Before advancing either submodule pointer, verify all three layers:
+
+```powershell
+npm --prefix tools/admin run check
+Set-Location themes/lily-epitaph/exampleSite
+hugo --themesDir ../.. --gc --minify --panicOnWarning
+Set-Location ../../..
+npm run build
+```
+
+GitHub Pages checks out submodules recursively before it validates and builds the
+site. Public reusable repositories must never contain personal content, deployment
+tokens, local configuration, or protected-content payloads.

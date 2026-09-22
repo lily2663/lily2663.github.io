@@ -4,6 +4,18 @@
 
 ## 本地使用
 
+首次克隆需要同时拉取主题与管理台子模块：
+
+```powershell
+git clone --recurse-submodules https://github.com/lily2663/lily2663.github.io.git
+```
+
+如果已经克隆过本仓库，运行：
+
+```powershell
+npm run deps:init
+```
+
 双击 `LilyMap.exe`（先运行一次 `npm run lilymap:exe` 生成），双击保留的 `start-hugo-desk.bat`，或在仓库根目录运行：
 
 ```powershell
@@ -36,7 +48,7 @@ LilyMap 的“布局”页面可视化组合模块；“模块库”支持把网
 
 ## Reusable projects
 
-- `tools/admin/`：LilyMap 源码与 Windows EXE 打包配置。
-- `themes/lily-epitaph/`：可独立使用的 Hugo 主题和示例站点。
+- [`tools/admin/`](https://github.com/lily2663/lilymap)：LilyMap Git 子模块，源码与 Windows EXE 打包配置的唯一来源。
+- [`themes/lily-epitaph/`](https://github.com/lily2663/lily-epitaph)：Lily 主题 Git 子模块，可独立使用的 Hugo 主题和示例站点。
 
-两个目录正按独立开源仓库整理；边界、兼容协议和最终拆分步骤见 [OPEN_SOURCE.md](./OPEN_SOURCE.md)。
+主博客固定记录两者的兼容提交；日常更新使用 `npm run deps:update`，更新后必须运行 `npm run build` 再提交新的子模块指针。兼容协议见 [OPEN_SOURCE.md](./OPEN_SOURCE.md)。

@@ -16,8 +16,8 @@ LilyMap.exe
 lilymap.json
 reports/
 
-# LilyMap source is maintained here until it is split into its own repository.
-# Runtime output and local diagnostics stay private.
+# LilyMap is consumed as a Git submodule. Its runtime output and diagnostics
+# are ignored by the LilyMap repository itself.
 tools/*
 !tools/admin/
 !tools/admin/**

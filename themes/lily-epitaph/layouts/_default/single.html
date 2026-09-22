@@ -1,6 +1,0 @@
-{{ define "main" }}
-{{- $kind := partial "lily/utils/kind.html" (dict "page" .) -}}
-<article class="article" data-lily-page-kind="{{ $kind }}">
-  {{ partial "lily/layout.html" (dict "kind" $kind "page" .) }}
-</article>
-{{ end }}

@@ -1,9 +1,0 @@
-{{ $config := .Config }}
-{{ with .Page }}
-<footer class="site-footer">
-  <div class="container">
-    {{ if ne $config.showCopyright false }}<p>© {{ now.Year }} {{ .Site.Title }}{{ with .Site.Params.footer.copyright }} · {{ . }}{{ end }}</p>{{ end }}
-    {{ if ne $config.showNote false }}{{ with .Site.Params.footer.note }}<p class="muted">{{ . }}</p>{{ end }}{{ end }}
-  </div>
-</footer>
-{{ end }}

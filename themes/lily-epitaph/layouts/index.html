@@ -1,5 +1,0 @@
-{{ define "main" }}
-{{- /* Lily Home：页面结构由 data/lily/layouts/home.yaml 组合
-     hero slot 已在 baseof 中于 #app 外渲染（欢迎屏 fixed 定位需要），此处跳过 */ -}}
-{{ partial "lily/layout.html" (dict "kind" "home" "page" . "skipSlots" (slice "hero")) }}
-{{ end }}

@@ -1,0 +1,8 @@
+[submodule "tools/admin"]
+	path = tools/admin
+	url = https://github.com/lily2663/lilymap.git
+	branch = main
+[submodule "themes/lily-epitaph"]
+	path = themes/lily-epitaph
+	url = https://github.com/lily2663/lily-epitaph.git
+	branch = main

@@ -1,6 +1,0 @@
-node_modules/
-dist/
-server.cjs
-*.log
-lilymap.json
-*.tmp
