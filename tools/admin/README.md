@@ -19,6 +19,8 @@ npm run release
 
 构建会生成 `dist/LilyMap.exe` 和示例配置。EXE 会自动打开管理页；重复启动会打开已经运行的页面。博客仓库内嵌版本仍可使用 `npm run lilymap:exe` 生成博客根目录的 EXE。
 
+Windows x64 打包会把 `public/favicon.ico` 中的团子图标和 LilyMap 产品信息写入 EXE。图标在打包载荷之前嵌入临时运行时副本，不修改共享 Node 缓存。升级时需把新 EXE 复制到自己实际启动的位置（例如桌面），并保留同目录的 `lilymap.json`。
+
 独立 LilyMap 仓库发布 Windows 便携包时使用 `npm run release`。它在 `dist/` 生成 `LilyMap.exe` 和 `lilymap.json.example`；把 EXE 放进博客根目录，或编辑示例中的 `repoRoot` 后再运行。
 
 若 EXE 不在博客根目录，在 EXE 旁创建 `lilymap.json`：

@@ -318,7 +318,7 @@ async function lilymapSourceArchive() {
     'test/domain.test.mjs',
     'test/http.test.mjs',
     'package.json', 'package-lock.json', 'README.md', 'CONTRIBUTING.md', 'LICENSE', '.gitignore',
-    'lilymap.config.schema.json', 'lilymap.json.example', 'scripts/prepare-release.mjs', '.github/workflows/validate.yml',
+    'lilymap.config.schema.json', 'lilymap.json.example', 'scripts/prepare-release.mjs', 'scripts/build-exe.mjs', '.github/workflows/validate.yml',
     'public/index.html', 'public/css/app.css', 'public/css/base.css', 'public/css/refinements.css', 'public/css/workspace.css', 'public/js/app.js',
     'public/js/core/api.js', 'public/js/core/dom.js', 'public/js/core/state.js',
     'public/css/studio.css', 'public/js/core/icons.js', 'public/js/core/studio.js',
