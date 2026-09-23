@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import YAML from 'yaml';
+import Ajv from 'ajv';
 
 const root = path.resolve(import.meta.dirname, '..');
 const themeRoot = path.join(root, 'themes', 'lily-epitaph');
@@ -15,6 +16,9 @@ const layoutRoots = [
 const partialRoots = [path.join(root, 'layouts', 'partials'), path.join(themeRoot, 'layouts', 'partials')];
 const assetRoots = [path.join(root, 'assets'), path.join(themeRoot, 'assets')];
 const errors = [];
+const protocolSchema = JSON.parse(fs.readFileSync(path.join(themeRoot, 'docs', 'protocol', 'module-manifest.v1.schema.json'), 'utf8'));
+const ajv = new Ajv({ allErrors: true });
+const validateProtocolManifest = ajv.compile(protocolSchema);
 
 function isObject(value) { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
 function files(rootPath) { return fs.existsSync(rootPath) ? fs.readdirSync(rootPath).filter((name) => name.endsWith('.yaml')).sort().map((name) => path.join(rootPath, name)) : []; }
@@ -34,11 +38,23 @@ function validValue(value, definition) {
   return typeof value === 'string';
 }
 
+try {
+  const runtime = readYaml(path.join(themeRoot, 'data', 'lily', 'runtime.yaml'), 'Lily Runtime');
+  if (runtime.protocol !== 'lily-module-protocol/v1') {
+    errors.push(`Lily Runtime: unsupported protocol ${runtime.protocol || '(missing)'}`);
+  }
+} catch (error) {
+  errors.push(error.message);
+}
+
 const modules = new Map();
 for (const [directory, source] of moduleRoots) {
   for (const file of files(directory)) {
     try {
       const id = path.basename(file, '.yaml'); const manifest = readYaml(file, `模块 ${id}`);
+      if (!validateProtocolManifest(manifest)) {
+        throw new Error(`不符合 lily-module/v1 manifest schema: ${ajv.errorsText(validateProtocolManifest.errors)}`);
+      }
       if (manifest.id !== id) throw new Error(`id 必须与文件名 ${id} 一致`);
       if (manifest.apiVersion && manifest.apiVersion !== 'lily-module/v1') throw new Error(`不支持的 apiVersion: ${manifest.apiVersion}`);
       if (!Array.isArray(manifest.allowedSlots) || !manifest.allowedSlots.every((slot) => typeof slot === 'string')) throw new Error('allowedSlots 必须是字符串数组');
