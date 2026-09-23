@@ -29,6 +29,8 @@ jobs:
           cache: npm
       - name: Install Node dependencies
         run: npm ci
+      - name: Install LilyMap test dependencies
+        run: npm ci --prefix tools/admin
       - id: pages
         uses: actions/configure-pages@v5
       - name: Install Hugo
@@ -36,6 +38,11 @@ jobs:
           curl -L -o hugo.tar.gz https://github.com/gohugoio/hugo/releases/download/v0.165.0/hugo_0.165.0_linux-amd64.tar.gz
           tar -xzf hugo.tar.gz hugo
           sudo mv hugo /usr/local/bin/hugo
+      - name: Verify LilyMap and theme integration
+        run: npm --prefix tools/admin test
+        env:
+          LILY_TEST_THEME_PATH: ${{ github.workspace }}/themes/lily-epitaph
+          LILY_TEST_HUGO_PATH: /usr/local/bin/hugo
       - name: Validate public content
         run: npm run check
       - name: Build public site

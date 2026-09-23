@@ -1,8 +1,13 @@
 # Reusable-project integration
 
-The open-source split is complete. This repository is the private/content-bearing
-Hugo site, while reusable code lives in two public repositories and is consumed
-here as pinned Git submodules.
+This repository is a public, content-bearing Hugo site and the source for its
+GitHub Pages deployment. Tracked content, configuration, and generated public
+assets are readable by anyone. Keep credentials, local-only configuration, and
+private source material out of commits; the ignore rules are not a substitute
+for reviewing what is staged.
+
+Reusable code lives in two public repositories and is consumed here as pinned
+Git submodules.
 
 | Project | Canonical repository | Mounted path | Responsibility |
 | --- | --- | --- | --- |
@@ -56,5 +61,6 @@ npm run build
 ```
 
 GitHub Pages checks out submodules recursively before it validates and builds the
-site. Public reusable repositories must never contain personal content, deployment
-tokens, local configuration, or protected-content payloads.
+site. Reusable repositories should not contain deployment tokens or machine-local
+configuration. Review theme demo content and any example protected-content payload
+before publishing; never include real credentials or private plaintext.
