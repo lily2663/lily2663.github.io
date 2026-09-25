@@ -67,6 +67,7 @@ for (const relative of [
   'static/assets/vendor/highlight.min.js',
   'static/assets/vendor/highlight.github.min.css',
   'static/assets/vendor/highlight.github-dark.min.css',
+  'static/sw.js',
 ]) {
   if (fs.existsSync(path.join(root, relative))) errors.push(`Theme-owned runtime asset must not be shadowed by the site: ${relative}`);
 }
