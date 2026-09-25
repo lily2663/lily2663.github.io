@@ -6,7 +6,7 @@
   "scripts": {
     "migrate": "node scripts/migrate-content.mjs",
     "protect": "node scripts/protect.mjs",
-    "check": "node scripts/check.mjs && node scripts/check-lily.mjs",
+    "check": "node scripts/check.mjs && node scripts/check-lily.mjs && node scripts/audit-assets.mjs --strict-cross-root",
     "audit:assets": "node scripts/audit-assets.mjs",
     "optimize:images": "node scripts/optimize-images.mjs",
     "build": "npm run check && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/hugo.ps1 build --gc --minify --panicOnWarning",
