@@ -9,7 +9,7 @@ tags:
   - "Python"
   - "C/C++"
 params:
-  protected: false
+  protected: true
   commentId: "Publish"
   legacyId: "Publish"
 cover: ""
