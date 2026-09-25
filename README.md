@@ -52,5 +52,6 @@ LilyMap 的“布局”页面可视化组合模块；“模块库”支持把网
 
 - [`tools/admin/`](https://github.com/lily2663/lilymap)：LilyMap Git 子模块，源码与 Windows EXE 打包配置的唯一来源。
 - [`themes/lily-epitaph/`](https://github.com/lily2663/lily-epitaph)：Lily 主题 Git 子模块，可独立使用的 Hugo 主题和示例站点。
+  主题所需的受保护文章渲染、代码高亮与离线缓存运行时由主题自身提供；主博客只保留站点级覆盖与内容资源。
 
 主博客固定记录两者的兼容提交；日常更新使用 `npm run deps:update`，更新后必须运行 `npm run build` 再提交新的子模块指针。兼容协议见 [OPEN_SOURCE.md](./OPEN_SOURCE.md)。
