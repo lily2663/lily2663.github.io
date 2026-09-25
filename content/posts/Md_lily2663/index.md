@@ -7,7 +7,7 @@ summary: "Md"
 tags:
   - "Shell"
 params:
-  protected: false
+  protected: true
   commentId: "Md_lily2663"
   legacyId: "Md_lily2663"
 cover: ""
