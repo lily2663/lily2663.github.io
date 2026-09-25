@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
+const strictCrossRoot = process.argv.includes('--strict-cross-root');
 const publishAssetRoot = path.join(root, 'static', 'assets', 'img');
 const assetRoots = [
   ['static/assets/img', publishAssetRoot],
@@ -49,3 +50,9 @@ fs.mkdirSync(path.dirname(reportPath), { recursive: true });
 fs.writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
 console.log(`Audited ${report.imageFiles} images (${report.imageBytes} bytes): ${report.duplicateGroups} duplicate groups (${report.duplicateBytes} duplicate bytes), ${report.crossRootDuplicateGroups} cross-root groups, ${report.removableCandidates.length} unreferenced duplicate candidates.`);
 console.log(`Report: ${path.relative(root, reportPath)}`);
+
+if (strictCrossRoot && crossRootDuplicateGroups.length) {
+  console.error('Cross-root duplicate assets are not allowed; keep public copies under static/assets/img and remove identical pipeline copies:');
+  for (const group of crossRootDuplicateGroups) console.error(`- ${group.files.map((item) => item.file).join(' | ')}`);
+  process.exitCode = 1;
+}
