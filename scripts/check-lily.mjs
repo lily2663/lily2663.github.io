@@ -33,8 +33,14 @@ function existsIn(roots, relative) { return roots.some((rootPath) => fs.existsSy
 function validValue(value, definition) {
   const type = definition?.type || 'string';
   if (type === 'boolean') return typeof value === 'boolean';
-  if (type === 'number') return typeof value === 'number' && Number.isFinite(value);
+  if (type === 'number') {
+    if (typeof value !== 'number' || !Number.isFinite(value)) return false;
+    if (Number.isFinite(definition?.min) && value < definition.min) return false;
+    if (Number.isFinite(definition?.max) && value > definition.max) return false;
+    return true;
+  }
   if (type === 'select') return typeof value === 'string' && (!Array.isArray(definition.options) || definition.options.some((option) => option?.value === value));
+  if (type === 'url') return typeof value === 'string' && (!value || /^(?:https?:\/\/|\/|\.\/|\.\.\/)/i.test(value));
   return typeof value === 'string';
 }
 
