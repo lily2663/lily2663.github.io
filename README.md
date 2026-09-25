@@ -43,6 +43,7 @@ npm run audit:assets
 - `themes/lily-epitaph/data/lily/modules/`：模块清单与配置协议
 - `themes/lily-epitaph/layouts/partials/lily/modules/`：模块模板
 - `themes/lily-epitaph/assets/lily/modules/`：模块样式与脚本
+- `static/assets/img/`：可直接发布的站点图片；`assets/img/` 仅留给 Hugo 资源管线，禁止与 `static/assets/img/` 保存完全相同的副本，`npm run check` 会拦截跨根重复。
 
 LilyMap 的“布局”页面可视化组合模块；“模块库”支持把网易云歌单导入为本地静态快照。登录 Cookie 仅用于单次本机请求，不应写入配置、源码或 Git。
 
