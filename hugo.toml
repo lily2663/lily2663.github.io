@@ -80,7 +80,8 @@ imageQuality = "high"
 enabled = true
 
 [params.protected]
-enabled = true
+# 加密文章阅读器暂时下线；密文和本机私有原文保持不变，修复后改回 true 即可恢复。
+enabled = false
 
 [params.article]
 toc = true
