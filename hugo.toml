@@ -80,8 +80,9 @@ imageQuality = "high"
 enabled = true
 
 [params.protected]
-# 加密文章阅读器暂时下线；密文和本机私有原文保持不变，修复后改回 true 即可恢复。
-enabled = false
+# 已有加密文章仍可正常解锁阅读；仅暂停后台的新增加密与解除保护操作。
+enabled = true
+managementEnabled = false
 
 [params.article]
 toc = true
