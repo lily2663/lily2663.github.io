@@ -1,5 +1,5 @@
 ---
-title: "复现低版本log4shell(ing)"
+title: "低版本log4shell"
 date: "2026-09-13"
 lastmod: 2026-09-13T13:53:49.115Z
 slug: "复现低版本log4shell"

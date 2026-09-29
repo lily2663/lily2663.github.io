@@ -1,9 +1,9 @@
 ---
-title: "Preference"
+title: "群友靶机-Preference"
 date: "2026-08-24"
 lastmod: 2026-08-24T09:47:03.011Z
 slug: "preference"
-summary: "首杀，终于晋升”顶级大佬“"
+summary: "第二次首杀，半夜偶得"
 tags:
   - "shell"
   - "maze"

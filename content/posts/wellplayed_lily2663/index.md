@@ -1,6 +1,6 @@
 ---
-title: "wellplayed"
-date: "2026-08-15T00:00:00+08:00"
+title: "群友靶机-wellplayed"
+date: "2026-08-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "wellplayed_lily2663"
 summary: "wellplayed"
@@ -12,6 +12,8 @@ params:
   protected: false
   commentId: "wellplayed_lily2663"
   legacyId: "wellplayed_lily2663"
+cover: ""
+draft: false
 ---
 
 

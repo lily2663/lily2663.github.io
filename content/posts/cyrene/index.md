@@ -1,9 +1,9 @@
 ---
-title: "Cyrene"
+title: "群友靶机-Cyrene"
 date: "2026-09-22"
 lastmod: 2026-09-22T02:05:37.304Z
 slug: "cyrene"
-summary: "cry"
+summary: "XSS+Twig SSTI+chromedriver提权手法"
 tags:
   - "maze"
   - "shell"

@@ -1,5 +1,5 @@
 ---
-title: "Netdata2"
+title: "群友靶机-Netdata2"
 date: "2026-08-26"
 lastmod: 2026-08-26T09:30:14.363Z
 slug: "netdata2"

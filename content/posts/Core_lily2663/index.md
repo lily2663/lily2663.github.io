@@ -1,6 +1,6 @@
 ---
-title: "Core"
-date: "2026-08-12T00:00:00+08:00"
+title: "群友靶机-Core"
+date: "2026-08-12"
 lastmod: "2026-08-12T00:00:00+08:00"
 slug: "Core_lily2663"
 summary: "Core"
@@ -10,6 +10,8 @@ params:
   protected: false
   commentId: "Core_lily2663"
   legacyId: "Core_lily2663"
+cover: ""
+draft: false
 ---
 
 

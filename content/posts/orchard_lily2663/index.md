@@ -1,6 +1,6 @@
 ---
-title: "orchard"
-date: "2026-08-15T00:00:00+08:00"
+title: "群友靶机-orchard"
+date: "2026-08-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "orchard_lily2663"
 summary: "orchard"
@@ -10,6 +10,8 @@ params:
   protected: false
   commentId: "orchard_lily2663"
   legacyId: "orchard_lily2663"
+cover: ""
+draft: false
 ---
 # orchard
 
