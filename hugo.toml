@@ -1,7 +1,7 @@
 baseURL = "https://lily2663.top/"
 locale = "zh-CN"
 defaultContentLanguage = "zh-cn"
-title = "lily'epitaph"
+title = "lily'house"
 theme = "lily-epitaph"
 timeZone = "Asia/Shanghai"
 enableRobotsTXT = true
@@ -12,11 +12,12 @@ ignoreLogs = ["warning-goldmark-raw-html"]
   pagerSize = 10
 
 [params]
-subtitle = "the house of the dead"
+subtitle = "die die die"
 description = "记录"
-author = "lilyzero"
+author = "lily"
 avatar = "/assets/img/optimized/b_d06ff1a0814bc6d063e847e30ce0fd8b.webp"
 
+favicon = ""
 [params.theme]
 accent = "#7fb5b0"
 accentLight = "#a8d5d1"
@@ -28,6 +29,14 @@ fontPreset = "editorial"
 webFonts = false
 readingWidth = "standard"
 
+darkPaper = "#1a1a1a"
+darkPanel = "#242424"
+darkHover = "#2a2a2a"
+darkInk = "#e8e8e8"
+darkInkSoft = "#b8b8b8"
+darkMuted = "#888888"
+darkBorder = "#333333"
+darkCodeBackground = "#1e1e1e"
 [params.welcome]
 enabled = true
 background = "/assets/img/optimized/wallpapers/welcome-1789547451700.webp"
@@ -37,7 +46,7 @@ backgroundEffect = "original"
 titleBefore = "Welcome to "
 accent = "Lily's"
 titleAfter = " House"
-subtitle = "the house of the dead"
+subtitle = "welcome"
 enterText = "Enter"
 hint = "Press any key or click to enter"
 particles = 30
