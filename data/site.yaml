@@ -10,26 +10,26 @@ links:
 friends:
   - name: NSSCTF
     url: https://www.nssctf.cn/
-    desc: ""
+    desc: 学习平台“因为热爱，所以长远”
     avatar: https://www.nssctf.cn/favicon.ico
   - name: abababcd
     url: https://abababcdcd.github.io/
-    desc: 番茄
+    desc: 特别强的pwn爷，日常手搓exp
     avatar: /assets/img/optimized/friends/abababcdcd.webp
   - name: Sauy
     url: https://sauy.top/
-    desc: 敬爱的土豆猫大人
+    desc: 令人敬爱的土豆猫大人
     avatar: /assets/img/optimized/friends/sauy.webp
   - name: mm9527
     url: https://www.mm9527.top/
-    desc: 塔菲
+    desc: 正在研究安卓逆向的塔菲
     avatar: https://www.mm9527.top/images/favicon.png
   - name: N0rmal7
     url: https://n0rmal7.github.io/
-    desc: 康神开播了？
+    desc: pwn爷,cs指挥官
     avatar: https://n0rmal7.github.io/favicon/avatar-192.png
   - name: 叮咚鸡
     url: https://blog.sl33pd1n0.workers.dev/
-    desc: 邓队
+    desc: 大手子
     avatar: https://blog.sl33pd1n0.workers.dev/avatar.jpg
 aboutTitle: 关于我？
