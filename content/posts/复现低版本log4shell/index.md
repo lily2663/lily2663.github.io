@@ -6,7 +6,6 @@ slug: "复现低版本log4shell"
 summary: ""
 tags:
   - "java"
-  - "jdni"
 categories: []
 draft: false
 cover: ""

@@ -6,8 +6,7 @@ slug: "Publish"
 summary: "第一次一血"
 tags:
   - "Shell"
-  - "Python"
-  - "C/C++"
+  - "maze"
 params:
   protected: false
   commentId: "Publish"

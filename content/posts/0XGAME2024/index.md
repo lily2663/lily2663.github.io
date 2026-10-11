@@ -5,8 +5,7 @@ lastmod: "2026-08-15T00:00:00+08:00"
 slug: "0XGAME2024"
 summary: ""
 tags:
-  - "Python"
-  - "PHP"
+  - "WP"
 params:
   protected: false
   commentId: "0XGAME2024"

@@ -1,17 +1,18 @@
 ---
 title: "PCTF2025web"
-date: "2026-04-03T00:00:00+08:00"
+date: "2026-04-03"
 lastmod: "2026-04-03T00:00:00+08:00"
 slug: "PCTF2025web"
 summary: "1.ezupload"
 tags:
   - "Web"
-  - "File Upload"
-  - "PCTF"
+  - "Wp"
 params:
   protected: false
   commentId: "PCTF2025web"
   legacyId: "PCTF2025web"
+cover: ""
+draft: false
 ---
 
 # 1.ez_upload

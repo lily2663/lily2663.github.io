@@ -7,7 +7,6 @@ summary: "XSS+Twig SSTI+chromedriver提权手法"
 tags:
   - "maze"
   - "shell"
-  - "linux"
 categories: []
 draft: false
 cover: ""
