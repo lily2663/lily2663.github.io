@@ -1,0 +1,3 @@
+# Local workbench pages remain available to hugo server, but are not blog pages.
+# Match both Windows and POSIX absolute paths used by Hugo's content scanner.
+ignoreFiles = ['[/\\]content[/\\]lily-(debug|manager|playground)[/\\]']

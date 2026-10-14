@@ -5,7 +5,8 @@ import vm from 'node:vm';
 
 // Run after npm run build. Optional root argument supports isolated verification.
 const root = path.resolve(process.argv[2] || path.join(import.meta.dirname, '..'));
-const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const output = path.resolve(process.env.LILY_TEST_PUBLIC_DIR || path.join(root, 'public'));
+const read = (file) => fs.readFileSync(file.startsWith('public/') ? path.join(output, file.slice(7)) : path.join(root, file), 'utf8');
 const index = read('public/posts/index.html');
 const article = read('public/posts/netdata2/index.html');
 assert.match(index, /data-lily-module=["']?taxonomy-terms/);
@@ -24,9 +25,9 @@ assert.ok(contract.sections.flatMap(s => s.fields).some(f => f.path === 'params.
 
 // Exercise the actual enhancement function with a small DOM fixture, including
 // successful, rejected and unavailable clipboard APIs (not just source matching).
-const source = read('themes/lily-epitaph/assets/js/site.js');
-const start = source.indexOf('  function enhanceArticleBody(');
-const end = source.indexOf('\n  // 完整保留', start);
+const source = read('themes/lily-epitaph/assets/js/features/article.js');
+const start = source.indexOf('export function enhanceArticleBody(');
+const end = source.indexOf('\nexport function buildArticleToc(', start);
 assert.ok(start > 0 && end > start);
 async function checkCopy(mode, withCode = true) {
   let handler;
@@ -45,7 +46,7 @@ async function checkCopy(mode, withCode = true) {
   } };
   const context = vm.createContext({ document: { body: { dataset: {} }, createElement: () => button },
     navigator: { clipboard }, window: {}, ensureHeadingIds: () => [], setTimeout: () => {}, body });
-  vm.runInContext(source.slice(start, end) + '\nenhanceArticleBody(body);', context);
+  vm.runInContext(source.slice(start, end).replace(/^export /, '') + '\nenhanceArticleBody(body);', context);
   await handler();
   assert.equal(button.textContent, mode === 'ok' ? '已复制' : '请手动复制');
   assert.equal(written, mode === 'ok' ? code.textContent : undefined);

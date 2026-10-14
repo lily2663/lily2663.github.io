@@ -125,6 +125,11 @@ viewTransition = true
   weight = 20
 
 [[menus.main]]
+  name = "归档"
+  url = "/archives/"
+  weight = 25
+
+[[menus.main]]
   name = "关于"
   url = "/about/"
   weight = 30
