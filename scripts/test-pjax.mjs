@@ -12,14 +12,15 @@ function classList() {
   return { add: (...names) => names.forEach((name) => values.add(name)), remove: (...names) => names.forEach((name) => values.delete(name)), contains: (name) => values.has(name) };
 }
 
-function createFixture() {
+function createFixture(initialUrl = 'https://example.invalid/') {
   const handlers = new Map();
+  const windowHandlers = new Map();
   const timers = new Map();
   const requests = [];
   const fallbacks = [];
   const events = [];
   let timerId = 0;
-  let currentUrl = new URL('https://example.invalid/');
+  let currentUrl = new URL(initialUrl);
   const rootElement = { classList: classList() };
   const app = {
     classList: classList(), attributes: new Map(), children: ['initial'], focusCount: 0,
@@ -35,7 +36,7 @@ function createFixture() {
     querySelector: (selector) => selector === '#navigation-progress' ? progress : null,
     querySelectorAll: () => [],
     addEventListener: (type, handler) => handlers.set(type, handler),
-    dispatchEvent: (event) => events.push(event.type),
+    dispatchEvent: (event) => { events.push(event.type); handlers.get(event.type)?.(event); },
   };
   const location = {
     get href() { return currentUrl.href; },
@@ -47,10 +48,10 @@ function createFixture() {
   const sandbox = {
     document, location, URL, AbortController, navigator: {}, Node: class {},
     history: {
-      replaceState() {},
+      replaceState(state, title, url) { if (url) currentUrl = new URL(url, currentUrl); },
       pushState(state, title, url) { currentUrl = new URL(url, currentUrl); },
     },
-    scrollY: 0, scrollTo() {}, addEventListener() {},
+    scrollY: 0, scrollTo() {}, addEventListener(type, handler) { windowHandlers.set(type, handler); },
     matchMedia: (query) => ({ matches: query.includes('prefers-reduced-motion') }),
     CustomEvent: class { constructor(type) { this.type = type; } },
     DOMParser: class {
@@ -108,7 +109,8 @@ function createFixture() {
     assert.deepEqual(events, Array(navigations).fill('lily:before-page-swap'));
     assert.deepEqual(fallbacks, []);
   };
-  return { requests, fallbacks, app, rootElement, context, location, link, click, hover, flush, respond, assertSettled };
+  return { requests, fallbacks, app, rootElement, context, location, link, click, hover, flush, respond, assertSettled,
+    popstate: event => windowHandlers.get('popstate')(event) };
 }
 
 {
@@ -178,4 +180,14 @@ for (const failure of ['network', 'http', 'missing-app']) {
   assert.equal(fixture.context.initialized, 0);
 }
 
-console.log('PJAX regression passed: repeated-route cancellation, A-to-B cancellation, completed-page revisit cache, pending hover prefetch reuse, and network/HTTP/missing-container fallbacks with navigation state cleanup.');
+// In-place search URL edits retain the same document for anchor/back traversal.
+{
+  const fixture = createFixture('https://example.invalid/search/?q=Python&mode=article');
+  fixture.context.history.replaceState({ scroll: 50 }, '', '/search/?q=Netdata&mode=article');
+  fixture.context.document.dispatchEvent(new fixture.context.CustomEvent('lily:search-url-change'));
+  fixture.popstate({ state: { scroll: 50 } });
+  await fixture.flush();
+  assert.equal(fixture.requests.length, 0, 'anchor/back within the edited search must not fetch and replace its DOM');
+  assert.deepEqual(fixture.app.children, ['initial']);
+}
+console.log('PJAX regression passed: navigation cancellation/cache/prefetch, error fallbacks, state cleanup, and edited search URL anchor/back handling.');
