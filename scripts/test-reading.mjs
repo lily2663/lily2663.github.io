@@ -55,4 +55,25 @@ await checkCopy('ok');
 await checkCopy('ok', false);
 await checkCopy('rejected');
 await checkCopy('unavailable');
-console.log('Reading regression passed: article index, TOC rendering, local fonts, reserved image dimensions, configuration contract, and 4 clipboard cases.');
+
+// Read the preference on each activation, including changes made while open.
+const siteSource = read('themes/lily-epitaph/assets/js/site.js');
+const backToTop = siteSource.match(/topButton\?\.addEventListener\('click', \(\) => \{[\s\S]*?\n  \}\);/)?.[0];
+assert.ok(backToTop);
+let reduced = false;
+let returnToTop;
+const scrolls = [];
+vm.runInNewContext(backToTop, {
+  topButton: { addEventListener(type, listener) { assert.equal(type, 'click'); returnToTop = listener; } },
+  matchMedia(query) { assert.equal(query, '(prefers-reduced-motion: reduce)'); return { matches: reduced }; },
+  scrollTo(options) { scrolls.push({ ...options }); },
+});
+returnToTop();
+reduced = true;
+returnToTop();
+reduced = false;
+returnToTop();
+assert.deepEqual(scrolls, [
+  { top: 0, behavior: 'smooth' }, { top: 0, behavior: 'auto' }, { top: 0, behavior: 'smooth' },
+]);
+console.log('Reading regression passed: article index, TOC rendering, local fonts, reserved image dimensions, configuration contract, 4 clipboard cases, and changing reduced-motion preference.');

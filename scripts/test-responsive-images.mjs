@@ -19,7 +19,7 @@ assert.ok(sourceEntries.length > 0);
 for (const [url, entry] of sourceEntries) {
   const source = fs.readFileSync(path.join(root, 'static', `.${url}`));
   assert.equal(hash(source), entry.sha256, `${url}: manifest belongs to this source`);
-  assert.ok(url.startsWith('/assets/img/optimized/'));
+  assert.ok(url.startsWith('/assets/img/') && !url.startsWith('/assets/img/responsive/'));
   assert.deepEqual(entry.candidates.map((candidate) => candidate.width), entry.candidates.map((candidate) => candidate.width).sort((a, b) => a - b));
   for (const candidate of entry.candidates) {
     assert.ok(candidate.width < entry.width, 'candidate never upscales the source');
@@ -53,7 +53,9 @@ function put(relative, bytes) {
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, bytes);
 }
-const [sourceUrl, entry] = sourceEntries.find(([, value]) => value.width > 960) || sourceEntries[0];
+const [sourceUrl, entry] = sourceEntries.find(([url, value]) => url.endsWith('.png') && !url.startsWith('/assets/img/optimized/') && value.width > 960)
+  || sourceEntries.find(([, value]) => value.width > 960) || sourceEntries[0];
+const bundleName = `bundle${path.extname(sourceUrl)}`;
 put(`static${sourceUrl}`, fs.readFileSync(path.join(root, `static${sourceUrl}`)));
 for (const candidate of entry.candidates) put(`static${candidate.url}`, fs.readFileSync(path.join(root, `static${candidate.url}`)));
 put('data/image_variants.json', JSON.stringify(manifest));
@@ -62,8 +64,8 @@ put('layouts/_default/_markup/render-image.html', fs.readFileSync(path.join(root
 put('layouts/_default/single.html', '{{ .Content }}');
 put('layouts/index.html', 'Fixture');
 put('layouts/_default/list.html', 'List');
-put('content/posts/fixture/index.md', `---\ntitle: Image fixture\ndate: 2020-01-01\n---\n![responsive](${sourceUrl})\n\n![bundle](bundle.webp)\n\n![remote](https://images.example.invalid/remote.webp)\n\n![remote-collision](https://images.example.invalid${sourceUrl})\n\n![protocol-relative-collision](//images.example.invalid${sourceUrl})\n\n![missing](/assets/img/optimized/missing.webp)\n`);
-put('content/posts/fixture/bundle.webp', fs.readFileSync(path.join(root, `static${sourceUrl}`)));
+put('content/posts/fixture/index.md', `---\ntitle: Image fixture\ndate: 2020-01-01\n---\n![responsive](${sourceUrl})\n\n![bundle](${bundleName})\n\n![remote](https://images.example.invalid/remote.webp)\n\n![remote-collision](https://images.example.invalid${sourceUrl})\n\n![protocol-relative-collision](//images.example.invalid${sourceUrl})\n\n![missing](/assets/img/optimized/missing.webp)\n`);
+put(`content/posts/fixture/${bundleName}`, fs.readFileSync(path.join(root, `static${sourceUrl}`)));
 const bundledHugo = path.join(root, '.tools/hugo-0.165.0/hugo.exe');
 const hugo = process.env.LILY_TEST_HUGO_PATH || process.env.LILY_HUGO_PATH || (fs.existsSync(bundledHugo) ? bundledHugo : 'hugo');
 function build(name) {
@@ -76,7 +78,7 @@ const initial = build('initial');
 assert.ok(initial.find((image) => image.alt === 'responsive').srcset);
 const bundle = initial.find((image) => image.alt === 'bundle');
 assert.ok(bundle.srcset);
-assert.equal(bundle['data-original-src'], '/posts/fixture/bundle.webp');
+assert.equal(bundle['data-original-src'], `/posts/fixture/${bundleName}`);
 for (const alt of ['missing', 'remote', 'remote-collision', 'protocol-relative-collision']) {
   const image = initial.find((image) => image.alt === alt);
   assert.ok(image.src);
@@ -88,8 +90,13 @@ for (const alt of ['missing', 'remote', 'remote-collision', 'protocol-relative-c
 if (process.argv.includes('--check-generator')) {
   // Opt-in local encoder coverage; normal CI only needs Hugo and shipped files.
   for (const [name, fields] of [['draft', 'draft: true'], ['future', 'date: 2999-01-01'], ['protected', 'protected: true']]) {
-    put(`content/posts/${name}/index.md`, `---\ntitle: ${name}\n${fields}\n---\n![ignored](/assets/img/optimized/${name}.webp)\n`);
+    put(`content/posts/${name}/index.md`, `---\ntitle: ${name}\n${fields}\n---\n![ignored](/assets/img/${name}${path.extname(sourceUrl)})\n`);
+    put(`static/assets/img/${name}${path.extname(sourceUrl)}`, fs.readFileSync(path.join(root, `static${sourceUrl}`)));
   }
+  const animated = path.join(temporary, 'static/assets/img/animated.png');
+  const animation = spawnSync(process.env.FFMPEG_PATH || 'ffmpeg', ['-y', '-v', 'error', '-f', 'lavfi', '-i', 'testsrc=size=800x450:rate=2', '-frames:v', '2', '-plays', '0', '-f', 'apng', animated], { encoding: 'utf8', windowsHide: true });
+  assert.equal(animation.status, 0, animation.error?.message || animation.stderr);
+  put('content/posts/animation/index.md', '---\ntitle: Animated image\ndate: 2020-01-01\n---\n![animated](/assets/img/animated.png)\n');
   const run = () => {
     const result = spawnSync(process.execPath, [path.join(root, 'scripts/optimize-images.mjs'), '--responsive', '--root', temporary], { encoding: 'utf8', windowsHide: true });
     assert.equal(result.status, 0, result.error?.message || result.stderr || result.stdout);

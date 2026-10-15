@@ -72,7 +72,7 @@ console.log(`Optimized ${replacements.size} referenced images at max ${maxEdge}p
 
 const responsiveWidths = [480, 960, 1440];
 const responsiveQuality = 82;
-const optimizedPrefix = '/assets/img/optimized/';
+const articleImagePrefix = '/assets/img/';
 
 function withoutCodeFences(body) {
   let fence;
@@ -109,7 +109,8 @@ function publishedImageReferences(siteRoot) {
       try {
         const url = new URL(raw, 'https://local.invalid');
         const imagePath = decodeURIComponent(url.pathname);
-        if (raw.startsWith(optimizedPrefix) && imagePath.startsWith(optimizedPrefix)
+        if (raw.startsWith(articleImagePrefix) && imagePath.startsWith(articleImagePrefix)
+            && !imagePath.startsWith(`${articleImagePrefix}responsive/`)
             && !imagePath.split('/').some((part) => part === '..')
             && ['.png', '.jpg', '.jpeg', '.webp'].includes(extname(imagePath).toLowerCase())) urls.add(imagePath);
       } catch {}
@@ -145,8 +146,8 @@ function isAnimated(bytes) {
 }
 
 // Opt in with: node scripts/optimize-images.mjs --responsive
-// This mode only adds smaller candidates for published articles' existing
-// optimized image URLs. It never rewrites Markdown or deletes original files.
+// This mode only adds smaller candidates for published articles' existing local
+// image URLs, including original PNGs. It never rewrites Markdown or deletes originals.
 export function generateResponsiveImages(siteRoot = root) {
   const responsiveRoot = resolve(siteRoot, 'static/assets/img/responsive');
   const manifest = { version: 1, widths: responsiveWidths, quality: responsiveQuality, images: {} };
@@ -155,8 +156,8 @@ export function generateResponsiveImages(siteRoot = root) {
   const urls = publishedImageReferences(siteRoot);
   for (const url of urls) {
     const source = resolve(siteRoot, 'static', `.${url}`);
-    const optimizedRoot = resolve(siteRoot, 'static/assets/img/optimized');
-    if (!source.startsWith(`${optimizedRoot}${sep}`) || !existsSync(source)) continue;
+    const imageRoot = resolve(siteRoot, 'static/assets/img');
+    if (!source.startsWith(`${imageRoot}${sep}`) || !existsSync(source)) continue;
     const bytes = readFileSync(source);
     if (isAnimated(bytes)) continue;
     const info = dimensions(source);
@@ -191,7 +192,7 @@ export function generateResponsiveImages(siteRoot = root) {
   mkdirSync(dirname(manifestPath), { recursive: true });
   const serialized = `${JSON.stringify(manifest, null, 2)}\n`;
   if (!existsSync(manifestPath) || readFileSync(manifestPath, 'utf8') !== serialized) writeFileSync(manifestPath, serialized);
-  console.log(`Responsive images: ${urls.length} referenced optimized sources, ${Object.keys(manifest.images).length} with ${candidateCount} smaller candidates; ${bytesSaved} bytes saved across candidates compared with serving each original.`);
+  console.log(`Responsive images: ${urls.length} referenced local sources, ${Object.keys(manifest.images).length} with ${candidateCount} smaller candidates; ${bytesSaved} bytes saved across candidates compared with serving each original.`);
   return manifest;
 }
 
