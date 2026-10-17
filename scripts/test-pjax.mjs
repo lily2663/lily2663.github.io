@@ -12,13 +12,14 @@ function classList() {
   return { add: (...names) => names.forEach((name) => values.add(name)), remove: (...names) => names.forEach((name) => values.delete(name)), contains: (name) => values.has(name) };
 }
 
-function createFixture(initialUrl = 'https://example.invalid/') {
+function createFixture(initialUrl = 'https://example.invalid/', { reducedMotion = true } = {}) {
   const handlers = new Map();
   const windowHandlers = new Map();
   const timers = new Map();
   const requests = [];
   const fallbacks = [];
   const events = [];
+  const anchors = new Map();
   let timerId = 0;
   let currentUrl = new URL(initialUrl);
   const rootElement = { classList: classList() };
@@ -32,7 +33,7 @@ function createFixture(initialUrl = 'https://example.invalid/') {
   const progress = { classList: classList(), offsetWidth: 1 };
   const document = {
     documentElement: rootElement, body: { dataset: {} }, title: 'Initial',
-    getElementById: (id) => id === 'app' ? app : null,
+    getElementById: (id) => id === 'app' ? app : anchors.get(id) || null,
     querySelector: (selector) => selector === '#navigation-progress' ? progress : null,
     querySelectorAll: () => [],
     addEventListener: (type, handler) => handlers.set(type, handler),
@@ -52,7 +53,7 @@ function createFixture(initialUrl = 'https://example.invalid/') {
       pushState(state, title, url) { currentUrl = new URL(url, currentUrl); },
     },
     scrollY: 0, scrollTo() {}, addEventListener(type, handler) { windowHandlers.set(type, handler); },
-    matchMedia: (query) => ({ matches: query.includes('prefers-reduced-motion') }),
+    matchMedia: (query) => ({ matches: query.includes('prefers-reduced-motion') && reducedMotion }),
     CustomEvent: class { constructor(type) { this.type = type; } },
     DOMParser: class {
       parseFromString(html) {
@@ -110,7 +111,15 @@ function createFixture(initialUrl = 'https://example.invalid/') {
     assert.deepEqual(fallbacks, []);
   };
   return { requests, fallbacks, app, rootElement, context, location, link, click, hover, flush, respond, assertSettled,
-    popstate: event => windowHandlers.get('popstate')(event) };
+    anchor(id) {
+      const anchor = { scrolls: 0, scrollIntoView() { this.scrolls += 1; } };
+      anchors.set(id, anchor);
+      return anchor;
+    },
+    popstate(event, url) {
+      if (url) currentUrl = new URL(url, currentUrl);
+      windowHandlers.get('popstate')(event);
+    } };
 }
 
 {
@@ -190,4 +199,58 @@ for (const failure of ['network', 'http', 'missing-app']) {
   assert.equal(fixture.requests.length, 0, 'anchor/back within the edited search must not fetch and replace its DOM');
   assert.deepEqual(fixture.app.children, ['initial']);
 }
-console.log('PJAX regression passed: navigation cancellation/cache/prefetch, error fallbacks, state cleanup, and edited search URL anchor/back handling.');
+
+// A history traversal within the visible article wins over an unfinished route.
+// Cover both the network wait and the leave animation after the response arrives.
+for (const phase of ['fetch', 'leave']) {
+  const fixture = createFixture('https://example.invalid/posts/example/#details', { reducedMotion: false });
+  fixture.click(fixture.link('/about/'));
+  if (phase === 'leave') {
+    fixture.respond(0, '/about/');
+    for (let turn = 0; turn < 12; turn += 1) await Promise.resolve();
+    assert.equal(fixture.app.classList.contains('leaving'), true, 'response is waiting for the leave animation');
+  }
+  fixture.popstate({ state: { scroll: 120 } }, '/posts/example/');
+  if (phase === 'fetch') fixture.respond(0, '/about/');
+  await fixture.flush();
+  assert.equal(fixture.requests[0].aborted, true, `${phase}: Back cancels the unfinished navigation`);
+  assert.equal(fixture.location.pathname, '/posts/example/');
+  assert.deepEqual(fixture.app.children, ['initial'], `${phase}: late navigation cannot replace the retained article`);
+  assert.equal(fixture.app.classList.contains('leaving'), false);
+  assert.equal(fixture.app.attributes.has('aria-busy'), false);
+  assert.equal(fixture.rootElement.classList.contains('is-navigating'), false);
+  assert.equal(fixture.context.initialized, 0);
+  assert.deepEqual(fixture.fallbacks, []);
+}
+
+// Choosing a heading while another route loads is also a new navigation intent.
+{
+  const fixture = createFixture('https://example.invalid/posts/example/');
+  const anchor = fixture.anchor('details');
+  fixture.click(fixture.link('/about/'));
+  fixture.click(fixture.link('#details'));
+  fixture.respond(0, '/about/');
+  await fixture.flush();
+  assert.equal(fixture.requests[0].aborted, true);
+  assert.equal(fixture.location.href, 'https://example.invalid/posts/example/#details');
+  assert.equal(anchor.scrolls, 1);
+  assert.deepEqual(fixture.app.children, ['initial']);
+  assert.equal(fixture.app.attributes.has('aria-busy'), false);
+}
+
+// Once the DOM swap commits, heading navigation must preserve deferred setup.
+{
+  const fixture = createFixture();
+  fixture.click(fixture.link('/about/'));
+  fixture.respond(0, '/about/');
+  for (let turn = 0; turn < 12; turn += 1) await Promise.resolve();
+  assert.deepEqual(fixture.app.children, ['/about/']);
+  assert.equal(fixture.context.initialized, 0, 'new page setup is still queued');
+  const anchor = fixture.anchor('details');
+  fixture.click(fixture.link('#details'));
+  await fixture.flush();
+  fixture.assertSettled('/about/');
+  assert.equal(fixture.requests[0].aborted, false, 'a committed page does not need cancelling');
+  assert.equal(anchor.scrolls, 1);
+}
+console.log('PJAX regression passed: navigation cancellation/cache/prefetch, error fallbacks, state cleanup, search URL history, and same-page Back/heading navigation races.');
