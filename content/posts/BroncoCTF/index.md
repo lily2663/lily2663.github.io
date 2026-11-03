@@ -4,6 +4,7 @@ date: "2026-04-03T00:00:00+08:00"
 lastmod: "2026-04-03T00:00:00+08:00"
 slug: "BroncoCTF"
 summary: "1.Unblur Me"
+description: "四道 Web 题：改全局计数跳过前端校验取出打码图片、从配置接口直接读回口令、robots 泄露加密码倒序完成登录，以及绕过关键字过滤后用整数溢出报错注入逐位读库。"
 tags:
   - "Web"
   - "BroncoCTF"

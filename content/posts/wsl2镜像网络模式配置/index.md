@@ -4,6 +4,7 @@ date: "2026-09-14"
 lastmod: 2026-09-14T13:52:53.882Z
 slug: "wsl2镜像网络模式配置"
 summary: "终于修改了这些东西"
+description: "把 WSL2 从默认 NAT 换成镜像网络模式：说明 NAT 下反弹 shell 回连失败与 hosts 只在一端生效的痛点，逐项配置 DNS 隧道、代理继承、回环与防火墙规则并验证双向连通。"
 tags:
   - "linux"
 categories: []

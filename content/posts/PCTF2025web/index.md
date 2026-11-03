@@ -4,6 +4,7 @@ date: "2026-04-03"
 lastmod: "2026-04-03T00:00:00+08:00"
 slug: "PCTF2025web"
 summary: "1.ezupload"
+description: "六道 Web 题：绕过后缀把文件写进模板目录触发渲染、伪造管理员 token、字典跑出弱口令后换读取程序取 flag、全角用户名覆盖注册加整数溢出改价，以及数字爆破进本地文件包含。"
 tags:
   - "Web"
   - "Wp"

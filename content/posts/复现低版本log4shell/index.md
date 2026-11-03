@@ -4,6 +4,7 @@ date: "2026-09-13"
 lastmod: 2026-09-13T13:53:49.115Z
 slug: "复现低版本log4shell"
 summary: ""
+description: "复现低版本 Log4j2 的 JNDI 注入：搭建靶机与 WSL 网络环境，用 JNDI-Injection-Exploit 起 LDAP 服务，通过自定义请求头触发 JNDI 查找并成功反弹 shell。"
 tags:
   - "java"
 categories: []

@@ -4,6 +4,7 @@ date: "2026-04-09T00:00:00+08:00"
 lastmod: "2026-04-09T00:00:00+08:00"
 slug: "JinjaMark"
 summary: "jinjamark"
+description: "从题目给出的合并接口入手做原型链污染、改写黑名单，使首页重新可以执行模板语句，最终完成模板注入取 flag，并附上完整利用脚本。"
 tags:
   - "SSTI"
   - "Jinja2"

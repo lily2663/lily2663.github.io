@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-Publish"
+title: "MazeSec-Publish"
 date: "2026-08-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "Publish"
 summary: "第一次一血"
+description: "按版本号锁定 Gitea 的 CVE 并跑通公开利用，建私有库拿到初始 shell，再从泄露的二进制反编译出隐藏参数完成横向，最后借残留私钥登录 root。"
 tags:
   - "Shell"
   - "maze"

@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-wellplayed"
+title: "MazeSec-wellplayed"
 date: "2026-08-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "wellplayed_lily2663"
 summary: "wellplayed"
+description: "按 WordPress 版本锁定漏洞，绕过证书校验失败后用本机 Nginx 中转打通利用链，读出库里的口令拿到 shell；再借容器共享目录与数据库漏洞取得容器守护进程权限，挂载宿主机根目录取 root flag。"
 tags:
   - "Shell"
   - "PHP"

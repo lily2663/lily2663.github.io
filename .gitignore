@@ -13,6 +13,9 @@ private-content/
 .secrets/
 .lilymap-local.json
 LilyMap.exe
+# 根目录 LilyMap.exe 的本地来源清单与校验和：随 EXE 一起生成，不入库
+LilyMap.manifest.json
+SHA256SUMS.txt
 lilymap.json
 hugo-desk.json
 reports/

@@ -4,6 +4,7 @@ date: "2026-04-06T00:00:00+08:00"
 lastmod: "2026-04-06T00:00:00+08:00"
 slug: "PICKLE"
 summary: "美团CTF2022-easypickle"
+description: "三道 pickle 反序列化题目合集：美团 CTF 2022 easypickle 的 V 指令绕过字母限制、极客大挑战 2024 jwt_pickle 的算法混淆攻击，以及 0X25 马哈鱼商店的三种解法。"
 tags:
   - "Python"
   - "Pickle"

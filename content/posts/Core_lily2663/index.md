@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-Core"
+title: "MazeSec-Core"
 date: "2026-08-12"
 lastmod: "2026-08-12T00:00:00+08:00"
 slug: "Core_lily2663"
 summary: "Core"
+description: "群友靶机 Core 的渗透记录：从 80 端口泄露的源码确认信任目录范围过大，配合关键脚本权限配置失误，完成从 Web 到 root 的提权。"
 tags:
   - "Shell"
 params:

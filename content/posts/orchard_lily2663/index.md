@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-orchard"
+title: "MazeSec-orchard"
 date: "2026-08-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "orchard_lily2663"
 summary: "orchard"
+description: "备份目录泄露数据库，跑出后台口令后进入导出功能触发 Jinja2 注入，再借免密 find 换成应用账号，利用日志目录软链让 root 脚本把后门写进 passwd。"
 tags:
   - "Shell"
 params:

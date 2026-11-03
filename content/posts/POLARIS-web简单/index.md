@@ -4,6 +4,7 @@ date: "2026-04-06T00:00:00+08:00"
 lastmod: "2026-04-06T00:00:00+08:00"
 slug: "POLARIS-web简单"
 summary: "1.only real"
+description: "七道 Web 题：JWT 密钥爆破后伪造身份、用短标签绕过过滤读 flag，另含路径拼接、属性覆盖改配置、uid 查询注入、原型污染与桌面扩展打包等考点。"
 tags:
   - "Web"
   - "POLARIS"

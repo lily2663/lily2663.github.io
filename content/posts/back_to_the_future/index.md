@@ -4,6 +4,7 @@ date: "2026-04-09T00:00:00+08:00"
 lastmod: "2026-04-09T00:00:00+08:00"
 slug: "back_to_the_future"
 summary: "[比较复杂的/.git泄露]"
+description: "git 泄露的进阶利用：直连目录被禁后改为手工抓取仓库对象文件，沿日志找到提交，再逐层取出 tree 与 blob，最终定位到存 flag 的文件。"
 tags:
   - "Web"
   - "Git Leak"

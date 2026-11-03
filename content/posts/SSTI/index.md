@@ -4,6 +4,7 @@ date: "2026-03-09"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "SSTI"
 summary: ""
+description: "从 Flask 模板渲染讲起，梳理模板注入的成因与常用利用链，逐条记录靶场里对定界符、中括号、引号、下划线、点与数字的绕过手法，并对比 fenjing 在有源码与无源码下的打法。"
 tags:
   - "Python"
   - "HTML"

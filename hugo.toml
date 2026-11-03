@@ -13,9 +13,12 @@ ignoreLogs = ["warning-goldmark-raw-html"]
 
 [params]
 subtitle = "die die die"
-description = "记录"
+description = "记录 CTF 靶机渗透与 Web 安全的学习笔记，包含打点思路、提权过程与漏洞复现。"
 author = "lily"
 avatar = "/assets/img/optimized/b_d06ff1a0814bc6d063e847e30ce0fd8b.webp"
+# 站点默认分享图（1200×630）。放在 assets/share/ 便于 Hugo 读取真实尺寸；
+# 未给文章单独设置 shareImage 时，公开页面用它而不是方形头像。
+shareImage = "/share/lily-house.png"
 
 favicon = ""
 [params.theme]

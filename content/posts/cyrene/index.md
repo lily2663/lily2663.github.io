@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-Cyrene"
+title: "MazeSec-Cyrene"
 date: "2026-09-22"
 lastmod: 2026-09-22T02:05:37.304Z
 slug: "cyrene"
 summary: "XSS+Twig SSTI+chromedriver提权手法"
+description: "存储型 XSS 借到管理员会话后进入模板功能，触发 Twig 模板注入拿下 shell；提权阶段利用 chromedriver 能以 root 启动任意可执行文件的特性完成越权。"
 tags:
   - "maze"
   - "shell"

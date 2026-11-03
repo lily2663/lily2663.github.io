@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-Preference"
+title: "MazeSec-Preference"
 date: "2026-08-24"
 lastmod: 2026-08-24T09:47:03.011Z
 slug: "preference"
 summary: "第二次首杀，半夜偶得"
+description: "从静态脚本里找到用户接口，把接受类型改成 xml 后整行数据连同令牌与哈希一起吐出，再用泄露凭据登录 Jenkins，借改 passwd 的脚本造出 uid 0 账户。"
 tags:
   - "shell"
   - "maze"

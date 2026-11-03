@@ -1,0 +1,126 @@
+﻿# ============================================================
+#  llama-swap config - local multi-model switching
+#  Web UI: http://127.0.0.1:18080/ui/
+#  RTX 5060 Laptop 8GB VRAM
+# ============================================================
+healthCheckTimeout: 600
+globalTTL: 600
+globalConcurrencyLimit: 1
+logLevel: info
+logToStdout: both
+startPort: 18100
+
+models:
+  # ---------- general 4B (default workhorse, ~75 tok/s) ----------
+  qwen3-4b:
+    name: "Qwen3-4B-Instruct-2507"
+    description: "General 4B Q4_K_M | full GPU | ~75 tok/s"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/qwen3-4b/Qwen3-4B-Instruct-2507-Q4_K_M.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl all -c 16384 -fa on -ctk q8_0 -ctv q8_0
+      -b 2048 -ub 512 -lm none --jinja --metrics
+      --chat-template-kwargs "{\"enable_thinking\":false}"
+
+  # ---------- code 7B ----------
+  qwen25-coder-7b:
+    name: "Qwen2.5-Coder-7B-Instruct"
+    description: "Code 7B Q4_K_M | 4.4GB"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/ctf/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl all -c 8192 -fa on -ctk q8_0 -ctv q8_0
+      -b 2048 -ub 512 -lm none --jinja --metrics
+
+  # ---------- security 8B ----------
+  foundation-sec-8b:
+    name: "Foundation-Sec-1.1-8B-Instruct"
+    description: "Security-tuned 8B Q4_K_M | 4.6GB"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/lmstudio-community/foundation-sec-1.1-8b-instruct-q4_k_m.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl all -c 8192 -fa on -ctk q8_0 -ctv q8_0
+      -b 2048 -ub 512 -lm none --jinja --metrics
+
+  # ---------- multimodal gemma-4-E4B (vision) ----------
+  gemma4-e4b:
+    name: "gemma-4-E4B-it (Vision)"
+    description: "Multimodal E4B Q4_K_M | 5.0GB | with mmproj"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf
+      --mmproj D:/models/lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl all -c 8192 -fa on -ctk q8_0 -ctv q8_0
+      -b 2048 -ub 512 -lm none --jinja --metrics
+      --chat-template-kwargs "{\"enable_thinking\":false}"
+
+  # ---------- fast gemma-4-E2B ----------
+  gemma4-e2b:
+    name: "gemma-4-E2B-it (Fast)"
+    description: "Light multimodal E2B Q4_K_M | 2.9GB"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/fast/gemma-4-E2B-it-Q4_K_M.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl all -c 8192 -fa on -ctk q8_0 -ctv q8_0
+      -b 2048 -ub 512 -lm none --jinja --metrics
+      --chat-template-kwargs "{\"enable_thinking\":false}"
+
+  # ---------- fast Qwen3.5-2B (thinking off) ----------
+  qwen35-2b:
+    name: "Qwen3.5-2B"
+    description: "Fast 2B Q4_K_M | 1.2GB | no thinking"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/fast/Qwen3.5-2B-Q4_K_M.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl all -c 16384 -fa on -ctk q8_0 -ctv q8_0
+      -b 2048 -ub 512 -lm none --jinja --metrics
+      --chat-template-kwargs "{\"enable_thinking\":false}"
+
+  # ---------- tiny Qwen3-0.6B (thinking off) ----------
+  qwen3-06b:
+    name: "Qwen3-0.6B"
+    description: "Tiny 0.6B Q8_0 | 610MB | no thinking"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/fast/Qwen3-0.6B-Q8_0.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl all -c 8192 -fa on -ctk q8_0 -ctv q8_0
+      -b 2048 -ub 512 -lm none --jinja --metrics
+      --chat-template-kwargs "{\"enable_thinking\":false}"
+
+  # ---------- embedding bge-m3 ----------
+  bge-m3:
+    name: "bge-m3 (Embedding)"
+    description: "Chinese embedding | 418MB"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/embeddings/bge-m3-Q4_K_M.gguf
+      --host 127.0.0.1 --port ${PORT}
+      --embeddings -ngl all -c 8192 -fa on -lm none --metrics
+
+  # ---------- 27B large (over VRAM, partial offload) ----------
+  qwen38-27b:
+    name: "Qwen3.8-27B (Slow/Offload)"
+    description: "27B Q4_K_M | 15.7GB | exceeds VRAM, slow"
+    proxy: "http://127.0.0.1:${PORT}"
+    cmd: >-
+      D:/qwen3.6-a3b/bin/llama-b11562-cuda13/llama-server.exe
+      -m D:/models/lmstudio-community/Qwen3.8-27B-GGUF/Qwen3.8-27B-Q4_K_M.gguf
+      --host 127.0.0.1 --port ${PORT}
+      -ngl 99 -c 4096 -fa on -ctk q8_0 -ctv q8_0
+      -b 1024 -ub 256 -lm none --jinja --metrics
+      --chat-template-kwargs "{\"enable_thinking\":false}"

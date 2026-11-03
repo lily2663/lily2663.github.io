@@ -67,7 +67,18 @@ const moveFixture = (from, to) => {
   assert.ok(sourcePath.startsWith(`${fixtureRoot}${path.sep}`) && targetPath.startsWith(`${fixtureRoot}${path.sep}`), 'fixture moves stay inside the generated temporary directory');
   fs.renameSync(sourcePath, targetPath);
 };
-for (const relative of ['_default/archives.html', '_default/rss.xml', 'partials/footer.html']) {
+// RSS 模板现在依赖 feeds/* 与 seo/* partial，必须一并复制，
+// 否则 fixture 会出现 "partial not found"（属 fixture 准备问题，不是产品缺陷）。
+for (const relative of [
+  '_default/archives.html',
+  '_default/rss.xml',
+  'partials/footer.html',
+  'partials/feeds/published-posts.html',
+  'partials/feeds/item-description.html',
+  'partials/feeds/effective-time.html',
+  'partials/seo/text-budget.html',
+  'partials/seo/description.html',
+]) {
   write(`layouts/${relative}`, fs.readFileSync(path.join(root, 'themes/lily-epitaph/layouts', relative), 'utf8'));
 }
 write('layouts/_default/baseof.html', '<!doctype html><html><body>{{ block "main" . }}{{ end }}{{ partial "footer.html" (dict "Page" . "Config" (site.Params.testFooter | default dict)) }}</body></html>');

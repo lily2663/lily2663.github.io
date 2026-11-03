@@ -71,7 +71,19 @@ function assertMetadata(head, { description, article } = {}) {
   assert.equal(schema.description, actual);
   assert.equal(one(head, 'meta[property="og:title"]').getAttribute('content'), schema.name);
   assert.equal(one(head, 'meta[name="twitter:title"]').getAttribute('content'), schema.name);
-  assert.equal(one(head, 'meta[name="twitter:image"]').getAttribute('content'), one(head, 'meta[property="og:image"]').getAttribute('content'));
+  // 分享图现在按"文章 shareImage → cover → 站点 shareImage → 头像"解析。
+  // fixture 未配置任何分享图来源时，og:image / twitter:image 可以都不输出；
+  // 一旦输出，两者必须一致，且尺寸/类型不得只有一半。
+  const ogImages = head.querySelectorAll('meta[property="og:image"]');
+  const twImages = head.querySelectorAll('meta[name="twitter:image"]');
+  assert.equal(ogImages.length, twImages.length, 'og:image 与 twitter:image 数量必须一致');
+  if (ogImages.length) {
+    assert.equal(ogImages.length, 1, '只允许一个 og:image');
+    assert.equal(one(head, 'meta[name="twitter:image"]').getAttribute('content'), one(head, 'meta[property="og:image"]').getAttribute('content'));
+    const w = head.querySelectorAll('meta[property="og:image:width"]').length;
+    const h = head.querySelectorAll('meta[property="og:image:height"]').length;
+    assert.equal(w, h, 'og:image:width 与 height 必须成对出现');
+  }
   const canonical = one(head, 'link[rel="canonical"]').getAttribute('href');
   assert.match(canonical, /^https?:\/\//);
   assert.equal(one(head, 'meta[property="og:url"]').getAttribute('content'), canonical);
@@ -84,7 +96,9 @@ function assertMetadata(head, { description, article } = {}) {
       assert.equal(schema.headline, schema.name);
       assert.equal(one(head, 'meta[property="article:published_time"]').getAttribute('content'), schema.datePublished);
       assert.equal(one(head, 'meta[property="article:modified_time"]').getAttribute('content'), schema.dateModified);
-      assert.equal(one(head, 'meta[property="og:image"]').getAttribute('content'), schema.image);
+      // schema.image 与 og:image 必须使用同一份解析结果（可能都不存在）
+      const ogImage = ogImages.length ? ogImages[0].getAttribute('content') : null;
+      assert.equal(schema.image ?? null, ogImage, 'JSON-LD image 必须与 og:image 同源');
     }
   }
   return actual;
@@ -178,6 +192,39 @@ home = ["HTML", "RSS"]
   post('other', '', 'A different public article has its own useful description.');
   post('protected', 'protected: true\n', 'PRIVATE_BODY_SENTINEL must never become metadata.');
   post('empty', '', '');
+  // 受保护文章即使显式提供 description / summary，也不得采信（M05）
+  write('content/posts/zz-protected-explicit/index.md', [
+    '---',
+    'title: zz-protected-explicit',
+    'date: 2026-10-01T10:00:00+08:00',
+    'protected: true',
+    'description: "CANARY_DESC_4a91"',
+    'summary: "CANARY_SUM_8c27"',
+    '---',
+    'CANARY_BODY_2f60 must never be published.',
+    '',
+  ].join('\n'));
+  // 自动提取必须剔除块级噪声，但保留行内 code 文字（M03）
+  write('content/posts/zz-blocks/index.md', [
+    '---',
+    'title: zz-blocks',
+    'date: 2026-10-01T10:00:00+08:00',
+    '---',
+    '',
+    '可读首句提到 `session.save_path` 与 `nmap -sV` 两个技术词。',
+    '',
+    '```',
+    'FENCED_CODE_SENTINEL_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    'FENCED_CODE_SENTINEL_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    '```',
+    '',
+    '| 列 | 值 |',
+    '|---|---|',
+    '| TABLE_CELL_SENTINEL | x |',
+    '',
+  ].join('\n'));
+  // 中文超长正文：验证回退预算不超过 160 码点且以单个省略号结尾（M07）
+  post('zz-longzh', '', `开头一句可见文案。${'这是一段用于测试回退预算的中文正文。'.repeat(30)}`);
   write('content/about.md', '---\ntitle: About\n---\nAbout page body should not replace the site fallback.');
   write('content/search.md', '---\ntitle: Search\nlayout: search\n---\nSearch page.');
   const bundledHugo = path.join(root, '.tools/hugo-0.165.0/hugo.exe');
@@ -198,9 +245,33 @@ home = ["HTML", "RSS"]
   assert.match(inferredDescription, /^Public article body has rendered text and multiple whitespace\./);
   assert.ok([...inferredDescription].length <= 161, 'The automatic description is bounded');
   assert.notEqual(assertMetadata(readHead('posts/other/index.html')), inferredDescription);
+
+  // M04/M05：受保护文章的固定公开提示，且显式 description/summary/正文三处 canary 均不出现
+  const LOCK_TEXT = '该文章已加密，需访问网站输入密码查看。';
   const protectedHead = readHead('posts/protected/index.html');
-  assertMetadata(protectedHead, { description: 'Site fallback', article: true });
+  assert.equal(assertMetadata(protectedHead, { description: LOCK_TEXT, article: true }), LOCK_TEXT, '受保护文章使用固定公开提示');
   assert.ok(protectedHead.children.every((node) => !JSON.stringify(node.attributes).includes('PRIVATE_BODY_SENTINEL') && !node.textContent.includes('PRIVATE_BODY_SENTINEL')));
+  const protectedExplicitHead = readHead('posts/zz-protected-explicit/index.html');
+  assert.equal(assertMetadata(protectedExplicitHead, { description: LOCK_TEXT, article: true }), LOCK_TEXT, '显式 description/summary 不得绕过保护占位');
+  const protectedSchema = JSON.parse(one(protectedExplicitHead, 'script[type="application/ld+json"]').textContent);
+  const protectedBlob = JSON.stringify(protectedSchema) + protectedExplicitHead.children.map((n) => JSON.stringify(n.attributes) + n.textContent).join('');
+  for (const canary of ['CANARY_DESC_4a91', 'CANARY_SUM_8c27', 'CANARY_BODY_2f60']) {
+    assert.ok(!protectedBlob.includes(canary), `受保护 canary 不得进入 head: ${canary}`);
+  }
+
+  // M03：块级噪声剔除 + 行内 code 文字保留
+  const blocksDescription = assertMetadata(readHead('posts/zz-blocks/index.html'), { article: true });
+  assert.ok(blocksDescription.includes('session.save_path'), '行内 code 的技术文字应保留');
+  assert.ok(blocksDescription.includes('nmap -sV'), '行内 code 的命令名应保留');
+  assert.ok(!blocksDescription.includes('FENCED_CODE_SENTINEL'), '代码块不得进入摘要');
+  assert.ok(!blocksDescription.includes('TABLE_CELL_SENTINEL'), '表格不得进入摘要');
+
+  // M07：中文超长回退不超过 160 码点，且只有一个省略号
+  const longzhDescription = assertMetadata(readHead('posts/zz-longzh/index.html'), { article: true });
+  assert.ok([...longzhDescription].length <= 160, `自动回退不得超过 160 码点，实际 ${[...longzhDescription].length}`);
+  assert.equal((longzhDescription.match(/…/g) || []).length, 1, '最多一个省略号');
+  assert.ok(longzhDescription.startsWith('开头一句可见文案。'), '应从正文开头提取');
+
   assertMetadata(readHead('posts/empty/index.html'), { description: 'Site fallback', article: true });
   const about = readHead('about/index.html');
   assertMetadata(about, { description: 'Site fallback', article: false });
@@ -267,6 +338,9 @@ slots:
 `;
   write('data/lily/layouts/home.yaml', homeLayout);
   write('data/lily/layouts/global.yaml', 'kind: global\nslots: {}\n');
+  // 固定名单断言（pinned=summary, limit=5, pageSize=2）依赖此处的文章集合。
+  // 本轮为描述/保护边界新增的 fixture 文章必须落在此名单之外，
+  // 因此用 zz- 前缀把它们推到排序末尾，而不是改动既有断言。
   for (let index = 0; index < 12; index += 1) post(`z-extra-${index}`, 'tags: [fixture]\n', `Extra article ${index}.`);
   const paginatedOutput = path.join(fixture, 'paginated');
   build(paginatedOutput);

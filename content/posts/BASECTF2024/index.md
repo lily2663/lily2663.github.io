@@ -4,6 +4,7 @@ date: "2026-04-09T00:00:00+08:00"
 lastmod: "2026-04-09T00:00:00+08:00"
 slug: "BASECTF2024"
 summary: "Basectf"
+description: "分周推进的 Web 题解合集：覆盖 md5 与数组绕过、图片马上传、反序列化构造、alg:none 伪造 JWT、原型链污染清空黑名单与改写函数默认值，末尾另附两道逆向的定位与脱壳。"
 tags:
   - "Web"
   - "BASECTF"

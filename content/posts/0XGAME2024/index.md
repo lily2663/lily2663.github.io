@@ -4,6 +4,7 @@ date: "2026-04-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "0XGAME2024"
 summary: ""
+description: "九道入门 Web 题的解题记录：从注释里分段藏的 flag、登录弱口令爆破起步，经 dc 表达式命令执行、phps 源码泄露，到模板注入沿环境变量找回 flag、无过滤 XXE 读文件。"
 tags:
   - "WP"
 params:

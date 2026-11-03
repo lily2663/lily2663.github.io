@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-Md"
+title: "MazeSec-Md"
 date: "2026-08-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "Md_lily2663"
 summary: "Md"
+description: "借 Glow 编辑器的读文件快捷键翻出脚本与私钥，再利用提示文件的目录属主可写，把 root 创建的 banner 换成指向密码文件的软链；随后用带参数的 su 打开配置逃逸该编辑器改写 passwd。"
 tags:
   - "Shell"
 params:

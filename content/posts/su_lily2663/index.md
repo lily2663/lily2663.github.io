@@ -1,9 +1,11 @@
 ---
-title: "群友靶机-su"
+title: "MazeSec-su"
 date: "2026-10-15"
 lastmod: 2026-10-15T14:35:04.355Z
 slug: "su_lily2663"
 summary: "绕得有点远"
+description: "记录群友靶机 su 的完整打点过程：从端口与目录枚举、phpinfo 泄露，到利用 PHP Session Upload Progress 条件竞争拿下受限 webshell，最后借 SUID 文件覆盖实现提权。"
+shareImage: "/share/su-lily2663.png"
 tags:
   - "maze"
   - "linux"

@@ -1,9 +1,11 @@
 ---
-title: "群友靶机-Netdata2"
+title: "MazeSec-Netdata2"
 date: "2026-08-26"
 lastmod: 2026-08-26T09:30:14.363Z
 slug: "netdata2"
 summary: "python缓存劫持"
+description: "群友靶机 Netdata2 的渗透过程：扩大端口扫描后发现 netdata 与 Werkzeug 服务，借助 __pycache__ 目录可写覆盖 pyc 字节码，劫持 root 定时备份任务完成提权。"
+shareImage: "/share/netdata2.png"
 tags:
   - "shell"
   - "maze"

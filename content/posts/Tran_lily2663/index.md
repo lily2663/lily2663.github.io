@@ -1,9 +1,10 @@
 ---
-title: "群友靶机-Tran"
+title: "MazeSec-Tran"
 date: "2026-08-15"
 lastmod: "2026-08-15T00:00:00+08:00"
 slug: "Tran_lily2663"
 summary: "Tran"
+description: "扩大端口范围后用弱口令进入 6080 服务并翻到 flag；root 阶段取到的私钥经过编码处理，最终借靶机能出网把内容转到公开专栏再取回，完成私钥登录。"
 tags:
   - "Shell"
 params:
